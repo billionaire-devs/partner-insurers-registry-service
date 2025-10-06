@@ -14,8 +14,9 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres-username-test
+          POSTGRES_PASSWORD: postgres-secret-test
+          POSTGRES_DB: partner-insurers-service-db-test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
