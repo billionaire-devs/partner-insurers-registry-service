@@ -9,9 +9,9 @@ updates:
       time: "05:00"
     open-pull-requests-limit: 10
     reviewers:
-      - "@MelSardes"
+      - "MelSardes"
     assignees:
-      - "@MelSardes"
+      - "MelSardes"
     commit-message:
       prefix: "build"
       include: "scope"
@@ -22,12 +22,12 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "04:00"
+      time: "05:00"
     open-pull-requests-limit: 5
     reviewers:
-      - "@MelSardes"
+      - "MelSardes"
     assignees:
-      - "@MelSardes"
+      - "MelSardes"
     commit-message:
       prefix: "docker"
       include: "scope"
@@ -38,12 +38,12 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "04:00"
+      time: "05:00"
     open-pull-requests-limit: 5
     reviewers:
-      - "@MelSardes"
+      - "MelSardes"
     assignees:
-      - "@MelSardes"
+      - "MelSardes"
     commit-message:
       prefix: "ci"
       include: "scope"
