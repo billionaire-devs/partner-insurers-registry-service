@@ -8,6 +8,7 @@ class PartnerInsurersServiceApplicationTests {
 
     @Test
     fun contextLoads() {
+        // Test context loading
+        assert(true)
     }
-
 }

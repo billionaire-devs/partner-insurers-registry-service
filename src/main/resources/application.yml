@@ -1,3 +1,7 @@
 spring:
   application:
     name: partner-insurers-service
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/partner-insurers-service
+    username: postgres-username
+    password: postgres-secret
