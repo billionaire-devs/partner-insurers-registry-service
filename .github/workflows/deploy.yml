@@ -41,7 +41,7 @@ jobs:
     environment: staging
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Download Docker image
       uses: actions/download-artifact@v4
@@ -79,7 +79,7 @@ jobs:
     needs: [deploy-staging]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Download Docker image
       uses: actions/download-artifact@v4
