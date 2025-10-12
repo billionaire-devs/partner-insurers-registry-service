@@ -8,6 +8,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import org.springframework.stereotype.Service
 
+@Suppress("TooGenericExceptionCaught")
 @Service
 class SpringEventPublisher(
     private val eventHandlers: List<DomainEventHandler<DomainEvent>>
