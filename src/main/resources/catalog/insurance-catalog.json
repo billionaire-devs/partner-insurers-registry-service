@@ -1,0 +1,190 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2025-10-12T00:00:00Z",
+  "families": [
+    {
+      "code": "PER",
+      "label": "Assurances de personnes",
+      "description": "Regroupe les assurances liées aux individus : santé, vie, décès, retraite, etc.",
+      "branches": [
+        {
+          "code": "SANTE",
+          "label": "Assurance santé",
+          "description": "Remboursement des soins, hospitalisation et prestations médicales."
+        },
+        {
+          "code": "VIE",
+          "label": "Assurance vie",
+          "description": "Épargne et capital en cas de décès ou de survie."
+        },
+        {
+          "code": "DECES",
+          "label": "Assurance décès / invalidité",
+          "description": "Garantie financière en cas de décès ou d'invalidité."
+        },
+        {
+          "code": "RETRAITE",
+          "label": "Assurance retraite complémentaire",
+          "description": "Constitution d’un capital ou d’une rente pour la retraite."
+        },
+        {
+          "code": "ACCIDENT",
+          "label": "Individuelle accident",
+          "description": "Garantie contre les conséquences d’un accident corporel."
+        },
+        {
+          "code": "VOYAGE",
+          "label": "Assistance / voyage",
+          "description": "Couvre les risques liés aux déplacements, assistance et annulation."
+        }
+      ]
+    },
+    {
+      "code": "BIEN",
+      "label": "Assurances de biens",
+      "description": "Protège les biens matériels contre divers risques (incendie, vol, dégâts des eaux, etc.).",
+      "branches": [
+        {
+          "code": "AUTO",
+          "label": "Assurance automobile",
+          "description": "Responsabilité civile automobile, dommages, vol, incendie, tous risques."
+        },
+        {
+          "code": "HABITATION",
+          "label": "Assurance habitation",
+          "description": "Multirisque habitation : incendie, vol, dégâts des eaux, bris de glace."
+        },
+        {
+          "code": "ENTREPRISE",
+          "label": "Multirisque professionnelle",
+          "description": "Protection des locaux, machines, équipements et stocks d'entreprise."
+        },
+        {
+          "code": "INFORMATIQUE",
+          "label": "Assurance informatique",
+          "description": "Couvre le matériel, les logiciels et les données contre les sinistres ou attaques."
+        },
+        {
+          "code": "INCENDIE",
+          "label": "Assurance incendie",
+          "description": "Couvre les bâtiments, entrepôts et biens contre les dommages dus au feu."
+        }
+      ]
+    },
+    {
+      "code": "RESP",
+      "label": "Assurances de responsabilité",
+      "description": "Protège contre les dommages causés à autrui dans la vie privée ou professionnelle.",
+      "branches": [
+        {
+          "code": "RC_AUTO",
+          "label": "Responsabilité automobile",
+          "description": "Dommages causés à autrui lors de l’usage d’un véhicule."
+        },
+        {
+          "code": "RC_PRO",
+          "label": "Responsabilité professionnelle",
+          "description": "Erreurs, omissions ou fautes professionnelles entraînant un préjudice."
+        },
+        {
+          "code": "RC_GEN",
+          "label": "Responsabilité générale",
+          "description": "Dommages causés à autrui dans la vie privée."
+        }
+      ]
+    },
+    {
+      "code": "FIN",
+      "label": "Assurances financières",
+      "description": "Garantit les pertes pécuniaires, crédits et engagements financiers.",
+      "branches": [
+        {
+          "code": "CAUTION",
+          "label": "Assurance caution",
+          "description": "Garanties financières et engagements de caution."
+        },
+        {
+          "code": "CREDIT",
+          "label": "Assurance crédit",
+          "description": "Couvre les impayés et défauts de paiement."
+        },
+        {
+          "code": "PERTE_EXPLOI",
+          "label": "Perte d’exploitation",
+          "description": "Compense les pertes de revenus après un sinistre."
+        }
+      ]
+    },
+    {
+      "code": "TRANSP",
+      "label": "Assurances de transport",
+      "description": "Couvre les risques liés au transport de marchandises ou de personnes.",
+      "branches": [
+        {
+          "code": "MARITIME",
+          "label": "Transport maritime",
+          "description": "Couvre navires, cargaisons et risques maritimes."
+        },
+        {
+          "code": "AERIEN",
+          "label": "Transport aérien",
+          "description": "Assure les cargaisons et appareils aériens."
+        },
+        {
+          "code": "TERRESTRE",
+          "label": "Transport terrestre",
+          "description": "Assure les marchandises routières et ferroviaires."
+        }
+      ]
+    },
+    {
+      "code": "AGRI",
+      "label": "Assurances agricoles",
+      "description": "Protège les exploitations, récoltes, bétail et matériel agricole.",
+      "branches": [
+        {
+          "code": "CULTURE",
+          "label": "Assurance récoltes",
+          "description": "Couvre les pertes de production (grêle, sécheresse, inondation)."
+        },
+        {
+          "code": "ELEVAGE",
+          "label": "Assurance bétail",
+          "description": "Protège le bétail contre la mortalité ou les maladies."
+        },
+        {
+          "code": "EQUIPEMENT",
+          "label": "Assurance matériel agricole",
+          "description": "Couvre les équipements, engins et installations agricoles."
+        }
+      ]
+    },
+    {
+      "code": "SPEC",
+      "label": "Assurances spéciales",
+      "description": "Couvre des risques particuliers, techniques ou émergents.",
+      "branches": [
+        {
+          "code": "CYBER",
+          "label": "Assurance cyber",
+          "description": "Protection contre les attaques informatiques, fuites de données et rançongiciels."
+        },
+        {
+          "code": "POLITIQUE",
+          "label": "Assurance risques politiques",
+          "description": "Protège contre l’instabilité, la confiscation, l’embargo ou la guerre."
+        },
+        {
+          "code": "EVENEMENT",
+          "label": "Assurance événementiel",
+          "description": "Couvre l’annulation, l’interruption ou les dommages lors d’événements."
+        },
+        {
+          "code": "ENVIRON",
+          "label": "Assurance environnementale",
+          "description": "Couvre la pollution, les dommages écologiques et les risques environnementaux."
+        }
+      ]
+    }
+  ]
+}
