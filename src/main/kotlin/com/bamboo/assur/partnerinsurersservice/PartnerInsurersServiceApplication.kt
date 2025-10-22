@@ -8,20 +8,7 @@ import org.springframework.web.bind.annotation.RestController
 @SpringBootApplication
 class PartnerInsurersServiceApplication
 
+@Suppress("SpreadOperator")
 fun main(args: Array<String>) {
     runApplication<PartnerInsurersServiceApplication>(*args)
-}
-
-@RestController
-class HealthController {
-
-    @GetMapping("/")
-    fun index(): String {
-        return "Partner Insurers Service"
-    }
-
-    @GetMapping("/health")
-    fun health(): String {
-        return "OK"
-    }
 }

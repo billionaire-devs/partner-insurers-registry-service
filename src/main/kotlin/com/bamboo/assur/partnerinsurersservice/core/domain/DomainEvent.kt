@@ -1,5 +1,7 @@
 package com.bamboo.assur.partnerinsurersservice.core.domain
-
+import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -20,10 +22,14 @@ import kotlin.uuid.Uuid
  * @param occurredOn The timestamp indicating when the event occurred, defaulting to the current system time.
  */
 @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
-class DomainEvent(
-    val eventId: Uuid = Uuid.Companion.random(),
-    val aggregateId: Any,
+@Serializable
+abstract class DomainEvent(
+    @Contextual
+    val eventId: DomainEntityId = DomainEntityId(Uuid.random()),
+    @Contextual
+    val aggregateId: DomainEntityId,
     val aggregateType: String,
     val eventType: String,
+    @Contextual
     val occurredOn: Instant = Clock.System.now(),
 )

@@ -47,7 +47,7 @@ abstract class AggregateRoot(id: DomainEntityId): Model(id = id) {
      *              the aggregate root.
      */
     protected fun addDomainEvent(event: DomainEvent) {
-        if (domainEvents.none { it.eventId == event.eventId }) {
+        if (domainEvents.none { it.eventId.value == event.eventId.value }) {
             domainEvents.add(event)
         }
     }
