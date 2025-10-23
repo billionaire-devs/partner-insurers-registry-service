@@ -1,11 +1,11 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.queries
 
+import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 data class PartnerInsurerSummary(
-    val id: Uuid,
+    val id: UUID,
     val partnerInsurerCode: String,
     val legalName: String,
     val taxIdentificationNumber: String,
