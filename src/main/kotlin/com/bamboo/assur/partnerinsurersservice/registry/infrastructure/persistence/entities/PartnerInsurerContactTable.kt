@@ -1,4 +1,4 @@
-@file:OptIn(kotlin.uuid.ExperimentalUuidApi::class)
+@file:OptIn(ExperimentalUuidApi::class)
 
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities
 
@@ -31,7 +31,7 @@ data class PartnerInsurerContactTable(
     val deletedAt: Instant?,
 ) {
     fun toDomain() = Contact(
-        id = DomainEntityId(id.toKotlinUuid()),
+        id = DomainEntityId(id),
         fullName = fullName,
         email = Email(email),
         phone = Phone(phone),

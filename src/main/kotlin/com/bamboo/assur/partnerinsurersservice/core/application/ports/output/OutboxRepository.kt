@@ -6,16 +6,16 @@ import org.springframework.data.r2dbc.repository.Modifying
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.data.repository.query.Param
+import java.util.UUID
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
+import java.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 /**
  * Repository for accessing and updating outbox messages using Kotlin coroutines.
  */
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
-interface OutboxRepository : CoroutineCrudRepository<OutboxMessagesTable, Uuid> {
+interface OutboxRepository : CoroutineCrudRepository<OutboxMessagesTable, UUID> {
 
     /**
      * Returns a flow of unprocessed messages in creation order, limited by [batchSize].
@@ -48,7 +48,7 @@ interface OutboxRepository : CoroutineCrudRepository<OutboxMessagesTable, Uuid> 
         """
     )
     suspend fun markAsProcessed(
-        @Param("id") id: Uuid,
+        @Param("id") id: UUID,
         @Param("processedAt") processedAt: Instant,
         @Param("error") error: String? = null
     ): Int

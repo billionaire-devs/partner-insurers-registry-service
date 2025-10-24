@@ -1,17 +1,18 @@
 package com.bamboo.assur.partnerinsurersservice.core.infrastructure.outbox
 
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.serializer
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.util.UUID
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlin.uuid.toJavaUuid
+import kotlin.reflect.full.createType
+import java.time.Instant
 
 /**
  * Represents a message persisted in the transactional outbox.
@@ -45,10 +46,10 @@ data class OutboxMessagesTable(
     val eventType: String,
 
     @Column("payload")
-    val payload: String,
+    val payload: JsonElement,
 
     @Column("created_at")
-    val createdAt: Instant = Clock.System.now(),
+    val createdAt: Instant,
 
     @Column("processed")
     var processed: Boolean = false,
@@ -63,26 +64,29 @@ data class OutboxMessagesTable(
         /**
          * Factory to create an [OutboxMessagesTable] with a serialized payload using Kotlinx.serialization.
          *
-         * @param T The payload/event type which must be serializable.
          * @param aggregateId Aggregate identifier related to the event.
          * @param aggregateType Aggregate type name.
          * @param eventType Event type name.
          * @param payload Event instance to serialize and store.
          * @param json Configured Kotlinx [Json] instance (defaults to permissive one).
          */
-        inline fun <reified T> create(
-            aggregateId: Uuid,
+        fun create(
+            aggregateId: UUID,
             aggregateType: String,
             eventType: String,
-            payload: T,
+            payload: Any,
             json: Json = Json
         ): OutboxMessagesTable {
+            // Resolve the serializer for the concrete runtime type to avoid manual polymorphic registration
+            val ktype = payload::class.createType()
+            val runtimeSerializer = json.serializersModule.serializer(ktype)
             return OutboxMessagesTable(
                 id = Uuid.random().toJavaUuid(),
-                aggregateId = aggregateId.toJavaUuid(),
+                aggregateId = aggregateId,
                 aggregateType = aggregateType,
                 eventType = eventType,
-                payload = json.encodeToString(payload)
+                payload = json.encodeToJsonElement(runtimeSerializer, payload),
+                createdAt = Instant.now(),
             )
         }
     }

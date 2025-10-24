@@ -32,12 +32,11 @@ class PartnerInsurerController(
         request: CreatePartnerInsurerRequestDto,
     ): ResponseEntity<Any> {
         val command = request.toCommand()
-
         return when (val result = createCommandHandler.handle(command)) {
             is Result.Success -> ResponseEntity.ok(mapOf("id" to result.value))
             is Result.Failure -> ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(mapOf("Error" to result.message))
+                .body(mapOf("error" to result.message))
         }
     }
 
@@ -59,3 +58,4 @@ class PartnerInsurerController(
         }
     }
 }
+

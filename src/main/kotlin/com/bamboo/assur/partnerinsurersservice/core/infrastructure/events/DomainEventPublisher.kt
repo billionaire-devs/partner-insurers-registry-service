@@ -1,13 +1,15 @@
 package com.bamboo.assur.partnerinsurersservice.core.infrastructure.events
 
-import com.bamboo.assur.partnerinsurersservice.core.application.ports.output.OutboxRepository
 import com.bamboo.assur.partnerinsurersservice.core.domain.DomainEvent
 import com.bamboo.assur.partnerinsurersservice.core.infrastructure.outbox.OutboxMessagesTable
 import kotlinx.serialization.json.Json
+import kotlinx.coroutines.reactor.awaitSingle
 import org.slf4j.LoggerFactory
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
 import kotlin.uuid.ExperimentalUuidApi
+import java.util.UUID
 
 /**
  * Publishes domain events using the Transactional Outbox pattern.
@@ -19,8 +21,8 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalUuidApi::class)
 @Component
 class DomainEventPublisher(
-    private val outboxRepository: OutboxRepository,
-    private val json: Json
+    private val json: Json,
+    private val r2dbcEntityTemplate: R2dbcEntityTemplate,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -39,20 +41,45 @@ class DomainEventPublisher(
      */
     @Transactional
     suspend fun publish(event: DomainEvent) {
+        val eventType = event.eventType
+        val aggregateId = event.aggregateId.value
+        var outboxId: UUID? = null
+
         try {
             val outboxMessagesTable = OutboxMessagesTable.create(
-                aggregateId = event.aggregateId.value,
+                aggregateId = aggregateId,
                 aggregateType = event.aggregateType,
-                eventType = event.eventType,
+                eventType = eventType,
                 payload = event,
                 json = json
             )
 
-            outboxRepository.save(outboxMessagesTable)
-            logger.debug("Saved event to outbox: {} - {}", event.eventType, event.aggregateId)
+            outboxId = outboxMessagesTable.id
+
+            // Log creation details (do not log full payload in prod if sensitive)
+            val payloadPreview = try {
+                val s = outboxMessagesTable.payload.toString()
+                if (s.length > 512) s.substring(0, 512) + "..." else s
+            } catch (_: Exception) {
+                "<unserializable-payload>"
+            }
+
+            logger.debug(
+                "Creating outbox message: id={}, aggregateId={}, aggregateType={}, eventType={}, payloadPreview={}",
+                outboxId, aggregateId, outboxMessagesTable.aggregateType, eventType, payloadPreview
+            )
+
+            // Use R2dbcEntityTemplate.insert to force an INSERT of a new outbox row
+            r2dbcEntityTemplate.insert(outboxMessagesTable).awaitSingle()
+
+            logger.debug("Saved event to outbox: {} - {} (outboxId={})", eventType, aggregateId, outboxId)
         } catch (e: Exception) {
-            logger.error("Failed to save event to outbox: {}", event.eventType, e)
-            throw EventPublishingException("Failed to publish event: ${event.eventType}", e)
+            logger.error(
+                "Failed to save event to outbox: {} (aggregateId={}, outboxId={})",
+                eventType, aggregateId, outboxId,
+                e
+            )
+            throw EventPublishingException("Failed to publish event: $eventType", e)
         }
     }
 }

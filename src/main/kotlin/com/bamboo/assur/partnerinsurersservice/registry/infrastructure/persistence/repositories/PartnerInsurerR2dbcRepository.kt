@@ -6,12 +6,12 @@ import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query
 import org.springframework.data.repository.kotlin.CoroutineCrudRepository
 import org.springframework.stereotype.Repository
+import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @Repository
-interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurerTable, Uuid> {
+interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurerTable, UUID> {
 
     @Suppress("LongParameterList")
     @Query("""

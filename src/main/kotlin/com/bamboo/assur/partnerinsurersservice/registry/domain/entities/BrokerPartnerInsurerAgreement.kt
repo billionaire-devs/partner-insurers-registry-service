@@ -11,6 +11,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.until
+import java.util.UUID
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -38,7 +39,7 @@ class BrokerPartnerInsurerAgreement private constructor(
 
     companion object {
         fun create(
-            partnerId: Uuid,
+            partnerId: UUID,
             agreementCode: String?,
             agreementTitle: String,
             branches: Set<InsuranceBranch>,

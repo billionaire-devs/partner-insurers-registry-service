@@ -2,6 +2,7 @@ package com.bamboo.assur.partnerinsurersservice.core.domain
 import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import java.util.UUID
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -25,7 +26,7 @@ import kotlin.uuid.Uuid
 @Serializable
 abstract class DomainEvent(
     @Contextual
-    val eventId: DomainEntityId = DomainEntityId(Uuid.random()),
+    val eventId: DomainEntityId = DomainEntityId(UUID.randomUUID()),
     @Contextual
     val aggregateId: DomainEntityId,
     val aggregateType: String,

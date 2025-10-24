@@ -16,16 +16,11 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
-import org.springframework.data.relational.core.mapping.InsertOnlyProperty
 import org.springframework.data.relational.core.mapping.Table
 import java.util.UUID
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
-import kotlin.uuid.toJavaUuid
-import kotlin.uuid.toKotlinUuid
-
 
 private val json = Json { ignoreUnknownKeys = true }
 
@@ -39,43 +34,42 @@ data class PartnerInsurerTable(
     val legalName: String,
     val taxIdentificationNumber: String,
     val logoUrl: String?,
+    // store address as JSON element so R2DBC custom converters bind it as jsonb
     val address: JsonElement,
     val status: String,
-    @InsertOnlyProperty
-    val createdAt: Instant,
-    val updatedAt: Instant,
-    @Column("deleted_at")
-    val deletedAt: Instant? = null,
+    val createdAt: java.time.Instant,
+    val updatedAt: java.time.Instant,
+    val deletedAt: java.time.Instant? = null,
 ) {
     fun toDomain(contacts: Set<Contact>, agreements: Set<BrokerPartnerInsurerAgreement>) = PartnerInsurer.reconstitute(
-        id = DomainEntityId(id.toKotlinUuid()),
+        id = DomainEntityId(id),
         partnerInsurerCode = partnerInsurerCode,
         legalName = legalName,
         taxIdentificationNumber = TaxIdentificationNumber(taxIdentificationNumber),
         logoUrl = logoUrl?.let { Url(it) },
         contacts = contacts,
-        address = json.decodeFromJsonElement<Address>(address),
+        // decode Address from JsonElement
+        address = json.decodeFromJsonElement(address),
         status = PartnerInsurerStatus.valueOf(status),
         brokerPartnerInsurerAgreements = agreements,
     )
+
     companion object {
         /**
-         * Creates a new [PartnerInsurerTable] instance from a [PartnerInsurer] domain object.
-         * Serves for creating new records in the database.
-         *
-         * @param domain The [PartnerInsurer] domain object to be converted.
-         * @return A new [PartnerInsurerTable] instance with the same values as the given [PartnerInsurer].
+         * Create a [PartnerInsurerTable] from a [PartnerInsurer] domain object (extension function).
+         * Returns a new [PartnerInsurerTable] with values copied from the given domain object.
          */
-        fun PartnerInsurer.fromDomain() = PartnerInsurerTable(
-            id = id.value.toJavaUuid(),
+        fun PartnerInsurer.toEntityTable() = PartnerInsurerTable(
+            id = id.value,
             partnerInsurerCode = partnerInsurerCode,
             legalName = legalName,
             taxIdentificationNumber = taxIdentificationNumber.value,
             logoUrl = logoUrl?.value,
+            // store Address as JsonElement (let R2DBC converters handle jsonb binding)
             address = json.encodeToJsonElement(address),
             status = status.name,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            createdAt = createdAt.toJavaInstant(),
+            updatedAt = updatedAt.toJavaInstant(),
         )
     }
 }

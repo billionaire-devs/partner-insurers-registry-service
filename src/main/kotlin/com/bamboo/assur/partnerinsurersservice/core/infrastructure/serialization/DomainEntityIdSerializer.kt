@@ -19,6 +19,5 @@ object DomainEntityIdSerializer : KSerializer<DomainEntityId> {
         PrimitiveKind.STRING
     )
     override fun serialize(encoder: Encoder, value: DomainEntityId) = encoder.encodeString(value.value.toString())
-    override fun deserialize(decoder: Decoder): DomainEntityId = DomainEntityId
-        .Companion.fromString(decoder.decodeString())
+    override fun deserialize(decoder: Decoder): DomainEntityId = DomainEntityId.fromString(decoder.decodeString())
 }

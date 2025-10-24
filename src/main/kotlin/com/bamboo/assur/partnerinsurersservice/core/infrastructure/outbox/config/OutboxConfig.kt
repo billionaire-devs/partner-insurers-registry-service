@@ -55,7 +55,6 @@ class OutboxConfig {
         outboxRepository: OutboxRepository,
         rabbitTemplate: RabbitTemplate,
         transactionalOperator: TransactionalOperator,
-        json: Json,
         outboxProperties: OutboxProperties
     ): OutboxMessageProcessor {
         return OutboxMessageProcessor(
@@ -63,7 +62,6 @@ class OutboxConfig {
             rabbitTemplate = rabbitTemplate,
             outboxProperties = outboxProperties,
             transactionalOperator = transactionalOperator,
-            json = json
         )
     }
 

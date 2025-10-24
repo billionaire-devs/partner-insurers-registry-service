@@ -29,6 +29,8 @@ partner-insurers:
 
 logging:
   level:
+    com.bamboo.assur.partnerinsurersservice: debug
     org.springframework.data.r2dbc: DEBUG
-    root: debug
-
+    root: warn
+    web: trace
+    sql: trace
