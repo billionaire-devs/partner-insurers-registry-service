@@ -2,7 +2,6 @@ package com.bamboo.assur.partnerinsurersservice.core.application.ports.input
 
 import com.bamboo.assur.partnerinsurersservice.core.application.ports.output.OutboxRepository
 import com.bamboo.assur.partnerinsurersservice.core.infrastructure.outbox.config.OutboxProperties
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.core.RabbitTemplate
@@ -10,9 +9,9 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
+import java.time.Instant
 import kotlin.concurrent.atomics.AtomicBoolean
 import kotlin.concurrent.atomics.ExperimentalAtomicApi
-import java.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 
 /**
@@ -44,90 +43,70 @@ class OutboxMessageProcessor(
 
         try {
             runBlocking {
-                // Fetch messages outside transaction to avoid long-running transaction
-                val messages = outboxRepository.findUnprocessedMessages(outboxProperties.batchSize).toList()
+                // Process messages up to batchSize, each in its own short transaction.
+                logger.debug("Attempting to process up to {} messages (per-message transactional with FOR UPDATE SKIP LOCKED)", outboxProperties.batchSize)
 
-                logger.debug("Found {} unprocessed messages (batchSize={})", messages.size, outboxProperties.batchSize)
-
-                messages.forEach { message ->
+                var processedCount = 0
+                repeat(outboxProperties.batchSize) {
+                    // Each iteration: open a small transaction, fetch one row FOR UPDATE SKIP LOCKED, publish, mark processed.
                     try {
-                        // Build a short preview of the payload to include in logs (safe for debugging)
-                        val payloadPreview = try {
-                            val s = message.payload.toString()
-                            if (s.length > 512) s.substring(0, 512) + "..." else s
-                        } catch (_: Exception) {
-                            "<unserializable-payload>"
-                        }
+                        val processedId = transactionalOperator.executeAndAwait {
+                            // fetch and lock a single row
+                            val message = outboxRepository.fetchNextUnprocessedForUpdateSkipLocked()
+                            if (message == null) return@executeAndAwait null
 
-                        // Convert payload to JSON string for Rabbit (SimpleMessageConverter expects String/byte[]/Serializable)
-                        val payloadString = try {
-                            message.payload.toString()
-                        } catch (_: Exception) {
-                            logger.warn("Unable to serialize outbox payload to string for outboxId={}", message.id)
-                            "{}"
-                        }
+                            // Build a short preview and the payload string
+                            val payloadPreview = try {
+                                val s = message.payload.toString()
+                                if (s.length > 512) s.substring(0, 512) + "..." else s
+                            } catch (_: Exception) {
+                                "<unserializable-payload>"
+                            }
 
-                        // Process each message in its own transaction
-                        transactionalOperator.executeAndAwait {
+                            val payloadString = try {
+                                message.payload.toString()
+                            } catch (_: Exception) {
+                                logger.warn("Unable to serialize outbox payload to string for outboxId={}", message.id)
+                                "{}"
+                            }
+
                             val routingKey = "${message.aggregateType}.${message.eventType}"
-
                             logger.debug(
-                                "Publishing outbox message: outboxId={}, aggregateId={}, routingKey={}, payloadPreview={}",
+                                "Publishing outbox message (locked): outboxId={}, aggregateId={}, routingKey={}, payloadPreview={}",
                                 message.id, message.aggregateId, routingKey, payloadPreview
                             )
 
-                            // Publish the JSON payload string
-                            rabbitTemplate.convertAndSend(
-                                "partner-insurers.direct",
-                                routingKey,
-                                payloadString
-                            )
+                            // Publish while holding the DB lock (short-lived). This guarantees no concurrent processor picks same row.
+                            rabbitTemplate.convertAndSend("partner-insurers.direct", routingKey, payloadString)
 
-                            logger.debug("Message published to exchange (outboxId={}, routingKey={}, payloadSize={})", message.id, routingKey, payloadString.length)
+                            logger.debug("Published outbox message (locked): outboxId={}, routingKey={}, payloadSize={}", message.id, routingKey, payloadString.length)
 
-                            // Mark as processed in same transaction and check update count
-                            val updated = outboxRepository.markAsProcessed(
-                                id = message.id,
-                                processedAt = Instant.now(),
-                                error = null
-                            )
-
+                            // Mark as processed in the same transaction
+                            val updated = outboxRepository.markAsProcessed(id = message.id, processedAt = Instant.now(), error = null)
                             if (updated == 1) {
                                 logger.debug("Marked outbox message as processed: {}", message.id)
                             } else {
-                                logger.warn(
-                                    "markAsProcessed returned {} for outboxId={} — row may not exist or was concurrently modified",
-                                    updated, message.id
-                                )
+                                logger.warn("markAsProcessed returned {} for outboxId={} — row may not exist or was concurrently modified", updated, message.id)
                             }
+
+                            // return id
+                            message.id
                         }
 
-                        logger.debug("Processed outbox message: {}", message.id)
+                        if (processedId == null) {
+                            // No more rows to process
+                            return@runBlocking
+                        }
+
+                        processedCount++
+                        logger.debug("Processed outbox message: {} (count={})", processedId, processedCount)
                     } catch (e: Exception) {
-                        logger.error("Failed to process outbox message: {}", message.id, e)
-                        // Mark as failed in separate transaction
-                        try {
-                            val errMsg = (e.message ?: e.toString()).let {
-                                if (it.length > 1024) it.substring(0, 1024) + "..." else it
-                            }
-
-                            transactionalOperator.executeAndAwait {
-                                val updated = outboxRepository.markAsProcessed(
-                                    id = message.id,
-                                    processedAt = Instant.now(),
-                                    error = errMsg
-                                )
-                                if (updated == 1) {
-                                    logger.debug("Marked failed outbox message as processed (error stored): {}", message.id)
-                                } else {
-                                    logger.warn("Failed to mark message as failed, markAsProcessed returned {} for {}", updated, message.id)
-                                }
-                            }
-                        } catch (markError: Exception) {
-                            logger.error("Failed to mark message as failed: {}", message.id, markError)
-                        }
+                        // If something went wrong inside the transaction, we might not have message id.
+                        // Log and continue to next iteration.
+                        logger.error("Unexpected error while processing outbox in iteration (will continue): {}", e.message, e)
                     }
                 }
+                logger.debug("Outbox processing run finished, total processed={}", processedCount)
             }
         } catch (e: Exception) {
             logger.error("Error in outbox processing job", e)

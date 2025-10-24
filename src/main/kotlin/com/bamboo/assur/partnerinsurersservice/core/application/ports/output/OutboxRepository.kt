@@ -52,4 +52,19 @@ interface OutboxRepository : CoroutineCrudRepository<OutboxMessagesTable, UUID> 
         @Param("processedAt") processedAt: Instant,
         @Param("error") error: String? = null
     ): Int
+
+    /**
+     * Atomically fetch a single unprocessed outbox message and lock it for processing.
+     * Uses FOR UPDATE SKIP LOCKED to avoid contention between concurrent processors.
+     */
+    @Query(
+        """
+        SELECT * FROM outbox
+        WHERE processed = false
+        ORDER BY created_at
+        FOR UPDATE SKIP LOCKED
+        LIMIT 1
+        """
+    )
+    suspend fun fetchNextUnprocessedForUpdateSkipLocked(): OutboxMessagesTable?
 }
