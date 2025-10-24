@@ -15,9 +15,7 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
 
     @Suppress("LongParameterList")
     @Query("""
-        SELECT id, partner_insurer_code AS partnerInsurerCode, legal_name AS legalName, 
-            tax_identification_number AS taxIdentificationNumber, status::text AS status, logo_url AS logoUrl, 
-            address::text AS address
+        SELECT id, partner_insurer_code, legal_name, tax_identification_number, status, logo_url, address
         FROM partner_insurers
         WHERE (:status IS NULL OR status::text = :status)
             AND (:search IS NULL OR search_vector @@ plainto_tsquery('french', :search) 

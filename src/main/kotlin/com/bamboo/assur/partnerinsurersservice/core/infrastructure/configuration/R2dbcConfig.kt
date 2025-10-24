@@ -5,6 +5,7 @@ import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.postgresql.codec.Json as PostgresJson
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
@@ -45,7 +46,13 @@ class R2dbcConfig(
     @ReadingConverter
     class PostgresJsonToJsonElementConverter : Converter<PostgresJson, JsonElement> {
         private val json = Json { ignoreUnknownKeys = true }
-        override fun convert(source: PostgresJson): JsonElement = json.parseToJsonElement(source.asString())
+        private val logger = LoggerFactory.getLogger(javaClass)
+
+        override fun convert(source: PostgresJson): JsonElement {
+            logger.debug("Converting PostgresJson to JsonElement: {}", source)
+            logger.debug("Converting PostgresJson to JsonElement: Json{}", json.parseToJsonElement(source.asString()))
+            return json.parseToJsonElement(source.asString())
+        }
     }
 
     /*
