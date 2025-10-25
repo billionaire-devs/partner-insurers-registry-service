@@ -1,6 +1,7 @@
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.repositories
 
 import com.bamboo.assur.partnerinsurersservice.core.domain.EntityAlreadyExistsException
+import com.bamboo.assur.partnerinsurersservice.core.domain.EntityNotFoundException
 import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToSaveEntityException
 import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.PartnerInsurerSummary
@@ -21,6 +22,7 @@ import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
+import java.util.UUID
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.toJavaUuid
@@ -113,8 +115,12 @@ class PartnerInsurerRepositoryImpl(
         }
     }
 
-    override suspend fun findById(id: kotlin.uuid.Uuid): PartnerInsurer? {
-        val entity = partnerInsurerR2dbcRepository.findById(id.toJavaUuid()) ?: return null
+    @Transactional
+    override suspend fun findById(id: UUID): PartnerInsurer? {
+        val entity = partnerInsurerR2dbcRepository.findById(id) ?: throw EntityNotFoundException(
+            PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+            id
+        )
         val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
             .map { it.toDomain() }
             .toSet()

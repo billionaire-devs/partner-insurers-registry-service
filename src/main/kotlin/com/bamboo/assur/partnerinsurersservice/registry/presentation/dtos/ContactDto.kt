@@ -37,4 +37,13 @@ data class ContactDto(
         phone = Phone(phone),
         contactRole = role
     )
+
+    companion object {
+        fun Contact.toResponseDTO() = ContactDto(
+            fullName = fullName,
+            email = email.value,
+            phone = phone.value,
+            role = contactRole
+        )
+    }
 }

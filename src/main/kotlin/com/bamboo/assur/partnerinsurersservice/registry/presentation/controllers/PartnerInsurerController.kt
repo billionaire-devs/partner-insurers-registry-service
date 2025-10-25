@@ -3,19 +3,25 @@ package com.bamboo.assur.partnerinsurersservice.registry.presentation.controller
 import com.bamboo.assur.partnerinsurersservice.core.domain.Result
 import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
 import com.bamboo.assur.partnerinsurersservice.registry.application.commands.handlers.CreatePartnerInsurerCommandHandler
+import com.bamboo.assur.partnerinsurersservice.registry.application.queries.GetPartnerInsurerByIdQuery
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.GetPartnerSummariesQuery
+import com.bamboo.assur.partnerinsurersservice.registry.application.queries.handlers.GetPartnerInsurerByIdQueryHandler
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.handlers.GetPartnerSummariesQueryHandler
 import com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos.requests.CreatePartnerInsurerRequestDto
+import com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos.responses.PartnerInsurerDetailResponseDto.Companion.toResponseDTO
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @RestController
@@ -23,6 +29,7 @@ import kotlin.uuid.ExperimentalUuidApi
 class PartnerInsurerController(
     private val createCommandHandler: CreatePartnerInsurerCommandHandler,
     private val getPartnerSummariesQueryHandler: GetPartnerSummariesQueryHandler,
+    private val getPartnerInsurerByIdQueryHandler: GetPartnerInsurerByIdQueryHandler,
 ) {
 
     @PostMapping
@@ -36,6 +43,18 @@ class PartnerInsurerController(
             is Result.Success -> ResponseEntity.ok(mapOf("id" to result.value))
             is Result.Failure -> ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
+                .body(mapOf("error" to result.message))
+        }
+    }
+
+    @GetMapping("/{id}")
+    suspend fun getPartnerInsurerById(
+        @PathVariable id: UUID,
+    ): ResponseEntity<Any> {
+        val query = GetPartnerInsurerByIdQuery(id)
+        return when (val result = getPartnerInsurerByIdQueryHandler.handle(query)) {
+            is Result.Success -> ResponseEntity.ok(result.value.toResponseDTO())
+            is Result.Failure -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(mapOf("error" to result.message))
         }
     }

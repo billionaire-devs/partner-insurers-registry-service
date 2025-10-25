@@ -11,7 +11,7 @@ data class AddressDto(
     @field:NotNull
     val city: String,
 
-    val zipCode: String,
+    val zipCode: String?,
 
     @field:NotBlank(message = "Country cannot be blank")
     @field:NotNull
@@ -23,4 +23,13 @@ data class AddressDto(
         country = country,
         zipCode = zipCode
     )
+
+    companion object {
+        fun Address.toResponseDTO() = AddressDto(
+            street = street,
+            city = city,
+            country = country,
+            zipCode = zipCode
+        )
+    }
 }
