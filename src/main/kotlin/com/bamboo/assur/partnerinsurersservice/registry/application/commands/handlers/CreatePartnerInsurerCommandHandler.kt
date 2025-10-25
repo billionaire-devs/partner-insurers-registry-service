@@ -28,29 +28,41 @@ class CreatePartnerInsurerCommandHandler(
     @Transactional
     override suspend fun handle(command: CreatePartnerInsurerCommand): Result<UUID> {
         if (partnerInsurerRepository.existsByPartnerCode(command.partnerCode)) {
-            throw EntityAlreadyExistsException("PartnerInsurer", command.partnerCode)
+            throw EntityAlreadyExistsException(
+                "PartnerInsurer",
+                entityIdentifierName = "Partner Code",
+                entityIdentifier = command.partnerCode
+            )
         }
 
+        logger.info("Creating partner insurer: {}", command)
         val partnerInsurer = PartnerInsurer.create(
             legalName = command.legalName,
             partnerInsurerCode = command.partnerCode,
             taxIdentificationNumber = TaxIdentificationNumber(command.taxIdentificationNumber),
             logoUrl = command.logoUrl?.let { Url(it) },
             contacts = command.contacts,
-                address = command.address,
+            address = command.address,
             status = command.status,
         )
 
         // Let exceptions propagate to trigger rollback
         val isSaved = partnerInsurerRepository.save(partnerInsurer)
+        logger.info("Partner insurer saved: {}", isSaved)
+
         if (!isSaved) {
             error("Partner insurer could not have been saved")
         }
 
         // Publish events to transactional outbox (joins same transaction)
+        logger.info("Checking for pending events")
         if (partnerInsurer.hasPendingEvents()) {
+            logger.info("Publishing events to transactional outbox")
             domainEventPublisher.publish(partnerInsurer.getDomainEvents())
+            logger.info("Events published to transactional outbox")
+            logger.info("Clearing domain events")
             partnerInsurer.clearDomainEvents()
+            logger.info("Domain events cleared")
         }
 
         return Result.success(partnerInsurer.id.value)

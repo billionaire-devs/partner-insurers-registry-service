@@ -12,6 +12,8 @@ import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerIns
 import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerContactAddedEvent
 import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxIdentificationNumber
+import org.slf4j.LoggerFactory
+import java.util.logging.Logger
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -51,6 +53,7 @@ class PartnerInsurer private constructor(
 
     @OptIn(ExperimentalTime::class)
     companion object {
+
         /**
          * Factory method to create a new [PartnerInsurer] instance.
          *
@@ -61,10 +64,10 @@ class PartnerInsurer private constructor(
          * @param legalName The legal name of the new partner insurer.
          * @param taxIdentificationNumber The tax identification number.
          * @param logoUrl The URL to the partner's logo.
-         * @param contact The primary contact person for the partner.
+         * @param contacts Contact persons for the partner.
          * @param address The physical address of the partner.
          * @param status The initial status of the partner, defaults to [PartnerInsurerStatus.ONBOARDING].
-         * @return A [NewPartnerInsurer] object containing the details for creating a new partner.
+         * @return A [PartnerInsurer] object containing the details for creating a new partner.
          */
         fun create(
             partnerInsurerCode: String,
@@ -75,8 +78,10 @@ class PartnerInsurer private constructor(
             address: Address,
             status: PartnerInsurerStatus = PartnerInsurerStatus.ONBOARDING,
         ): PartnerInsurer {
+            val logger = LoggerFactory.getLogger(PartnerInsurer::class.java)
 
             val id = DomainEntityId.random()
+            logger.info("Creating partner insurer with id: {}", id)
 
             val partnerInsurer = PartnerInsurer(
                 id = id,

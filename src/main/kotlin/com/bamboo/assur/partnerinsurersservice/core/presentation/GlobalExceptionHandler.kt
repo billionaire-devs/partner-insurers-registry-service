@@ -3,6 +3,7 @@ package com.bamboo.assur.partnerinsurersservice.core.presentation
 import com.bamboo.assur.partnerinsurersservice.core.domain.DomainException
 import com.bamboo.assur.partnerinsurersservice.core.domain.EntityAlreadyExistsException
 import com.bamboo.assur.partnerinsurersservice.core.domain.EntityNotFoundException
+import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToSaveEntityException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.http.HttpStatus
@@ -62,6 +63,7 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
     }
 
+
     @ExceptionHandler(EntityNotFoundException::class)
     fun handleNotFound(ex: EntityNotFoundException, request: HttpServletRequest): ResponseEntity<ApiResponse<Any>> {
         val body = buildApiResponse(HttpStatus.NOT_FOUND, ex.message, request)
@@ -112,6 +114,12 @@ class GlobalExceptionHandler {
         val safePath = escapeHtml(request.requestURI) ?: request.requestURI
         logger.error("Unexpected error while handling request $safePath", ex)
         val body = buildApiResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error occurred", request)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body)
+    }
+
+    @ExceptionHandler(FailedToSaveEntityException::class)
+    fun handleFailedToSaveEntity(ex: FailedToSaveEntityException, request: HttpServletRequest): ResponseEntity<ApiResponse<Any>> {
+        val body = buildApiResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.message, request)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body)
     }
 }

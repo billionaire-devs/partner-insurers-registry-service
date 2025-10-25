@@ -51,4 +51,5 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
 
     suspend fun findByPartnerInsurerCode(partnerCode: String): PartnerInsurerTable?
     suspend fun existsByPartnerInsurerCode(partnerCode: String): Boolean
+    suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean
 }

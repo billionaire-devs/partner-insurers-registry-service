@@ -1,10 +1,13 @@
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.repositories
 
 import com.bamboo.assur.partnerinsurersservice.core.domain.EntityAlreadyExistsException
+import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToSaveEntityException
 import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
+import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities.PartnerInsurerContactTable
+import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities.PartnerInsurerContactTable.Companion.toEntityTable
 import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities.PartnerInsurerTable
 import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities.PartnerInsurerTable.Companion.toEntityTable
 import kotlinx.coroutines.flow.Flow
@@ -15,10 +18,12 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
+import org.springframework.transaction.reactive.TransactionalOperator
+import org.springframework.transaction.reactive.executeAndAwait
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.toJavaUuid
-import java.util.UUID
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 @Repository
@@ -27,44 +32,85 @@ class PartnerInsurerRepositoryImpl(
     private val partnerInsurerR2dbcRepository: PartnerInsurerR2dbcRepository,
     private val partnerInsurerContactR2dbcRepository: PartnerInsurerContactR2dbcRepository,
     private val r2dbcEntityTemplate: R2dbcEntityTemplate,
+    private val transactionalOperator: TransactionalOperator,
 ) : PartnerInsurerRepository {
     val logger = LoggerFactory.getLogger(javaClass)
 
+    @Transactional
     override suspend fun save(partnerInsurer: PartnerInsurer): Boolean {
-        logger.debug("Starting to save Partner insurer: {}", partnerInsurer)
+        logger.info("Starting to save Partner insurer: {}", partnerInsurer)
         val partnerInsurerEntity = partnerInsurer.toEntityTable()
 
-        logger.debug("Persisting Partner insurer entity: {}", partnerInsurerEntity)
-        // If the id already exists in DB -> perform update via repository.save
-        // Else perform an INSERT using R2dbcEntityTemplate to avoid save() attempting an UPDATE
-        val id: UUID = partnerInsurerEntity.id
-        try {
-            val entityExists = partnerInsurerR2dbcRepository.existsById(id)
-            logger.info("Entity exists: $entityExists")
+        logger.info("Persisting Partner insurer entity: {}", partnerInsurerEntity)
 
-            if (entityExists) {
+        return try {
+            // Check if entity exists
+            logger.info("Checking if entity already exists")
+
+            if (partnerInsurerR2dbcRepository.existsById(partnerInsurerEntity.id)) {
+                logger.info("Entity exists with same ID: {}", true)
                 throw EntityAlreadyExistsException(
                     PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                    partnerInsurerEntity.id
+                    partnerInsurerEntity.id,
                 )
             }
 
-            r2dbcEntityTemplate.insert(partnerInsurerEntity).awaitSingle()
+            if (
+                partnerInsurerR2dbcRepository.existsByPartnerInsurerCode(
+                    partnerInsurerEntity.partnerInsurerCode
+                )
+            ) {
+                logger.info("Entity exists with same partner insurer code: {}", true)
+                throw EntityAlreadyExistsException(
+                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+                    partnerInsurerEntity.id,
+                    entityIdentifierName = "Partner insurer code"
+                )
+            }
+
+            if (
+                partnerInsurerR2dbcRepository.existsByTaxIdentificationNumber(
+                    partnerInsurerEntity.taxIdentificationNumber
+                )
+            ) {
+                logger.info("Entity exists with same tax identification number: {}", true)
+                throw EntityAlreadyExistsException(
+                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+                    partnerInsurerEntity.id,
+                    entityIdentifierName = "Tax identification number"
+                )
+            }
+
+
+            // Save partner insurer and contacts in a single transaction
+            transactionalOperator.executeAndAwait {
+                // Insert partner insurer and capture the saved entity (so we get the DB-generated id if any)
+                val savedPartner = r2dbcEntityTemplate.insert(partnerInsurerEntity).awaitSingleOrNull()
+                    ?: throw FailedToSaveEntityException(
+                        PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+                        partnerInsurerEntity.id
+                    ).also { logger.error("Failed to save partner insurer: {}", partnerInsurerEntity) }
+
+                logger.debug("Partner insurer saved: {}", savedPartner)
+
+                // Save contacts using the saved partner insurer id
+                partnerInsurer.contacts.forEach { contact ->
+                    logger.debug("Saving contact: {}", contact)
+                    val contactEntity = contact.toEntityTable(savedPartner.id)
+
+                    r2dbcEntityTemplate.insert(contactEntity).awaitSingleOrNull() ?: throw FailedToSaveEntityException(
+                        PartnerInsurerContactTable::class.simpleName ?: "PartnerInsurerContactTable",
+                        contact.id
+                    )
+                }
+            }
+
+            logger.info("Partner insurer saved successfully with contacts")
+            true
         } catch (e: Exception) {
-            logger.error("Failed to persist partner insurer entity", e)
+            logger.error("Failed to save partner insurer with contacts", e)
             throw e
         }
-        logger.debug("Partner insurer saved")
-
-//        logger.debug("Saving partner insurer contacts")
-//        partnerInsurer.contacts.map { contact ->
-//            val contactEntity = contact.fromDomain(partnerInsurer.id.value)
-//            partnerInsurerContactR2dbcRepository.save(contactEntity)
-//        }
-//        logger.debug("All partner insurer contacts saved")
-
-        logger.debug("Partner insurer saved successfully")
-        return true
     }
 
     override suspend fun findById(id: kotlin.uuid.Uuid): PartnerInsurer? {

@@ -33,8 +33,9 @@ class EntityNotFoundException(
  */
 class EntityAlreadyExistsException(
     entityType: String,
-    entityId: Any
-) : DomainException("$entityType with ID '$entityId' already exists")
+    entityIdentifier: Any,
+    entityIdentifierName: String? = null
+) : DomainException("$entityType with identifier: ${entityIdentifierName ?: "ID"} '$entityIdentifier' already exists")
 
 /**
  * Exception thrown when an invalid operation is attempted on an entity.
@@ -42,3 +43,11 @@ class EntityAlreadyExistsException(
 class InvalidOperationException(
     message: String
 ): DomainException(message)
+
+/**
+ * Exception thrown when an entity fails to be saved.
+ */
+class FailedToSaveEntityException(
+    entityType: String,
+    entityId: Any
+): DomainException("Failed to save $entityType with ID '$entityId'")

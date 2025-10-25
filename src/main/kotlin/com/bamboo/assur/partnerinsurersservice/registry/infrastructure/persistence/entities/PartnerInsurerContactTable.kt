@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalUuidApi::class)
-
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities
 
 import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
@@ -8,15 +6,13 @@ import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Phone
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.Contact
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
+import java.time.Instant
 import java.util.UUID
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
-import kotlin.uuid.toJavaUuid
-import kotlin.uuid.toKotlinUuid
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
-@OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
+@OptIn(ExperimentalTime::class)
 @Table("partner_insurer_contacts")
 data class PartnerInsurerContactTable(
     @Id
@@ -36,20 +32,20 @@ data class PartnerInsurerContactTable(
         email = Email(email),
         phone = Phone(phone),
         contactRole = contactRole,
-        createdAt = createdAt,
-        updatedAt = updatedAt
+        createdAt = createdAt.toKotlinInstant(),
+        updatedAt = updatedAt.toKotlinInstant()
     )
 
     companion object {
-        fun Contact.fromDomain(partnerInsurerId: Uuid) = PartnerInsurerContactTable(
-            id = Uuid.random().toJavaUuid(),
-            partnerInsurerId = partnerInsurerId.toJavaUuid(),
+        fun Contact.toEntityTable(partnerInsurerId: UUID) = PartnerInsurerContactTable(
+            id = UUID.randomUUID(),
+            partnerInsurerId = partnerInsurerId,
             fullName = fullName,
             email = email.value,
             phone = phone.value,
             contactRole = contactRole,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            createdAt = createdAt.toJavaInstant(),
+            updatedAt = updatedAt.toJavaInstant(),
             deletedAt = null,
         )
     }
