@@ -1,0 +1,1284 @@
+{
+	"info": {
+		"_postman_id": "48885987-a7046a0c-e5de-4285-a462-ba653b8764a4",
+		"name": "Bamboo Assur Partner Insurers Service API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Insurers Summaries",
+			"id": "48885987-3a387946-20b0-4f9e-9ca3-b0db6a975936",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "a6e57882-ced9-4a06-b7f3-161c0b55ff7e",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "user",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/partner-insurers",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"partner-insurers"
+					]
+				}
+			},
+			"response": [
+				{
+					"id": "48885987-591d0fd9-22ff-4433-9902-d10fe41619f0",
+					"name": "200 OK",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers?status=ONBOARDING",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "ONBOARDING"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 24 Oct 2025 15:38:06 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "[\n    {\n        \"id\": \"89255fd3-b9ab-43fb-804a-4148bf3e8af7\",\n        \"partnerInsurerCode\": \"zkjgvo8u43\",\n        \"legalName\": \"Vide Technologies\",\n        \"taxIdentificationNumber\": \"kasfiajrasdfla\",\n        \"status\": \"ONBOARDING\",\n        \"logoUrl\": \"https://www.content.thesardescompany.com/aongasdfasjdalsdf.png\",\n        \"address\": {\n            \"city\": {\n                \"coerceToInlineType$kotlinx_serialization_json\": null,\n                \"content\": \"Sardesville\",\n                \"string\": true\n            },\n            \"street\": {\n                \"coerceToInlineType$kotlinx_serialization_json\": null,\n                \"content\": \"Avenue Sardes\",\n                \"string\": true\n            },\n            \"country\": {\n                \"coerceToInlineType$kotlinx_serialization_json\": null,\n                \"content\": \"Gabon\",\n                \"string\": true\n            },\n            \"zipCode\": {\n                \"coerceToInlineType$kotlinx_serialization_json\": null,\n                \"content\": \"42\",\n                \"string\": true\n            }\n        }\n    }\n]"
+				}
+			]
+		},
+		{
+			"name": "Create Partner Insurer",
+			"id": "48885987-33ae68f0-9e50-4dc8-b18f-006a556469fa",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"partnerCode\": \"lmn789opq456\",\n    \"legalName\": \"Vertex Dynamics\",\n    \"taxIdentificationNumber\": \"12345QWERTY67890\",\n    \"logoUrl\": \"https://www.content.vertexdynamics.com/logo789.png\",\n    \"contacts\": [\n        {\n            \"fullName\": \"Jamie Lee\",\n            \"email\": \"jamie.lee@vertexdynamics.com\",\n            \"phone\": \"+442071234567\",\n            \"role\": \"cfo\"\n        }\n    ],\n    \"address\": {\n        \"street\": \"456 Enterprise Avenue\",\n        \"city\": \"Metro City\",\n        \"zipCode\": \"10001\",\n        \"country\": \"United Kingdom\"\n    },\n    \"status\": \"ONBOARDING\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/partner-insurers",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"partner-insurers"
+					]
+				}
+			},
+			"response": [
+				{
+					"id": "48885987-f2ea4d4b-eaa0-4c80-a291-105d3960b983",
+					"name": "200 OK",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"partnerCode\": \"kasejfijsefija9\",\n    \"legalName\": \"Sardes Industries\",\n    \"taxIdentificationNumber\": \"asjfaiopsjef9q03j\",\n    \"logoUrl\": \"https://www.content.thesardescompany.com/aongasdfasjdalsdf.png\",\n    \"contacts\": [\n        {\n            \"fullName\": \"Mel Sardes\",\n            \"email\": \"ceo@thesardescompany.com\",\n            \"phone\": \"+24166157770\",\n            \"role\": \"ceo\"\n        }\n    ],\n    \"address\": {\n        \"street\": \"Avenue Sardes\",\n        \"city\": \"Sardesville\",\n        \"zipCode\": \"2042\",\n        \"country\": \"Gabon\"\n    },\n    \"status\": \"ONBOARDING\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 24 Oct 2025 16:12:47 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": true,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"POST\",\n            \"path\": \"/api/partner-insurers\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 200,\n            \"reason\": \"OK\",\n            \"timestamp\": \"2025-10-24T17:12:47.803067123+01:00\"\n        }\n    },\n    \"data\": {\n        \"id\": \"f09f0630-5f51-4ce2-8524-8ea03d3a4657\"\n    },\n    \"error\": null\n}"
+				},
+				{
+					"id": "48885987-f8ddfd60-5eae-4696-8853-807e23a8340d",
+					"name": "409 Conflict: Item already exists",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"partnerCode\": \"kasejfijsefija9\",\n    \"legalName\": \"Sardes Industries\",\n    \"taxIdentificationNumber\": \"asjfaiopsjef9q03j\",\n    \"logoUrl\": \"https://www.content.thesardescompany.com/aongasdfasjdalsdf.png\",\n    \"contacts\": [\n        {\n            \"fullName\": \"Mel Sardes\",\n            \"email\": \"ceo@thesardescompany.com\",\n            \"phone\": \"+24166157770\",\n            \"role\": \"ceo\"\n        }\n    ],\n    \"address\": {\n        \"street\": \"Avenue Sardes\",\n        \"city\": \"Sardesville\",\n        \"zipCode\": \"2042\",\n        \"country\": \"Gabon\"\n    },\n    \"status\": \"ONBOARDING\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Fri, 24 Oct 2025 16:14:30 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"POST\",\n            \"path\": \"/api/partner-insurers\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 409,\n            \"reason\": \"Conflict\",\n            \"timestamp\": \"2025-10-24T17:14:30.487546991+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"PartnerInsurer with ID &#x27;kasejfijsefija9&#x27; already exists\",\n        \"details\": null\n    }\n}"
+				},
+				{
+					"id": "48885987-2069f831-a3ec-4ee2-88f4-dc7b69fd6375",
+					"name": "400 Bad Request : Fields validation failed",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"partnerCode\": \"\",\n    \"legalName\": \"\",\n    \"taxIdentificationNumber\": \"12345QWERTY67890\",\n    \"logoUrl\": \"https://www.content.vertexdynamics.com/logo789.png\",\n    \"contacts\": [\n        {\n            \"fullName\": \"Jamie Lee\",\n            \"email\": \"jamie.lee@vertexdynamics.com\",\n            \"phone\": \"+442071234567\",\n            \"role\": \"cfo\"\n        }\n    ],\n    \"address\": {\n        \"street\": \"456 Enterprise Avenue\",\n        \"city\": \"Metro City\",\n        \"zipCode\": \"10001\",\n        \"country\": \"United Kingdom\"\n    },\n    \"status\": \"ONBOARDING\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 22:48:31 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"POST\",\n            \"path\": \"/api/partner-insurers\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 400,\n            \"reason\": \"Bad Request\",\n            \"timestamp\": \"2025-10-25T23:48:31.112159938+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"Validation failed. 2 field(s) have errors.\",\n        \"details\": \"{fieldErrors={partnerCode=Partner code cannot be blank, legalName=Legal name cannot be blank}, globalErrors={}, totalErrors=2}\"\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Get Partner Insurer by ID",
+			"id": "48885987-142c6c5f-f468-4b45-970b-be63a1d36cff",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/partner-insurers/89255fd3-b9ab-43fb-804a-4148bf3e8af7",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"partner-insurers",
+						"89255fd3-b9ab-43fb-804a-4148bf3e8af7"
+					]
+				}
+			},
+			"response": [
+				{
+					"id": "48885987-9f7559b9-f82c-47bd-bb1f-1df07fb4089c",
+					"name": "200 OK",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/89255fd3-b9ab-43fb-804a-4148bf3e8af7",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"89255fd3-b9ab-43fb-804a-4148bf3e8af7"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 04:18:53 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": true,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"GET\",\n            \"path\": \"/api/partner-insurers/89255fd3-b9ab-43fb-804a-4148bf3e8af7\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 200,\n            \"reason\": \"OK\",\n            \"timestamp\": \"2025-10-25T05:18:53.435787587+01:00\"\n        }\n    },\n    \"data\": {\n        \"id\": \"89255fd3-b9ab-43fb-804a-4148bf3e8af7\",\n        \"partnerInsurerCode\": \"zkjgvo8u43\",\n        \"legalName\": \"Vide Technologies\",\n        \"taxIdentificationNumber\": \"kasfiajrasdfla\",\n        \"status\": \"ONBOARDING\",\n        \"logoUrl\": \"https://www.content.thesardescompany.com/aongasdfasjdalsdf.png\",\n        \"address\": {\n            \"street\": \"Avenue Sardes\",\n            \"city\": \"Sardesville\",\n            \"zipCode\": \"42\",\n            \"country\": \"Gabon\"\n        },\n        \"contacts\": []\n    },\n    \"error\": null\n}"
+				},
+				{
+					"id": "48885987-4c3fc729-ddbd-4e38-a2b8-01883f5ee491",
+					"name": "404 Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/89255fd3-b9ab-43fb-804a-4148bf3e8af",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"89255fd3-b9ab-43fb-804a-4148bf3e8af"
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 07:56:54 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"GET\",\n            \"path\": \"/api/partner-insurers/89255fd3-b9ab-43fb-804a-4148bf3e8af\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 404,\n            \"reason\": \"Not Found\",\n            \"timestamp\": \"2025-10-25T08:56:54.749683463+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"PartnerInsurerTable with ID 89255fd3-b9ab-43fb-804a-04148bf3e8af was not found\",\n        \"details\": null\n    }\n}"
+				}
+			]
+		},
+		{
+			"name": "Change Partner Insurer status",
+			"id": "48885987-9a247398-4072-4d60-bbf1-85638e57eddb",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"targetStatus\": \"MAINTENANCE\",\n    \"reason\": \"Parner systems not responding\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"partner-insurers",
+						"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+						"status"
+					]
+				}
+			},
+			"response": [
+				{
+					"id": "48885987-7551247d-d19d-4c38-93b7-05a8fb1fbdfc",
+					"name": "400 Bad Request : Same status",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetStatus\": \"ONBOARDING\",\n    \"reason\": \"Missing files and documents\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/ff901444-039d-4594-ad25-846d4d73e05b/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"ff901444-039d-4594-ad25-846d4d73e05b",
+								"status"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 08:15:23 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/ff901444-039d-4594-ad25-846d4d73e05b/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 400,\n            \"reason\": \"Bad Request\",\n            \"timestamp\": \"2025-10-25T09:15:23.44361421+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"Partner insurer is already onboarding.\",\n        \"details\": null\n    }\n}"
+				},
+				{
+					"id": "48885987-573f6756-99e1-4294-9236-b5c798ed6eab",
+					"name": "200 OK : Activate",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetStatus\": \"ACTIVE\",\n    \"reason\": \"Onboarding succesfully done\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+								"status"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 13:11:19 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [
+						{
+							"expires": "Invalid Date",
+							"domain": "",
+							"path": ""
+						}
+					],
+					"responseTime": null,
+					"body": "{\n    \"success\": true,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 200,\n            \"reason\": \"OK\",\n            \"timestamp\": \"2025-10-25T14:11:19.4138421+01:00\"\n        }\n    },\n    \"data\": {\n        \"id\": \"f09f0630-5f51-4ce2-8524-8ea03d3a4657\",\n        \"oldStatus\": \"ONBOARDING\",\n        \"newStatus\": \"ACTIVE\",\n        \"message\": \"Partner insurer status changed from ONBOARDING to ACTIVE\"\n    },\n    \"error\": null\n}"
+				},
+				{
+					"id": "48885987-aefdd6e4-77c8-413f-8b8d-1fe1cac0596d",
+					"name": "200 OK : Suspend",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetStatus\": \"SUSPENDED\",\n    \"reason\": \"Onboarding succesfully done\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+								"status"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 13:14:56 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": true,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 200,\n            \"reason\": \"OK\",\n            \"timestamp\": \"2025-10-25T14:14:56.355628456+01:00\"\n        }\n    },\n    \"data\": {\n        \"id\": \"f09f0630-5f51-4ce2-8524-8ea03d3a4657\",\n        \"oldStatus\": \"ACTIVE\",\n        \"newStatus\": \"SUSPENDED\",\n        \"message\": \"Partner insurer status changed from ACTIVE to SUSPENDED\"\n    },\n    \"error\": null\n}"
+				},
+				{
+					"id": "48885987-2b7df530-f780-4f09-8119-528cd8c43f92",
+					"name": "200 OK : Put in Maintenace",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetStatus\": \"MAINTENANCE\",\n    \"reason\": \"Onboarding succesfully done\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+								"status"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 13:16:06 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": true,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 200,\n            \"reason\": \"OK\",\n            \"timestamp\": \"2025-10-25T14:16:06.070098072+01:00\"\n        }\n    },\n    \"data\": {\n        \"id\": \"f09f0630-5f51-4ce2-8524-8ea03d3a4657\",\n        \"oldStatus\": \"SUSPENDED\",\n        \"newStatus\": \"MAINTENANCE\",\n        \"message\": \"Partner insurer status changed from SUSPENDED to MAINTENANCE\"\n    },\n    \"error\": null\n}"
+				},
+				{
+					"id": "48885987-f90fb520-a7fa-4321-be95-0709d71e137d",
+					"name": "200 OK : Deactivate",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetStatus\": \"DEACTIVATED\",\n    \"reason\": \"Onboarding succesfully done\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+								"status"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 13:17:15 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": true,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 200,\n            \"reason\": \"OK\",\n            \"timestamp\": \"2025-10-25T14:17:15.526834365+01:00\"\n        }\n    },\n    \"data\": {\n        \"id\": \"f09f0630-5f51-4ce2-8524-8ea03d3a4657\",\n        \"oldStatus\": \"MAINTENANCE\",\n        \"newStatus\": \"DEACTIVATED\",\n        \"message\": \"Partner insurer status changed from MAINTENANCE to DEACTIVATED\"\n    },\n    \"error\": null\n}"
+				},
+				{
+					"id": "48885987-5e57f0f5-232e-45a4-ade2-c1cbabc98fad",
+					"name": "400 Bad Request : Status off range",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetStatus\": \"SARDES\",\n    \"reason\": \"Onboarding succesfully done\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+								"status"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 13:26:42 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 400,\n            \"reason\": \"Bad Request\",\n            \"timestamp\": \"2025-10-25T14:26:42.927624671+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"Invalid target status: SARDES. Allowed values are: ONBOARDING, ACTIVE, SUSPENDED, MAINTENANCE, DEACTIVATED\",\n        \"details\": null\n    }\n}"
+				},
+				{
+					"id": "48885987-880e7e2e-1473-449a-956d-50dcd64ad5c1",
+					"name": "400 Bad Request : Reason required for this status",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetStatus\": \"SUSPENDED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+								"status"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 13:31:50 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 400,\n            \"reason\": \"Bad Request\",\n            \"timestamp\": \"2025-10-25T14:31:50.929427239+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"Reason is required to suspend\",\n        \"details\": null\n    }\n}"
+				},
+				{
+					"id": "48885987-2b110ddb-def6-40fe-9621-c89b39f5f06f",
+					"name": "400 Bad Request : Invalid  body",
+					"originalRequest": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sardes\": \"DEACTIVATED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"f09f0630-5f51-4ce2-8524-8ea03d3a4657",
+								"status"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sat, 25 Oct 2025 22:41:17 GMT"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 400,\n            \"reason\": \"Bad Request\",\n            \"timestamp\": \"2025-10-25T23:41:17.417669277+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"Invalid JSON body format\",\n        \"details\": \"{error=Request body is not a valid JSON, suggestion=Ensure the request body is a valid JSON document}\"\n    }\n}"
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "{{username}}",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "{{user-password}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "1d39b8fd-7a3d-466f-a633-39d192e54a3c",
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "7d72e727-8ac3-4423-babb-924a25625ede",
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080/api"
+		}
+	]
+}
