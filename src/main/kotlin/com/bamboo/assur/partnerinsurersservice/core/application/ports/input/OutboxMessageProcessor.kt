@@ -34,84 +34,42 @@ class OutboxMessageProcessor(
      * Only one runner executes at a time per instance.
      * Each message is processed in its own transaction.
      */
-    @Scheduled(fixedDelayString = "#{@outboxProcessingInterval}")
+    @Scheduled(fixedDelayString = "\${partner-insurers.outbox.processing-interval-millis:30000}")
     fun processOutbox() {
         if (!isProcessing.compareAndSet(expectedValue = false, newValue = true)) {
-            logger.debug("Outbox processing already in progress, skipping this run")
+            logger.debug("Outbox processing already in progress")
             return
         }
 
         try {
             runBlocking {
-                // Process messages up to batchSize, each in its own short transaction.
-                logger.debug("Attempting to process up to {} messages (per-message transactional with FOR UPDATE SKIP LOCKED)", outboxProperties.batchSize)
-
                 var processedCount = 0
-                repeat(outboxProperties.batchSize) {
-                    // Each iteration: open a small transaction, fetch one row FOR UPDATE SKIP LOCKED, publish, mark processed.
-                    try {
-                        val processedId = transactionalOperator.executeAndAwait {
-                            // fetch and lock a single row
-                            val message = outboxRepository.fetchNextUnprocessedForUpdateSkipLocked()
-                            if (message == null) return@executeAndAwait null
-
-                            // Build a short preview and the payload string
-                            val payloadPreview = try {
-                                val s = message.payload.toString()
-                                if (s.length > 512) s.substring(0, 512) + "..." else s
-                            } catch (_: Exception) {
-                                "<unserializable-payload>"
-                            }
-
-                            val payloadString = try {
-                                message.payload.toString()
-                            } catch (_: Exception) {
-                                logger.warn("Unable to serialize outbox payload to string for outboxId={}", message.id)
-                                "{}"
-                            }
-
-                            val routingKey = "${message.aggregateType}.${message.eventType}"
-                            logger.debug(
-                                "Publishing outbox message (locked): outboxId={}, aggregateId={}, routingKey={}, payloadPreview={}",
-                                message.id, message.aggregateId, routingKey, payloadPreview
-                            )
-
-                            // Publish while holding the DB lock (short-lived). This guarantees no concurrent processor picks same row.
-                            rabbitTemplate.convertAndSend("partner-insurers.direct", routingKey, payloadString)
-
-                            logger.debug("Published outbox message (locked): outboxId={}, routingKey={}, payloadSize={}", message.id, routingKey, payloadString.length)
-
-                            // Mark as processed in the same transaction
-                            val updated = outboxRepository.markAsProcessed(id = message.id, processedAt = Instant.now(), error = null)
-                            if (updated == 1) {
-                                logger.debug("Marked outbox message as processed: {}", message.id)
-                            } else {
-                                logger.warn("markAsProcessed returned {} for outboxId={} — row may not exist or was concurrently modified", updated, message.id)
-                            }
-
-                            // return id
-                            message.id
-                        }
-
-                        if (processedId == null) {
-                            // No more rows to process
-                            return@runBlocking
-                        }
-
-                        processedCount++
-                        logger.debug("Processed outbox message: {} (count={})", processedId, processedCount)
-                    } catch (e: Exception) {
-                        // If something went wrong inside the transaction, we might not have message id.
-                        // Log and continue to next iteration.
-                        logger.error("Unexpected error while processing outbox in iteration (will continue): {}", e.message, e)
-                    }
+                while (processedCount < outboxProperties.batchSize) {
+                    if (!processNextMessage()) break
+                    processedCount++
                 }
-                logger.debug("Outbox processing run finished, total processed={}", processedCount)
+                if (processedCount > 0) {
+                    logger.debug("Processed {} outbox messages", processedCount)
+                }
             }
-        } catch (e: Exception) {
-            logger.error("Error in outbox processing job", e)
         } finally {
             isProcessing.store(false)
+        }
+    }
+
+    private suspend fun processNextMessage(): Boolean {
+        return try {
+            transactionalOperator.executeAndAwait {
+                val message = outboxRepository.fetchNextUnprocessedForUpdateSkipLocked() ?: return@executeAndAwait false
+
+                val routingKey = "${message.aggregateType}.${message.eventType}"
+                rabbitTemplate.convertAndSend("partner-insurers.direct", routingKey, message.payload.toString())
+                outboxRepository.markAsProcessed(message.id, Instant.now())
+                true
+            }
+        } catch (e: Exception) {
+            logger.error("Failed to process outbox message: {}", e.message, e)
+            false
         }
     }
 }
