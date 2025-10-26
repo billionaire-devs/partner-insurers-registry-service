@@ -3,6 +3,7 @@ package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persiste
 import com.bamboo.assur.partnerinsurersservice.core.domain.EntityAlreadyExistsException
 import com.bamboo.assur.partnerinsurersservice.core.domain.EntityNotFoundException
 import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToSaveEntityException
+import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToUpdateEntityException
 import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
@@ -164,20 +165,19 @@ class PartnerInsurerRepositoryImpl(
         )
     }
 
-    @Transactional
     override suspend fun update(partnerInsurer: PartnerInsurer): Boolean {
         logger.info("Updating Partner insurer: {}", partnerInsurer.id)
         val entity = partnerInsurer.toEntityTable()
 
         return try {
-            val updated = r2dbcEntityTemplate.update(entity).awaitSingleOrNull()
-            if (updated == null) {
-                logger.error("Failed to update partner insurer: {}", entity.id)
-                false
-            } else {
-                logger.info("Partner insurer updated: {}", updated.id)
-                true
-            }
+            val updatedPartnerInsurer = r2dbcEntityTemplate.update(entity).awaitSingleOrNull()
+                ?: throw FailedToUpdateEntityException(
+                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+                    entity.id
+                )
+
+            logger.info("Partner insurer updated: {}", updatedPartnerInsurer.javaClass)
+            true
         } catch (e: Exception) {
             logger.error("Failed during update of partner insurer {}", entity.id, e)
             throw e

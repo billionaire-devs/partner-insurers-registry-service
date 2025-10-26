@@ -16,9 +16,9 @@ class SecurityConfig {
             .csrf { it.disable() }
             .authorizeHttpRequests { authorize ->
                 authorize
-                    .requestMatchers("/actuator/**").permitAll()
-                    .requestMatchers("/api/partner-insurers/**").permitAll()
-                    .anyRequest().authenticated()
+                    .requestMatchers("/api/actuator/**").permitAll()
+//                    .requestMatchers("/api/v1/partner-insurers/**").authenticated()
+                    .anyRequest().permitAll()
             }
             .httpBasic { it.disable() }
             .formLogin { it.disable() }

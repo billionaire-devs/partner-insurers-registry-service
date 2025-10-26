@@ -12,6 +12,7 @@ import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxI
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.bind.annotation.PutMapping
 import java.util.UUID
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi

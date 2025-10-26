@@ -51,3 +51,11 @@ class FailedToSaveEntityException(
     entityType: String,
     entityId: Any
 ): DomainException("Failed to save $entityType with ID '$entityId'")
+
+/**
+ * Exception thrown when an entity fails to be saved.
+ */
+class FailedToUpdateEntityException(
+    entityType: String,
+    entityId: Any
+): DomainException("Failed to update $entityType with ID '$entityId'")

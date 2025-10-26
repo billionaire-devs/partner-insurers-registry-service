@@ -1,8 +1,10 @@
 package com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects
 
+import kotlinx.serialization.Serializable
 import java.net.URI
 
 @JvmInline
+@Serializable
 value class Url(val value: String) {
     init {
         require(value.isNotBlank()) { "URL cannot be blank." }

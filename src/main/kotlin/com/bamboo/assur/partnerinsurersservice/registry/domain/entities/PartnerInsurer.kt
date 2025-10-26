@@ -11,6 +11,7 @@ import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerIns
 import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerStatusChangedEvent
 import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerContactAddedEvent
+import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerUpdatedEvent
 import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxIdentificationNumber
 import org.slf4j.LoggerFactory
 import kotlin.time.ExperimentalTime
@@ -37,13 +38,13 @@ import kotlin.uuid.ExperimentalUuidApi
 class PartnerInsurer private constructor(
     id: DomainEntityId,
     val partnerInsurerCode: String,
-    val legalName: String,
+    var legalName: String,
     val taxIdentificationNumber: TaxIdentificationNumber,
-    val logoUrl: Url?,
+    var logoUrl: Url?,
     val contacts: MutableSet<Contact>,
     val brokerPartnerInsurerAgreements: MutableSet<BrokerPartnerInsurerAgreement>,
     var status: PartnerInsurerStatus,
-    val address: Address,
+    var address: Address,
 ) : AggregateRoot(id) {
     init {
         require(partnerInsurerCode.isNotBlank()) { "Partner code cannot be blank" }
@@ -233,6 +234,41 @@ class PartnerInsurer private constructor(
                 aggregateIdValue = id,
                 contact = contact,
                 partnerCode = partnerInsurerCode,
+            )
+        )
+    }
+
+    /**
+     * Updates the partner insurer with new information.
+     *
+     * This method allows updating various properties of the partner insurer including
+     * legal name, logo URL, and address.
+     * It validates the updates and records a [PartnerInsurerUpdatedEvent].
+     *
+     * @param legalName The new legal name of the partner insurer.
+     * @param logoUrl The new URL to the partner's logo.
+     * @param address The new physical address of the partner.
+     */
+    fun update(
+        legalName: String,
+        logoUrl: Url?,
+        address: Address,
+    ) {
+        require(legalName.isNotBlank()) { "Legal name cannot be blank" }
+
+        // Update mutable properties
+        this.legalName = legalName
+        this.logoUrl = logoUrl
+        this.address = address
+
+        touch()
+
+        addDomainEvent(
+            PartnerInsurerUpdatedEvent(
+                aggregateIdValue = id,
+                legalName = legalName,
+                logoUrl = logoUrl,
+                address = address,
             )
         )
     }
