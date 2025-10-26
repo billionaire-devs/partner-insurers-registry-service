@@ -163,4 +163,24 @@ class PartnerInsurerRepositoryImpl(
             sortDirection = sortDirection.name
         )
     }
+
+    @Transactional
+    override suspend fun update(partnerInsurer: PartnerInsurer): Boolean {
+        logger.info("Updating Partner insurer: {}", partnerInsurer.id)
+        val entity = partnerInsurer.toEntityTable()
+
+        return try {
+            val updated = r2dbcEntityTemplate.update(entity).awaitSingleOrNull()
+            if (updated == null) {
+                logger.error("Failed to update partner insurer: {}", entity.id)
+                false
+            } else {
+                logger.info("Partner insurer updated: {}", updated.id)
+                true
+            }
+        } catch (e: Exception) {
+            logger.error("Failed during update of partner insurer {}", entity.id, e)
+            throw e
+        }
+    }
 }

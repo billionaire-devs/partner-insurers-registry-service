@@ -13,7 +13,6 @@ import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsu
 import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerContactAddedEvent
 import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxIdentificationNumber
 import org.slf4j.LoggerFactory
-import java.util.logging.Logger
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -170,13 +169,7 @@ class PartnerInsurer private constructor(
      * @param reason The reason for the suspension.
      */
     fun suspend(reason: String) {
-        changeStatusTo(PartnerInsurerStatus.SUSPENDED, reason) {
-            status !in listOf(
-                PartnerInsurerStatus.SUSPENDED,
-                PartnerInsurerStatus.ONBOARDING,
-                PartnerInsurerStatus.MAINTENANCE
-            )
-        }
+        changeStatusTo(PartnerInsurerStatus.SUSPENDED, reason) { status == PartnerInsurerStatus.SUSPENDED }
     }
 
     /**
@@ -187,8 +180,8 @@ class PartnerInsurer private constructor(
      *
      * @param reason The reason for putting the partner on maintenance.
      */
-    fun putOnMaintenance(reason: String) {
-        changeStatusTo(PartnerInsurerStatus.MAINTENANCE, reason) { status != PartnerInsurerStatus.ACTIVE }
+    fun putInMaintenance(reason: String) {
+        changeStatusTo(PartnerInsurerStatus.MAINTENANCE, reason) { status == PartnerInsurerStatus.ACTIVE }
     }
 
     /**
@@ -200,13 +193,7 @@ class PartnerInsurer private constructor(
      * @param reason The reason for the deactivation.
      */
     fun deactivate(reason: String) {
-        changeStatusTo(PartnerInsurerStatus.SUSPENDED, reason) {
-            status in listOf(
-                PartnerInsurerStatus.ACTIVE,
-                PartnerInsurerStatus.ONBOARDING,
-                PartnerInsurerStatus.MAINTENANCE
-            )
-        }
+        changeStatusTo(PartnerInsurerStatus.DEACTIVATED, reason) { status == PartnerInsurerStatus.DEACTIVATED }
     }
 
     /**
@@ -218,7 +205,7 @@ class PartnerInsurer private constructor(
      * @param reason An optional reason for the status change.
      * @param guard A lambda function that returns `true` if the status change is invalid, `false` otherwise.
      */
-    private fun changeStatusTo(newStatus: PartnerInsurerStatus, reason: String?, guard: () -> Boolean) {
+    private fun changeStatusTo(newStatus: PartnerInsurerStatus, reason: String?,  guard: () -> Boolean) {
         if (guard()) {
             throw InvalidOperationException("Cannot change status from $status to $newStatus.")
         }

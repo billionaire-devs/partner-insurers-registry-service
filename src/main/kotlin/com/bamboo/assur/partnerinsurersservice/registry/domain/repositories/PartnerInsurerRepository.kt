@@ -13,6 +13,7 @@ interface PartnerInsurerRepository {
     suspend fun findById(id: UUID): PartnerInsurer?
     suspend fun findByPartnerCode(partnerCode: String): PartnerInsurer?
     suspend fun save(partnerInsurer: PartnerInsurer): Boolean
+    suspend fun update(partnerInsurer: PartnerInsurer): Boolean
     suspend fun delete(partnerInsurer: PartnerInsurer)
     suspend fun existsByPartnerCode(partnerCode: String): Boolean
     suspend fun streamAll(
