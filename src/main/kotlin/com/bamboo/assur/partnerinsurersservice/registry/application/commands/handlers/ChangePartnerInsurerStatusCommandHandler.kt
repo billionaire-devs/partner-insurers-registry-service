@@ -21,7 +21,7 @@ class ChangePartnerInsurerStatusCommandHandler(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    override suspend fun handle(
+    override suspend fun invoke(
         command: ChangePartnerInsurerStatusCommand,
     ): Result<ChangePartnerInsurerStatusResponseDto> = Result.of {
         logger.info("Changing status for partner insurer {} to {}", command.id, command.targetStatus)

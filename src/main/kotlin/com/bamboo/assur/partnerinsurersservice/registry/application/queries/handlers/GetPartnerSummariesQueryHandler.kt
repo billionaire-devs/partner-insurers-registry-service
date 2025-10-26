@@ -19,7 +19,7 @@ class GetPartnerSummariesQueryHandler(
     private val readRepository: PartnerInsurerRepository,
 ) : QueryHandler<GetPartnerSummariesQuery, Result<List<PartnerInsurerSummary>>> {
 
-    override suspend fun handle(query: GetPartnerSummariesQuery): Result<List<PartnerInsurerSummary>> = Result.of {
+    override suspend fun invoke(query: GetPartnerSummariesQuery): Result<List<PartnerInsurerSummary>> = Result.of {
         readRepository.streamAll(
             status = query.status,
             search = query.search,

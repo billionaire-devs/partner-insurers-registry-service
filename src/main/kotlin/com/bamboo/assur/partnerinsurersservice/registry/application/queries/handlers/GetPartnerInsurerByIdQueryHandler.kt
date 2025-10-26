@@ -23,7 +23,7 @@ class GetPartnerInsurerByIdQueryHandler(
     private val repository: PartnerInsurerRepository,
 ) : QueryHandler<GetPartnerInsurerByIdQuery, Result<PartnerInsurer>> {
 
-    override suspend fun handle(
+    override suspend fun invoke(
         query: GetPartnerInsurerByIdQuery,
     ): Result<PartnerInsurer> = Result.of {
         repository.findById(query.id) ?: throw NoSuchElementException("Partner insurer with id ${query.id} not found")

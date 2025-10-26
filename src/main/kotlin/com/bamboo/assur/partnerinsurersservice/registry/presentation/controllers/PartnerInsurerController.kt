@@ -18,17 +18,17 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalUuidApi::class)
 @RestController
-@RequestMapping("/api/partner-insurers")
+@RequestMapping("/api/partner-insurers", version = "1")
 class PartnerInsurerController(
     private val createCommandHandler: CreatePartnerInsurerCommandHandler,
     private val getPartnerSummariesQueryHandler: GetPartnerSummariesQueryHandler,
@@ -43,7 +43,7 @@ class PartnerInsurerController(
         request: CreatePartnerInsurerRequestDto,
     ): ResponseEntity<Any> {
         val command = request.toCommand()
-        return when (val result = createCommandHandler.handle(command)) {
+        return when (val result = createCommandHandler(command)) {
             is Result.Success -> ResponseEntity.ok(mapOf("id" to result.value))
             is Result.Failure -> ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
@@ -56,7 +56,7 @@ class PartnerInsurerController(
         @PathVariable id: UUID,
     ): ResponseEntity<Any> {
         val query = GetPartnerInsurerByIdQuery(id)
-        return when (val result = getPartnerInsurerByIdQueryHandler.handle(query)) {
+        return when (val result = getPartnerInsurerByIdQueryHandler(query)) {
             is Result.Success -> ResponseEntity.ok(result.value.toResponseDTO())
             is Result.Failure -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(mapOf("error" to result.message))
@@ -69,7 +69,7 @@ class PartnerInsurerController(
         @Validated @RequestBody request: ChangePartnerInsurerStatusRequestDto,
     ): ResponseEntity<Any> {
         val command = request.toCommand(id)
-        return when (val result = changeStatusCommandHandler.handle(command)) {
+        return when (val result = changeStatusCommandHandler(command)) {
             is Result.Success -> ResponseEntity.ok(result.value)
             is Result.Failure -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(mapOf("error" to result.message))
@@ -87,7 +87,7 @@ class PartnerInsurerController(
         @RequestParam(defaultValue = "ASC") sortDirection: SortDirection,
     ): ResponseEntity<Any> {
         val query = GetPartnerSummariesQuery(status, search, page, size, sortBy, sortDirection)
-        return when (val result = getPartnerSummariesQueryHandler.handle(query)) {
+        return when (val result = getPartnerSummariesQueryHandler(query)) {
             is Result.Success -> ResponseEntity.ok(result.value)
             is Result.Failure -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(mapOf("error" to result.message))

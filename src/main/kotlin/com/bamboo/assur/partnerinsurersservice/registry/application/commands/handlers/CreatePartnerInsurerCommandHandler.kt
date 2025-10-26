@@ -26,7 +26,7 @@ class CreatePartnerInsurerCommandHandler(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    override suspend fun handle(command: CreatePartnerInsurerCommand): Result<UUID> {
+    override suspend fun invoke(command: CreatePartnerInsurerCommand): Result<UUID> {
         if (partnerInsurerRepository.existsByPartnerCode(command.partnerCode)) {
             throw EntityAlreadyExistsException(
                 "PartnerInsurer",
