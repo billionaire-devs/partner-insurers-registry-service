@@ -1232,6 +1232,18 @@
 					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PATCH\",\n            \"path\": \"/api/partner-insurers/f09f0630-5f51-4ce2-8524-8ea03d3a4657/status\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 400,\n            \"reason\": \"Bad Request\",\n            \"timestamp\": \"2025-10-25T23:41:17.417669277+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"Invalid JSON body format\",\n        \"details\": \"{error=Request body is not a valid JSON, suggestion=Ensure the request body is a valid JSON document}\"\n    }\n}"
 				}
 			]
+		},
+		{
+			"name": "New Request",
+			"id": "48885987-a0a3f639-d6ac-4523-982c-fc693e99e1ed",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
 		}
 	],
 	"auth": {
