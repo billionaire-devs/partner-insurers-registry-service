@@ -39,7 +39,7 @@ class GlobalExceptionHandler {
     ): ApiResponse<Any> {
         val reqMeta = RequestMetadata(
             method = escapeHtml(request.method) ?: request.method,
-            path = escapeHtml(request.requestURI) ?: request.requestURI,
+            path = escapeHtml(request.requestURI) ?: "UNKNOWN",
             query = escapeHtml(request.queryString)
         )
 
@@ -52,7 +52,6 @@ class GlobalExceptionHandler {
         val errorBody = ErrorBody(
             message = escapeHtml(message),
             details = details?.mapValues { (_, v) -> escapeHtml(v.toString()) }.toString()
-                ?: "No additional details available"
         )
 
         val meta = Meta(request = reqMeta, response = respMeta)
@@ -77,7 +76,7 @@ class GlobalExceptionHandler {
         )
         val response = buildApiResponse(
             status = HttpStatus.BAD_REQUEST,
-            message = "Invalid request: ${ex.message ?: "Invalid argument provided"}",
+            message = "Invalid request: ${escapeHtml(ex.message) ?: "Invalid argument provided"}",
             request = request,
             details = details
         )
@@ -132,11 +131,11 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ApiResponse<Any>> {
         val fieldErrors = ex.bindingResult.fieldErrors.associate { error ->
-            error.field to (error.defaultMessage ?: "Validation failed")
+            error.field to escapeHtml(error.defaultMessage ?: "Validation failed")
         }
         
         val globalErrors = ex.bindingResult.globalErrors.associate { error ->
-            error.objectName to (error.defaultMessage ?: "Validation failed")
+            error.objectName to escapeHtml(error.defaultMessage ?: "Validation failed")
         }
         
         val details = mapOf(
@@ -202,7 +201,10 @@ class GlobalExceptionHandler {
 
     // Handle Spring mapping/instantiation failures (e.g. when a DB row has null for a non-null constructor param)
     @ExceptionHandler(BeanInstantiationException::class)
-    fun handleBeanInstantiation(ex: BeanInstantiationException, request: HttpServletRequest): ResponseEntity<ApiResponse<Any>> {
+    fun handleBeanInstantiation(
+        ex: BeanInstantiationException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiResponse<Any>> {
         val causeMessage = ex.cause?.message ?: ex.message
         val message = "Failed to instantiate projection / DTO: ${causeMessage ?: "see server logs"}"
         val body = buildApiResponse(HttpStatus.BAD_REQUEST, message, request)
@@ -210,7 +212,10 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MappingInstantiationException::class)
-    fun handleMappingInstantiation(ex: MappingInstantiationException, request: HttpServletRequest): ResponseEntity<ApiResponse<Any>> {
+    fun handleMappingInstantiation(
+        ex: MappingInstantiationException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiResponse<Any>> {
         val causeMessage = ex.cause?.message ?: ex.message
         val message = "Failed to map database row to projection: ${causeMessage ?: "see server logs"}"
         val body = buildApiResponse(HttpStatus.BAD_REQUEST, message, request)
@@ -246,7 +251,10 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(FailedToSaveEntityException::class)
-    fun handleFailedToSaveEntity(ex: FailedToSaveEntityException, request: HttpServletRequest): ResponseEntity<ApiResponse<Any>> {
+    fun handleFailedToSaveEntity(
+        ex: FailedToSaveEntityException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ApiResponse<Any>> {
         val body = buildApiResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.message, request)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body)
     }
