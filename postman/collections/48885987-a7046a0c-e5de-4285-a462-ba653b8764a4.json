@@ -1240,10 +1240,109 @@
 				"disableBodyPruning": true
 			},
 			"request": {
-				"method": "GET",
-				"header": []
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"legalName\": \"Artemis\",\n    \"logoUrl\": \"https://www.ressources.artemis.com/logo.png\",\n    \"address\": {\n        \"street\": \"25 Rue Jean Luc\",\n        \"city\": \"Sardesville\",\n        \"zipCode\": \"9966\",\n        \"country\": \"Gabon\"\n    }   \n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/partner-insurers/e9b34c1c-3182-4d02-b3e3-8156f0186e34",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"partner-insurers",
+						"e9b34c1c-3182-4d02-b3e3-8156f0186e34"
+					]
+				}
 			},
-			"response": []
+			"response": [
+				{
+					"id": "48885987-a856d95d-1caa-4c7b-9a0d-64e5da703a6a",
+					"name": "200 OK",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"legalName\": \"Artemis\",\n    \"logoUrl\": \"https://www.ressources.artemis.com/logo.png\",\n    \"address\": {\n        \"street\": \"25 Rue Jean Luc\",\n        \"city\": \"Sardesville\",\n        \"zipCode\": \"9966\",\n        \"country\": \"Gabon\"\n    }   \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/partner-insurers/e9b34c1c-3182-4d02-b3e3-8156f0186e34",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"partner-insurers",
+								"e9b34c1c-3182-4d02-b3e3-8156f0186e34"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "X-Content-Type-Options",
+							"value": "nosniff"
+						},
+						{
+							"key": "X-XSS-Protection",
+							"value": "0"
+						},
+						{
+							"key": "Cache-Control",
+							"value": "no-cache, no-store, max-age=0, must-revalidate"
+						},
+						{
+							"key": "Pragma",
+							"value": "no-cache"
+						},
+						{
+							"key": "Expires",
+							"value": "0"
+						},
+						{
+							"key": "X-Frame-Options",
+							"value": "DENY"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						},
+						{
+							"key": "Transfer-Encoding",
+							"value": "chunked"
+						},
+						{
+							"key": "Date",
+							"value": "Sun, 26 Oct 2025 08:13:29 GMT"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=60"
+						},
+						{
+							"key": "Connection",
+							"value": "keep-alive"
+						}
+					],
+					"cookie": [],
+					"responseTime": null,
+					"body": "{\n    \"success\": true,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"PUT\",\n            \"path\": \"/bamboo-assur/partner-insurers-service/api/v1/partner-insurers/e9b34c1c-3182-4d02-b3e3-8156f0186e34\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 200,\n            \"reason\": \"OK\",\n            \"timestamp\": \"2025-10-26T09:13:29.177575359+01:00\"\n        }\n    },\n    \"data\": \"e9b34c1c-3182-4d02-b3e3-8156f0186e34\",\n    \"error\": null\n}"
+				}
+			]
 		}
 	],
 	"auth": {
