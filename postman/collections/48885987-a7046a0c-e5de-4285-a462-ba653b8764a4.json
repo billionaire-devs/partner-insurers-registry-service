@@ -1234,7 +1234,7 @@
 			]
 		},
 		{
-			"name": "New Request",
+			"name": "Update",
 			"id": "48885987-a0a3f639-d6ac-4523-982c-fc693e99e1ed",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
