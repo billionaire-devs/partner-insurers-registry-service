@@ -1234,7 +1234,7 @@
 			]
 		},
 		{
-			"name": "Update",
+			"name": "Update partially",
 			"id": "48885987-a0a3f639-d6ac-4523-982c-fc693e99e1ed",
 			"protocolProfileBehavior": {
 				"disableBodyPruning": true
@@ -1244,7 +1244,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"legalName\": \"Artemis\",\n    \"logoUrl\": \"https://www.ressources.artemis.com/logo.png\",\n    \"address\": {\n        \"street\": \"25 Rue Jean Luc\",\n        \"city\": \"Sardesville\",\n        \"zipCode\": \"9966\",\n        \"country\": \"Gabon\"\n    }   \n}",
+					"raw": "{\n    \"legalName\": \"Artemis\",\n    \"logoUrl\": \"https://www.ressources.artemis.com/logo.png\",\n    \"address\": {\n        \"street\": \"69 Rue Jean Luc\",\n        \"city\": \"Sardesville\",\n        \"zipCode\": \"9966\",\n        \"country\": \"Gabon\"\n    }   \n}",
 					"options": {
 						"raw": {
 							"language": "json"
