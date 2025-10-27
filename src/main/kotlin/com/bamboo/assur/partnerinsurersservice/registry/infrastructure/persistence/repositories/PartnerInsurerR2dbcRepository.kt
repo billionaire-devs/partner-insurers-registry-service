@@ -1,6 +1,6 @@
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.repositories
 
-import com.bamboo.assur.partnerinsurersservice.registry.application.queries.PartnerInsurerSummary
+import com.bamboo.assur.partnerinsurersservice.registry.application.queries.models.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities.PartnerInsurerTable
 import kotlinx.coroutines.flow.Flow
 import org.springframework.data.r2dbc.repository.Query

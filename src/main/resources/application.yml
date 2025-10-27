@@ -36,6 +36,10 @@ logging:
   level:
     com.bamboo.assur.partnerinsurersservice: debug
     org.springframework.data.r2dbc: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.postgresql: DEBUG
     root: warn
     web: trace
     sql: trace
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE

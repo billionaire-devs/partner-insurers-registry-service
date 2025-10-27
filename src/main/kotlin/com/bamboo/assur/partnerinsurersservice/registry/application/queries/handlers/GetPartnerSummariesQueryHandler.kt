@@ -3,7 +3,7 @@ package com.bamboo.assur.partnerinsurersservice.registry.application.queries.han
 import com.bamboo.assur.partnerinsurersservice.core.application.QueryHandler
 import com.bamboo.assur.partnerinsurersservice.core.domain.Result
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.GetPartnerSummariesQuery
-import com.bamboo.assur.partnerinsurersservice.registry.application.queries.PartnerInsurerSummary
+import com.bamboo.assur.partnerinsurersservice.registry.application.queries.models.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service

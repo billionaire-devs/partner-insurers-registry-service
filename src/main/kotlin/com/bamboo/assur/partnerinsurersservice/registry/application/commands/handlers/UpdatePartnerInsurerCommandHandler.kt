@@ -3,11 +3,9 @@ package com.bamboo.assur.partnerinsurersservice.registry.application.commands.ha
 import com.bamboo.assur.partnerinsurersservice.core.application.CommandHandler
 import com.bamboo.assur.partnerinsurersservice.core.domain.Result
 import com.bamboo.assur.partnerinsurersservice.core.domain.EntityNotFoundException
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Url
 import com.bamboo.assur.partnerinsurersservice.core.infrastructure.events.DomainEventPublisher
 import com.bamboo.assur.partnerinsurersservice.registry.application.commands.UpdatePartnerInsurerCommand
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
-import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxIdentificationNumber
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -23,33 +21,40 @@ class UpdatePartnerInsurerCommandHandler(
     @Transactional
     override suspend fun invoke(command: UpdatePartnerInsurerCommand): Result<UUID> {
         logger.info("Updating partner insurer with id: {}", command.id)
-        
-        val existingPartner = partnerInsurerRepository.findById(command.id)
-            ?: throw EntityNotFoundException("PartnerInsurer", command.id.toString())
 
-        try {
-            existingPartner.update(
-                legalName = command.legalName,
-                logoUrl = command.logoUrl?.let { Url(it) },
-                address = command.address,
-            )
+        return try {
+            val partialUpdate = command.toPartialUpdate()
 
-            val isUpdated = partnerInsurerRepository.update(existingPartner)
-            if (!isUpdated) {
+            if (!partialUpdate.hasChanges()) {
+                logger.info("No changes detected for partner insurer with id: {}", command.id)
+                return Result.success(command.id)
+            }
+
+            // Use partial update to avoid fetching contacts and updating only changed fields
+            val success = partnerInsurerRepository.partialUpdate(command.id, partialUpdate)
+
+            if (!success) {
                 return Result.failure("Failed to update partner insurer with id: ${command.id}")
             }
 
+            // For domain events, we need to get the updated entity to publish events
+            val updatedPartner = partnerInsurerRepository.findByIdForUpdate(command.id)
+                ?: throw EntityNotFoundException("PartnerInsurer", command.id.toString())
+
+            // Apply the partial update to trigger domain events
+            updatedPartner.partialUpdate(partialUpdate)
+
             // Publish domain events
-            if (existingPartner.hasPendingEvents()) {
-                domainEventPublisher.publish(existingPartner.getDomainEvents())
-                existingPartner.clearDomainEvents()
+            if (updatedPartner.hasPendingEvents()) {
+                domainEventPublisher.publish(updatedPartner.getDomainEvents())
+                updatedPartner.clearDomainEvents()
             }
 
             logger.info("Successfully updated partner insurer with id: {}", command.id)
-            return Result.success(command.id)
+            Result.success(command.id)
         } catch (e: Exception) {
             logger.error("Error updating partner insurer with id: ${command.id}", e)
-            return Result.failure("Error updating partner insurer: ${e.message}")
+            Result.failure("Error updating partner insurer: ${e.message}")
         }
     }
 }

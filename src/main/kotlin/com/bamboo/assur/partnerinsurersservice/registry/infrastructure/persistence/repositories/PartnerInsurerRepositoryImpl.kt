@@ -5,7 +5,8 @@ import com.bamboo.assur.partnerinsurersservice.core.domain.EntityNotFoundExcepti
 import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToSaveEntityException
 import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToUpdateEntityException
 import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
-import com.bamboo.assur.partnerinsurersservice.registry.application.queries.PartnerInsurerSummary
+import com.bamboo.assur.partnerinsurersservice.registry.application.queries.models.PartnerInsurerSummary
+import com.bamboo.assur.partnerinsurersservice.registry.application.commands.models.PartnerInsurerUpdate
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
 import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities.PartnerInsurerContactTable
@@ -15,6 +16,8 @@ import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persisten
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.encodeToJsonElement
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
@@ -129,6 +132,15 @@ class PartnerInsurerRepositoryImpl(
         return entity.toDomain(contacts = contacts, agreements = emptySet())
     }
 
+    /**
+     * Used for partial update (PATCH) - returns the PartnerInsurerTable entity (without contacts)
+     */
+    override suspend fun findByIdForUpdate(id: UUID): PartnerInsurer? {
+        val entity = partnerInsurerR2dbcRepository.findById(id) ?: return null
+        // For updates, we don't need contacts, so return with empty contacts set
+        return entity.toDomain(contacts = emptySet(), agreements = emptySet())
+    }
+
     override suspend fun findByPartnerCode(partnerCode: String): PartnerInsurer? {
         val entity = partnerInsurerR2dbcRepository.findByPartnerInsurerCode(partnerCode) ?: return null
         val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
@@ -180,6 +192,50 @@ class PartnerInsurerRepositoryImpl(
             true
         } catch (e: Exception) {
             logger.error("Failed during update of partner insurer {}", entity.id, e)
+            throw e
+        }
+    }
+
+    /**
+     * Partial update for partner insurer entity.
+     * Only updates the fields that are provided in the update object.
+     * This is more efficient than full updates as it doesn't fetch contacts and only updates changed fields.
+     *
+     * @param id UUID id of the partner insurer
+     * @param update PartnerInsurerUpdate containing only fields to update
+     * @return true if update successful
+     */
+    override suspend fun partialUpdate(id: UUID, update: PartnerInsurerUpdate): Boolean {
+        logger.info("Partial update PartnerInsurer id: {}, fields: {}", id, update)
+
+        if (!update.hasChanges()) {
+            logger.info("No changes detected for partner insurer {}", id)
+            return true
+        }
+
+        val entity = partnerInsurerR2dbcRepository.findById(id) ?: throw EntityNotFoundException(
+            PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+            id
+        )
+
+        // Create updated entity with only the changed fields
+        val updatedEntity = entity.copy(
+            legalName = update.legalName ?: entity.legalName,
+            logoUrl = update.logoUrl?.value ?: entity.logoUrl,
+            address = update.address?.let { Json.encodeToJsonElement(it) } ?: entity.address,
+            updatedAt = java.time.Instant.now()
+        )
+
+        return try {
+            val result = r2dbcEntityTemplate.update(updatedEntity).awaitSingleOrNull()
+                ?: throw FailedToUpdateEntityException(
+                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+                    id
+                )
+            logger.info("Partner insurer partial update applied: {}", result.id)
+            true
+        } catch (e: Exception) {
+            logger.error("Failed during partial update of partner insurer {}", id, e)
             throw e
         }
     }

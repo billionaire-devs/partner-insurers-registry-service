@@ -1,9 +1,9 @@
-package com.bamboo.assur.partnerinsurersservice.registry.application.queries
+package com.bamboo.assur.partnerinsurersservice.registry.application.queries.models
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
-import java.util.*
+import java.util.UUID
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)

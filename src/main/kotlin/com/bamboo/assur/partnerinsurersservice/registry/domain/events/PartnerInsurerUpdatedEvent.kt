@@ -17,11 +17,11 @@ import kotlin.uuid.ExperimentalUuidApi
 data class PartnerInsurerUpdatedEvent(
     @Contextual
     val aggregateIdValue: DomainEntityId,
-    val legalName: String,
+    val legalName: String?,
     @Contextual
     val logoUrl: Url?,
     @Contextual
-    val address: Address,
+    val address: Address?,
 ) : DomainEvent(
     aggregateId = aggregateIdValue,
     aggregateType = PartnerInsurer::class.simpleName.orEmpty(),
