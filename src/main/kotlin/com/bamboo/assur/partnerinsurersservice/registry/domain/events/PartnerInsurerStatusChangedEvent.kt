@@ -19,5 +19,5 @@ data class PartnerInsurerStatusChangedEvent(
 ) : DomainEvent(
     aggregateId = aggregateIdValue,
     aggregateType = PartnerInsurer::class.simpleName.orEmpty(),
-    eventType = PartnerInsurerStatusChangedEvent::class.simpleName.orEmpty()
+    eventType = createEventTypeName(this::class)
 )

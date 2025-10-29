@@ -1,13 +1,14 @@
 package com.bamboo.assur.partnerinsurersservice.core.domain
+
 import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import java.util.UUID
+import kotlin.reflect.KClass
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 /**
  * Represents a domain event in a domain-driven design context.
@@ -33,4 +34,27 @@ abstract class DomainEvent(
     val eventType: String,
     @Contextual
     val occurredOn: Instant = Clock.System.now(),
-)
+) {
+    companion object {
+        /**
+         * Returns a descriptive event type name for the given domain event class.
+         *
+         * This method takes a domain event class as input and returns a string
+         * that can be used to identify or categorize the event. The returned
+         * string is the simple name of the class, minus the "Event" suffix,
+         * if present.
+         *
+         * @param domainEventClass The class of the domain event.
+         * @return A descriptive event type name.
+         */
+        fun <T: DomainEvent> createEventTypeName(domainEventClass: KClass<in T>): String {
+            val simpleName = domainEventClass.simpleName.orEmpty()
+            val eventNameSuffix = "Event"
+            return if (simpleName.endsWith(eventNameSuffix)) {
+                simpleName.removeSuffix(eventNameSuffix)
+            } else {
+                simpleName
+            }
+        }
+    }
+}
