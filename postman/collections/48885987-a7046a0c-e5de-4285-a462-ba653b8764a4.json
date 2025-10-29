@@ -366,37 +366,6 @@
 					"cookie": [],
 					"responseTime": null,
 					"body": "{\n    \"success\": false,\n    \"meta\": {\n        \"request\": {\n            \"method\": \"POST\",\n            \"path\": \"/api/partner-insurers\",\n            \"query\": null\n        },\n        \"response\": {\n            \"status\": 400,\n            \"reason\": \"Bad Request\",\n            \"timestamp\": \"2025-10-25T23:48:31.112159938+01:00\"\n        }\n    },\n    \"data\": null,\n    \"error\": {\n        \"message\": \"Validation failed. 2 field(s) have errors.\",\n        \"details\": \"{fieldErrors={partnerCode=Partner code cannot be blank, legalName=Legal name cannot be blank}, globalErrors={}, totalErrors=2}\"\n    }\n}"
-				},
-				{
-					"id": "48885987-5b99cdb0-dece-4dc9-b572-c9ffe1db8339",
-					"name": "Create Partner Insurer",
-					"originalRequest": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"partnerCode\": \"lmn789opq456\",\n    \"legalName\": \"Vertex Dynamics\",\n    \"taxIdentificationNumber\": \"12345QWERTY67890\",\n    \"logoUrl\": \"https://www.content.vertexdynamics.com/logo789.png\",\n    \"contacts\": [\n        {\n            \"fullName\": \"Jamie Lee\",\n            \"email\": \"jamie.lee@vertexdynamics.com\",\n            \"phone\": \"+442071234567\",\n            \"role\": \"cfo\"\n        }\n    ],\n    \"address\": {\n        \"street\": \"456 Enterprise Avenue\",\n        \"city\": \"Metro City\",\n        \"zipCode\": \"10001\",\n        \"country\": \"United Kingdom\"\n    },\n    \"status\": \"ONBOARDING\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{baseUrl}}/partner-insurers",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"partner-insurers"
-							]
-						}
-					},
-					"_postman_previewlanguage": null,
-					"header": null,
-					"cookie": [],
-					"responseTime": null,
-					"body": null
 				}
 			]
 		},
