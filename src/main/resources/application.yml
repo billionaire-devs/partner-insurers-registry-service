@@ -1,7 +1,45 @@
+server:
+  servlet:
+    context-path: /bamboo-assur/partner-insurers-service/api
+    application-display-name: Partner Insurers Service
+
 spring:
   application:
     name: partner-insurers-service
+  security:
+    user:
+      name: morriss
+      password: morrisson
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/partner-insurers-service
+    url: r2dbc:postgresql://localhost:5432/partner_insurers_service_db
     username: postgres-username
     password: postgres-secret
+    name: partner_insurers_service_db
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/partner_insurers_service_db
+    user: postgres-username
+    password: postgres-secret
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: rabbitmq-username
+    password: rabbitmq-secret
+
+partner-insurers:
+  outbox:
+    enabled: true
+    processing-interval-millis: 30000
+    batch-size: 100
+
+logging:
+  level:
+    com.bamboo.assur.partnerinsurersservice: debug
+    org.springframework.data.r2dbc: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.postgresql: DEBUG
+    root: warn
+    web: trace
+    sql: trace
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE

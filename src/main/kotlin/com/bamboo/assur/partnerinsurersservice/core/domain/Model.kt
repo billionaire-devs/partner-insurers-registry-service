@@ -1,5 +1,6 @@
 package com.bamboo.assur.partnerinsurersservice.core.domain
 
+import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -19,8 +20,8 @@ import kotlin.time.Instant
  *                     defaulting to the creation time.
  */
 @OptIn(ExperimentalTime::class)
-abstract class Model<ID : Any>(
-    val id: ID,
+abstract class Model(
+    val id: DomainEntityId,
     val createdAt: Instant = Clock.System.now(),
     var updatedAt: Instant = createdAt
 ) {
@@ -39,7 +40,7 @@ abstract class Model<ID : Any>(
      */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Model<*>) return false
+        if (other !is Model) return false
         return id == other.id
     }
     

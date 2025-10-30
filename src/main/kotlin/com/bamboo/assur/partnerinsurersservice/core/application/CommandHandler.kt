@@ -31,5 +31,5 @@ interface CommandHandler<in C : Command, out R> {
      * @return The result of processing the command
      * @throws Exception if the command cannot be processed or validation fails
      */
-    suspend fun handle(command: C): R
+    suspend operator fun invoke(command: C): R
 }
