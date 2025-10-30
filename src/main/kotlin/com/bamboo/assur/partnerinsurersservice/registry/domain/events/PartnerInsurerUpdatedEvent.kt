@@ -1,13 +1,11 @@
 package com.bamboo.assur.partnerinsurersservice.registry.domain.events
 
 import com.bamboo.assur.partnerinsurersservice.core.domain.DomainEvent
+import com.bamboo.assur.partnerinsurersservice.core.domain.utils.getAggregateTypeOrEmpty
 import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Address
 import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
 import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Url
-import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.Contact
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
-import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsurerStatus
-import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxIdentificationNumber
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlin.uuid.ExperimentalUuidApi
@@ -24,6 +22,6 @@ data class PartnerInsurerUpdatedEvent(
     val address: Address?,
 ) : DomainEvent(
     aggregateId = aggregateIdValue,
-    aggregateType = PartnerInsurer::class.simpleName.orEmpty(),
-    eventType = createEventTypeName(this::class)
+    aggregateType = getAggregateTypeOrEmpty<PartnerInsurer>(),
+    eventType = getEventTypeNameOrDefault< PartnerInsurerCreatedEvent>()
 )

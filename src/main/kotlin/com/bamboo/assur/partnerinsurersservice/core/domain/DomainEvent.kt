@@ -37,24 +37,15 @@ abstract class DomainEvent(
 ) {
     companion object {
         /**
-         * Returns a descriptive event type name for the given domain event class.
+         * Returns the simple name of the domain event class, removing the "Event" suffix,
+         * or a default value if the name is null.
          *
-         * This method takes a domain event class as input and returns a string
-         * that can be used to identify or categorize the event. The returned
-         * string is the simple name of the class, minus the "Event" suffix,
-         * if present.
-         *
-         * @param domainEventClass The class of the domain event.
-         * @return A descriptive event type name.
+         * @param T The type parameter representing the domain event class.
+         * @param default The default string value to return if the class name is null.
+         * @return The simple name of the domain event class, or the default value if the name is null.
          */
-        fun <T: DomainEvent> createEventTypeName(domainEventClass: KClass<in T>): String {
-            val simpleName = domainEventClass.simpleName.orEmpty()
-            val eventNameSuffix = "Event"
-            return if (simpleName.endsWith(eventNameSuffix)) {
-                simpleName.removeSuffix(eventNameSuffix)
-            } else {
-                simpleName
-            }
+        inline fun <reified T: DomainEvent> getEventTypeNameOrDefault(default: String = "Event"): String {
+            return T::class.simpleName?.removeSuffix("Event") ?: default
         }
     }
 }
