@@ -57,10 +57,11 @@ jobs:
       env:
         SPRING_PROFILES_ACTIVE: test
 
-    - name: Run integration tests
-      run: ./gradlew integrationTest
-      env:
-        SPRING_PROFILES_ACTIVE: test
+#     Not yet implemented
+#    - name: Run integration tests
+#      run: ./gradlew integrationTest
+#      env:
+#        SPRING_PROFILES_ACTIVE: test
 
   build:
     needs: test
