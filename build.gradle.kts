@@ -8,7 +8,7 @@ plugins {
 
 group = "com.bamboo.assur"
 version = "0.0.1-SNAPSHOT"
-description = "partner-insurers-service"
+description = "partner-insurers-core-service"
 
 java {
     toolchain {
@@ -40,6 +40,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework:spring-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:rabbitmq")
+    testImplementation("org.testcontainers:db2")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:r2dbc")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
     runtimeOnly("org.postgresql:postgresql")
@@ -61,4 +67,7 @@ kotlin {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }

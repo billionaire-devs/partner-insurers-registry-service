@@ -1,5 +1,5 @@
--- Migration V1: Create Partner Insurer Schema
--- Description: Initial schema creation for Partner Insurers Service
+-- Migration V1: Create Partner Insurers Core Schema
+-- Description: Initial schema creation for Partner Insurers Core Service
 -- Author: @MelSardes
 -- Date: 2025-10-17
 -- Version: 1.0.0
