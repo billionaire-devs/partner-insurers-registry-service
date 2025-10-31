@@ -35,12 +35,20 @@ COPY --from=build /app/build/libs/*.jar app.jar
 RUN chown -R appuser:appgroup /app
 USER appuser
 
+# Default environment variables
+ENV SPRING_PROFILES_ACTIVE=prod \
+    JAVA_TOOL_OPTIONS="-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+UseG1GC" \
+    SERVER_PORT=8080
+
 # Expose the port the app runs on
 EXPOSE 8080
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8080/health || exit 1
+# Health check using Spring Boot Actuator
+HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8080/bamboo-assur/partner-insurers/core/api/actuator/health || exit 1
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+# Create a script to run the application
+COPY --from=build /app/src/main/resources/docker-entrypoint.sh /app/
+RUN chmod +x /app/docker-entrypoint.sh
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
