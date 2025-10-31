@@ -6,6 +6,8 @@ on:
       - main
       - develop
       - 'release/*'
+      - 'feature/*'
+      - 'fix/*'
 
 permissions:
   contents: write

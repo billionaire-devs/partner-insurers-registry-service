@@ -10,6 +10,10 @@
       "prerelease": "SNAPSHOT"
     },
     {
+      "name": "fix/*",
+      "prerelease": "SNAPSHOT"
+    },
+    {
       "name": "release/*",
       "prerelease": "RC"
     }
