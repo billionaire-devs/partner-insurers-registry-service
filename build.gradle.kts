@@ -8,7 +8,7 @@ plugins {
 
 group = "com.bamboo.assur"
 version = "0.0.1-SNAPSHOT"
-description = "partner-insurers-service"
+description = "partner-insurers-core-service"
 
 java {
     toolchain {
