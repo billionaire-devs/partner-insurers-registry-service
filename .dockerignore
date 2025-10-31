@@ -45,7 +45,6 @@ node_modules/
 
 # Gradle
 .gradle/
-gradle/
 
 # Documentation
 Docs/
