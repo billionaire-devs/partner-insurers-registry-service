@@ -1,5 +1,5 @@
 # Multi-stage build for Spring Boot Kotlin application
-FROM gradle:8.14-jdk21 AS build
+FROM gradle:9.1-jdk21 AS build
 
 WORKDIR /app
 
