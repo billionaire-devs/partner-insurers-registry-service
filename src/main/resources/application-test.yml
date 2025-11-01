@@ -1,0 +1,23 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/partner_insurers_core_db_test
+    username: postgres-username-test
+    password: postgres-secret-test
+    name: partner_insurers_core_db_test
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/partner_insurers_core_db_test
+    user: postgres-username-test
+    password: postgres-secret-test
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+logging:
+  level:
+    com.bamboo.assur.partnerinsurersservice: debug

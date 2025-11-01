@@ -45,7 +45,6 @@ node_modules/
 
 # Gradle
 .gradle/
-gradle/
 
 # Documentation
 Docs/
@@ -59,3 +58,6 @@ compose.yaml
 
 # GitHub
 .github/
+
+# Compiler
+.kotlin

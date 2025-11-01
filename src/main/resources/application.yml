@@ -1,7 +1,32 @@
+server:
+  servlet:
+    context-path: /bamboo-assur/partner-insurers/core/api
+    application-display-name: Partner Insurers Core Service
+
 spring:
   application:
-    name: partner-insurers-service
-  r2dbc:
-    url: r2dbc:postgresql://localhost:5432/partner-insurers-service
-    username: postgres-username
-    password: postgres-secret
+    name: partner-insurers-core-service
+  profiles:
+    default: dev
+  security:
+    user:
+      name: morriss
+      password: morrisson
+
+partner-insurers:
+  outbox:
+    enabled: true
+    processing-interval-millis: 30000
+    batch-size: 100
+
+logging:
+  level:
+    com.bamboo.assur.partnerinsurersservice: debug
+    org.springframework.data.r2dbc: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.postgresql: DEBUG
+    root: warn
+    web: WARN
+    sql: trace
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: DEBUG

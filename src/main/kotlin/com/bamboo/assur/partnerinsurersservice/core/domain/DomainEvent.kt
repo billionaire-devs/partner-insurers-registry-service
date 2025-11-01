@@ -1,10 +1,14 @@
 package com.bamboo.assur.partnerinsurersservice.core.domain
 
+import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
+import java.util.UUID
+import kotlin.reflect.KClass
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 /**
  * Represents a domain event in a domain-driven design context.
@@ -20,10 +24,28 @@ import kotlin.uuid.Uuid
  * @param occurredOn The timestamp indicating when the event occurred, defaulting to the current system time.
  */
 @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
-class DomainEvent(
-    val eventId: Uuid = Uuid.Companion.random(),
-    val aggregateId: Any,
+@Serializable
+abstract class DomainEvent(
+    @Contextual
+    val eventId: DomainEntityId = DomainEntityId(UUID.randomUUID()),
+    @Contextual
+    val aggregateId: DomainEntityId,
     val aggregateType: String,
     val eventType: String,
+    @Contextual
     val occurredOn: Instant = Clock.System.now(),
-)
+) {
+    companion object {
+        /**
+         * Returns the simple name of the domain event class, removing the "Event" suffix,
+         * or a default value if the name is null.
+         *
+         * @param T The type parameter representing the domain event class.
+         * @param default The default string value to return if the class name is null.
+         * @return The simple name of the domain event class, or the default value if the name is null.
+         */
+        inline fun <reified T: DomainEvent> getEventTypeNameOrDefault(default: String = "Event"): String {
+            return T::class.simpleName?.removeSuffix("Event") ?: default
+        }
+    }
+}

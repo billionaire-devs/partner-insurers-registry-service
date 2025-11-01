@@ -1,0 +1,183 @@
+{
+  "description": "Examples of PaymentMethod JSON structures for the payment_terms table",
+  "version": "1.0.0",
+  "schema": "partner_insurers",
+  "table": "payment_terms",
+  "column": "payment_method",
+  "kotlinClass": "com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PaymentMethod",
+  "examples": [
+    {
+      "name": "BankTransfer - BGFI Bank with RIB",
+      "description": "Traditional bank transfer via BGFI Bank in CEMAC zone",
+      "json": {
+        "type": "BankTransfer",
+        "currency": "XAF",
+        "isAutomatic": false,
+        "requiresApproval": true,
+        "provider": "BGFI",
+        "account": {
+          "rib": "10002 00101 27101486401 13",
+          "accountHolder": "ALLIANZ CAMEROUN ASSURANCES SA",
+          "swiftCode": "BGFICA2XXXX"
+        }
+      }
+    },
+    {
+      "name": "BankTransfer - UBA without SWIFT",
+      "description": "Domestic bank transfer via UBA (no international transfers)",
+      "json": {
+        "type": "BankTransfer",
+        "currency": "XAF",
+        "isAutomatic": false,
+        "requiresApproval": true,
+        "provider": "UBA",
+        "account": {
+          "rib": "10033 00101 12345678901 45",
+          "accountHolder": "AXA ASSURANCES CAMEROUN"
+        }
+      }
+    },
+    {
+      "name": "BankTransfer - International with SWIFT",
+      "description": "International bank transfer with full SWIFT details",
+      "json": {
+        "type": "BankTransfer",
+        "currency": "EUR",
+        "isAutomatic": false,
+        "requiresApproval": true,
+        "provider": "ECOBANK",
+        "account": {
+          "rib": "10005 00101 98765432109 87",
+          "accountHolder": "ACTIVA ASSURANCES SA",
+          "swiftCode": "ECOCGCAXXXX"
+        }
+      }
+    },
+    {
+      "name": "MobileMoney - MTN with phone number",
+      "description": "Mobile money payment via MTN Mobile Money with phone number",
+      "json": {
+        "type": "MobileMoney",
+        "currency": "XAF",
+        "isAutomatic": true,
+        "requiresApproval": false,
+        "provider": "MOOV_MONEY",
+        "phoneNumber": "+237677123456"
+      }
+    },
+    {
+      "name": "MobileMoney - Airtel with account code",
+      "description": "Mobile money payment via Airtel Money with merchant account code",
+      "json": {
+        "type": "MobileMoney",
+        "currency": "XAF",
+        "isAutomatic": true,
+        "requiresApproval": false,
+        "provider": "AIRTEL_MONEY",
+        "accountCode": "AM-MERCHANT-12345"
+      }
+    },
+    {
+      "name": "MobileMoney - Wave with both phone and account",
+      "description": "Mobile money payment via Wave with both phone number and account code",
+      "json": {
+        "type": "MobileMoney",
+        "currency": "XAF",
+        "isAutomatic": true,
+        "requiresApproval": false,
+        "provider": "WAVE",
+        "phoneNumber": "+237655987654",
+        "accountCode": "WAVE-BIZ-67890"
+      }
+    },
+    {
+      "name": "MobileMoney - Express Union",
+      "description": "Mobile money payment via Express Union",
+      "json": {
+        "type": "MobileMoney",
+        "currency": "XAF",
+        "isAutomatic": true,
+        "requiresApproval": false,
+        "provider": "EXPRESS_UNION",
+        "phoneNumber": "+237690112233"
+      }
+    },
+    {
+      "name": "Manual - Check payment",
+      "description": "Manual payment by check with reference",
+      "json": {
+        "type": "Manual",
+        "currency": "XAF",
+        "isAutomatic": false,
+        "requiresApproval": true,
+        "mode": "CHEQUE",
+        "reference": "CHQ-2025-001"
+      }
+    },
+    {
+      "name": "Manual - Cash payment",
+      "description": "Manual cash payment without reference",
+      "json": {
+        "type": "Manual",
+        "currency": "XAF",
+        "isAutomatic": false,
+        "requiresApproval": true,
+        "mode": "ESPECES"
+      }
+    }
+  ],
+  "notes": [
+    "The 'type' field is mandatory and must be one of: BankTransfer, MobileMoney, Manual",
+    "For BankTransfer: provider and account are required. Account must have rib and accountHolder",
+    "For MobileMoney: provider is required. Either phoneNumber or accountCode (or both) must be provided",
+    "For Manual: mode is required and must be CHEQUE or ESPECES",
+    "Default values: currency='XAF', isAutomatic=true, requiresApproval=false",
+    "BankTransfer and Manual default to: isAutomatic=false, requiresApproval=true",
+    "XAF is the currency for CEMAC zone (Cameroon, Gabon, Congo, CAR, Chad, Equatorial Guinea)"
+  ],
+  "providers": {
+    "BankProvider": [
+      "BGFI", "UBA", "ECOBANK", "ORABANK", "BICIG", "POSTEBANK", 
+      "LOA", "UGB", "CITIBANK", "ALIOS", "FINATRA", "AUTRE"
+    ],
+    "MobileMoneyProvider": [
+      "AIRTEL_MONEY", "MOOV_MONEY", "WAVE", "EXPRESS_UNION", "CLICK_PAY", "AUTRE"
+    ],
+    "ManualMode": [
+      "CHEQUE", "ESPECES"
+    ]
+  },
+  "queryExamples": {
+    "description": "PostgreSQL query examples for payment_method JSONB column",
+    "queries": [
+      {
+        "name": "Find all bank transfer payment terms",
+        "sql": "SELECT * FROM partner_insurers.payment_terms WHERE payment_method->>'type' = 'BankTransfer';"
+      },
+      {
+        "name": "Find all automatic payments",
+        "sql": "SELECT * FROM partner_insurers.payment_terms WHERE (payment_method->>'isAutomatic')::boolean = true;"
+      },
+      {
+        "name": "Find all mobile money payments for MTN",
+        "sql": "SELECT * FROM partner_insurers.payment_terms WHERE payment_method->>'type' = 'MobileMoney' AND payment_method->>'provider' = 'MOOV_MONEY';"
+      },
+      {
+        "name": "Find all payments in XAF currency",
+        "sql": "SELECT * FROM partner_insurers.payment_terms WHERE payment_method->>'currency' = 'XAF';"
+      },
+      {
+        "name": "Find payments requiring approval",
+        "sql": "SELECT * FROM partner_insurers.payment_terms WHERE (payment_method->>'requiresApproval')::boolean = true;"
+      },
+      {
+        "name": "Find bank transfers for specific bank (BGFI)",
+        "sql": "SELECT * FROM partner_insurers.payment_terms WHERE payment_method->>'type' = 'BankTransfer' AND payment_method->>'provider' = 'BGFI';"
+      },
+      {
+        "name": "Find mobile money with specific phone number",
+        "sql": "SELECT * FROM partner_insurers.payment_terms WHERE payment_method->>'type' = 'MobileMoney' AND payment_method->>'phoneNumber' = '+237677123456';"
+      }
+    ]
+  }
+}

@@ -38,3 +38,10 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Node.js ###
+node_modules
+
+### GitHub Actions local testing ###
+.secrets
+.actrc

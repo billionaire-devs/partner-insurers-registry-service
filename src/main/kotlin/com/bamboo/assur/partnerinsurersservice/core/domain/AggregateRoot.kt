@@ -1,5 +1,6 @@
 package com.bamboo.assur.partnerinsurersservice.core.domain
 
+import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
 import kotlin.uuid.ExperimentalUuidApi
 
 
@@ -15,7 +16,7 @@ import kotlin.uuid.ExperimentalUuidApi
  * @property id The unique identifier for this aggregate root.
  */
 @OptIn(ExperimentalUuidApi::class)
-abstract class AggregateRoot<ID: Any>(id: ID): Model<Any>(id = id) {
+abstract class AggregateRoot(id: DomainEntityId): Model(id = id) {
     /**
      * Holds the list of domain events associated with this aggregate root.
      *
@@ -46,7 +47,7 @@ abstract class AggregateRoot<ID: Any>(id: ID): Model<Any>(id = id) {
      *              the aggregate root.
      */
     protected fun addDomainEvent(event: DomainEvent) {
-        if (domainEvents.none { it.eventId == event.eventId }) {
+        if (domainEvents.none { it.eventId.value == event.eventId.value }) {
             domainEvents.add(event)
         }
     }

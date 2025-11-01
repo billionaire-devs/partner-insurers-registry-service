@@ -34,5 +34,5 @@ interface QueryHandler<in Q : Query, out R> {
      * @return The result of processing the query
      * @throws Exception if the query cannot be processed or data cannot be retrieved
      */
-    suspend fun handle(query: Q): R
+    suspend operator fun invoke(query: Q): R
 }
