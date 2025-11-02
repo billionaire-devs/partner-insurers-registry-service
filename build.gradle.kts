@@ -18,7 +18,17 @@ java {
 
 repositories {
     mavenCentral()
-    mavenLocal()
+    mavenLocal() // Keep for local development
+
+    // GitHub Packages repository
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/billionaire-devs/partner-insurers-shared-kernel")
+        credentials {
+            username = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
 
 dependencies {
