@@ -1,7 +1,7 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.queries
 
-import com.bamboo.assur.partnerinsurersservice.core.application.Query
-import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.Query
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
 
 /**
  * Query object for retrieving summaries of Partner Insurers.

@@ -1,6 +1,6 @@
 package com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos.requests
 
-import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
 
 data class GetPartnerInsurerSummariesRequestDto(
     val status: String? = null,

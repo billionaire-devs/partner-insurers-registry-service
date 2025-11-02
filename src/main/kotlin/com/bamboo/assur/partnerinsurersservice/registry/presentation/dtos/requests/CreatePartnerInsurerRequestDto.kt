@@ -1,6 +1,5 @@
 package com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos.requests
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Address
 import com.bamboo.assur.partnerinsurersservice.registry.application.commands.CreatePartnerInsurerCommand
 import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos.AddressDto

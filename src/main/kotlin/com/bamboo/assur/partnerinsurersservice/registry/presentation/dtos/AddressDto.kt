@@ -1,6 +1,6 @@
 package com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Address
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Address
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 

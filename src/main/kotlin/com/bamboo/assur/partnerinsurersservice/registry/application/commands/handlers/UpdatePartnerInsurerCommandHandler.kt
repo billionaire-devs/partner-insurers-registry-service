@@ -1,21 +1,21 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.commands.handlers
 
-import com.bamboo.assur.partnerinsurersservice.core.application.CommandHandler
-import com.bamboo.assur.partnerinsurersservice.core.domain.Result
-import com.bamboo.assur.partnerinsurersservice.core.domain.EntityNotFoundException
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.CommandHandler
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityNotFoundException
 import com.bamboo.assur.partnerinsurersservice.core.infrastructure.events.DomainEventPublisher
 import com.bamboo.assur.partnerinsurersservice.registry.application.commands.UpdatePartnerInsurerCommand
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
+import java.util.*
 
 @Service
 class UpdatePartnerInsurerCommandHandler(
     private val partnerInsurerRepository: PartnerInsurerRepository,
     private val domainEventPublisher: DomainEventPublisher,
-) : CommandHandler<UpdatePartnerInsurerCommand, Result<UUID>> {
+) : CommandHandler<UpdatePartnerInsurerCommand, com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result<UUID>> {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional

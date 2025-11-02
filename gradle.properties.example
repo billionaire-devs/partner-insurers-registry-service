@@ -1,0 +1,4 @@
+# Placeholder gradle properties to satisfy Dockerfile COPY
+org.gradle.jvmargs=-Xmx1g
+gpr.user=username
+gpr.key=ghp_xxXXxx

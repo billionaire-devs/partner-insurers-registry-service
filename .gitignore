@@ -45,3 +45,6 @@ node_modules
 ### GitHub Actions local testing ###
 .secrets
 .actrc
+
+### Gradle ###
+gradle.properties

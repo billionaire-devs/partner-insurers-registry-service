@@ -1,12 +1,10 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.queries.handlers
 
-import com.bamboo.assur.partnerinsurersservice.core.application.QueryHandler
-import com.bamboo.assur.partnerinsurersservice.core.domain.Result
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.QueryHandler
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.GetPartnerInsurerByIdQuery
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
-import com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos.responses.PartnerInsurerDetailResponseDto
-import com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos.responses.PartnerInsurerDetailResponseDto.Companion.toResponseDTO
 import org.springframework.stereotype.Service
 import kotlin.uuid.ExperimentalUuidApi
 

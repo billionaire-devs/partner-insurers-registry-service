@@ -2,9 +2,8 @@
 
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Address
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Url
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.BrokerPartnerInsurerAgreement
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.Contact
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
@@ -17,7 +16,7 @@ import kotlinx.serialization.json.encodeToJsonElement
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.util.UUID
+import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi

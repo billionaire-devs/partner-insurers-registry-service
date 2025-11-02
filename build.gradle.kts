@@ -18,9 +18,22 @@ java {
 
 repositories {
     mavenCentral()
+    mavenLocal() // Keep for local development
+
+    // GitHub Packages repository
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/billionaire-devs/shared-kernel")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
+            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+        }
+    }
+
 }
 
 dependencies {
+    implementation("com.bamboo.assur.partner-insurers:shared-kernel:0.1.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")

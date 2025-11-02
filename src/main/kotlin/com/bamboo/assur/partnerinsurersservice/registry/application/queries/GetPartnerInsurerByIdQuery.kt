@@ -1,9 +1,8 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.queries
 
-import com.bamboo.assur.partnerinsurersservice.core.application.Query
-import java.util.UUID
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.Query
+import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 /**
  * Query object for retrieving a single Partner Insurer by ID.

@@ -1,11 +1,11 @@
 package com.bamboo.assur.partnerinsurersservice.registry.domain.repositories
 
-import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
+import com.bamboo.assur.partnerinsurersservice.registry.application.commands.models.PartnerInsurerUpdate
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.models.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
-import com.bamboo.assur.partnerinsurersservice.registry.application.commands.models.PartnerInsurerUpdate
 import kotlinx.coroutines.flow.Flow
-import java.util.UUID
+import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class)

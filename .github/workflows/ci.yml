@@ -56,6 +56,7 @@ jobs:
       run: ./gradlew test
       env:
         SPRING_PROFILES_ACTIVE: test
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 #     Not yet implemented
 #    - name: Run integration tests
@@ -91,3 +92,5 @@ jobs:
 
     - name: Build application
       run: ./gradlew build -x test
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

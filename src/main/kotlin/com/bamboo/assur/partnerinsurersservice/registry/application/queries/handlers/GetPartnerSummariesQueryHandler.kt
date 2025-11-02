@@ -1,7 +1,7 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.queries.handlers
 
-import com.bamboo.assur.partnerinsurersservice.core.application.QueryHandler
-import com.bamboo.assur.partnerinsurersservice.core.domain.Result
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.QueryHandler
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.GetPartnerSummariesQuery
 import com.bamboo.assur.partnerinsurersservice.registry.application.queries.models.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository

@@ -1,6 +1,7 @@
 package com.bamboo.assur.partnerinsurersservice.core.infrastructure.events
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.DomainEvent
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.DomainEvent
+import com.bamboo.assur.partnerinsurers.sharedkernel.infrastructure.EventPublishingException
 import com.bamboo.assur.partnerinsurersservice.core.infrastructure.outbox.OutboxMessagesTable
 import kotlinx.serialization.json.Json
 import kotlinx.coroutines.reactor.awaitSingle
@@ -83,8 +84,3 @@ class DomainEventPublisher(
         }
     }
 }
-
-/**
- * Exception thrown when event publishing fails.
- */
-class EventPublishingException(message: String, cause: Throwable? = null) : RuntimeException(message, cause)
