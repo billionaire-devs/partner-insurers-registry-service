@@ -2,17 +2,17 @@
 
 package com.bamboo.assur.partnerinsurersservice.registry.domain.entities
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.AggregateRoot
-import com.bamboo.assur.partnerinsurersservice.core.domain.InvalidOperationException
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Address
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Url
-import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerCreatedEvent
-import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerStatusChangedEvent
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.AggregateRoot
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.InvalidOperationException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Address
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
+import com.bamboo.assur.partnerinsurersservice.registry.application.commands.models.PartnerInsurerUpdate
 import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerContactAddedEvent
+import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerCreatedEvent
+import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerStatusChangedEvent
 import com.bamboo.assur.partnerinsurersservice.registry.domain.events.PartnerInsurerUpdatedEvent
-import com.bamboo.assur.partnerinsurersservice.registry.application.commands.models.PartnerInsurerUpdate
 import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxIdentificationNumber
 import org.slf4j.LoggerFactory
 import kotlin.time.ExperimentalTime

@@ -1,7 +1,7 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.commands.models
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Address
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Url
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Address
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 
 /**
  * Represents a partial update model for PartnerInsurer entity.

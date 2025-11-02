@@ -1,22 +1,20 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.commands.handlers
 
-import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
-import com.bamboo.assur.partnerinsurersservice.core.application.CommandHandler
-import com.bamboo.assur.partnerinsurersservice.core.domain.Result
-import com.bamboo.assur.partnerinsurersservice.core.domain.EntityAlreadyExistsException
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Url
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.CommandHandler
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityAlreadyExistsException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 import com.bamboo.assur.partnerinsurersservice.core.infrastructure.events.DomainEventPublisher
 import com.bamboo.assur.partnerinsurersservice.registry.application.commands.CreatePartnerInsurerCommand
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
+import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
 import com.bamboo.assur.partnerinsurersservice.registry.domain.valueObjects.TaxIdentificationNumber
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.bind.annotation.PutMapping
-import java.util.UUID
+import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
 @Service

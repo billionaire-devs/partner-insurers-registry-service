@@ -2,16 +2,16 @@
 
 package com.bamboo.assur.partnerinsurersservice.registry.domain.entities
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.Model
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Model
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 import com.bamboo.assur.partnerinsurersservice.core.domain.insurance.InsuranceBranch
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Url
 import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.AgreementStatus
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateRange
 import kotlinx.datetime.until
-import java.util.UUID
+import java.util.*
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant

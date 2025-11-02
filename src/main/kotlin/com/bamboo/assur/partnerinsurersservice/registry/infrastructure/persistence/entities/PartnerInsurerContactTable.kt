@@ -1,13 +1,13 @@
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Email
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Phone
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.Contact
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
-import java.util.UUID
+import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant

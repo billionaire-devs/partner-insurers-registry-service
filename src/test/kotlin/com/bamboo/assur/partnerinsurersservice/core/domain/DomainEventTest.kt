@@ -1,6 +1,7 @@
 package com.bamboo.assur.partnerinsurersservice.core.domain
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.DomainEvent
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.util.*

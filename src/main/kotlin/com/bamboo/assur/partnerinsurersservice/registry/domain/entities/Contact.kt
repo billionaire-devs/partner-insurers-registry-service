@@ -1,9 +1,9 @@
 package com.bamboo.assur.partnerinsurersservice.registry.domain.entities
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.Model
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Email
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Phone
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Model
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant

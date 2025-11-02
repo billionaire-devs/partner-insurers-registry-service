@@ -1,8 +1,8 @@
 package com.bamboo.assur.partnerinsurersservice.registry.domain.events
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.DomainEvent
-import com.bamboo.assur.partnerinsurersservice.core.domain.utils.getAggregateTypeOrEmpty
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.DomainEvent
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.getAggregateTypeOrEmpty
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsurerStatus
 import kotlinx.serialization.Contextual

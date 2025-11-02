@@ -1,13 +1,13 @@
 package com.bamboo.assur.partnerinsurersservice.registry.presentation.dtos
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Phone
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.Contact
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 
-typealias DomainEmail = com.bamboo.assur.partnerinsurersservice.core.domain.valueObjects.Email
+typealias DomainEmail = com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
 
 data class ContactDto(
     @field:NotBlank(message = "Full name cannot be blank")

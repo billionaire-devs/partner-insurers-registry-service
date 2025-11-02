@@ -1,12 +1,12 @@
 package com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.repositories
 
-import com.bamboo.assur.partnerinsurersservice.core.domain.EntityAlreadyExistsException
-import com.bamboo.assur.partnerinsurersservice.core.domain.EntityNotFoundException
-import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToSaveEntityException
-import com.bamboo.assur.partnerinsurersservice.core.domain.FailedToUpdateEntityException
-import com.bamboo.assur.partnerinsurersservice.core.utils.SortDirection
-import com.bamboo.assur.partnerinsurersservice.registry.application.queries.models.PartnerInsurerSummary
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityAlreadyExistsException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityNotFoundException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToSaveEntityException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToUpdateEntityException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
 import com.bamboo.assur.partnerinsurersservice.registry.application.commands.models.PartnerInsurerUpdate
+import com.bamboo.assur.partnerinsurersservice.registry.application.queries.models.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurersservice.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurersservice.registry.domain.repositories.PartnerInsurerRepository
 import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persistence.entities.PartnerInsurerContactTable
@@ -16,20 +16,18 @@ import com.bamboo.assur.partnerinsurersservice.registry.infrastructure.persisten
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
 import org.slf4j.LoggerFactory
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
-import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
-import java.util.UUID
+import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.toJavaUuid
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 @Repository

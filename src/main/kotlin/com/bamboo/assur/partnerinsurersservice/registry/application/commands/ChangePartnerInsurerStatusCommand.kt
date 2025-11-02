@@ -1,6 +1,6 @@
 package com.bamboo.assur.partnerinsurersservice.registry.application.commands
 
-import com.bamboo.assur.partnerinsurersservice.core.application.Command
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.Command
 import com.bamboo.assur.partnerinsurersservice.registry.domain.enums.PartnerInsurerStatus
 import java.util.UUID
 
