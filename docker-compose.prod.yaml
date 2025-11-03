@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   partner-insurers-service:
     image: ghcr.io/${GITHUB_REPOSITORY:BillionaireDevs/partner-insurers-core-service}:${IMAGE_TAG:-latest}
