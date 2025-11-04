@@ -57,7 +57,7 @@ jobs:
       env:
         SPRING_PROFILES_ACTIVE: test
         GITHUB_ACTOR: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
 #     Not yet implemented
 #    - name: Run integration tests
