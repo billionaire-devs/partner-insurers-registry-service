@@ -1,6 +1,14 @@
 # Multi-stage build for Spring Boot Kotlin application
 FROM gradle:9.1-jdk21 AS build
 
+# Build arguments for GitHub authentication
+ARG GITHUB_ACTOR
+ARG GITHUB_TOKEN
+
+# Set as environment variables for Gradle
+ENV GITHUB_ACTOR=${GITHUB_ACTOR}
+ENV GITHUB_TOKEN=${GITHUB_TOKEN}
+
 WORKDIR /app
 
 # Copy gradle files first for better caching
