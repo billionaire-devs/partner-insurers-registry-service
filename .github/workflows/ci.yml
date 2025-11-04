@@ -95,4 +95,4 @@ jobs:
       run: ./gradlew build -x test
       env:
         GITHUB_ACTOR: ${{ github.actor }}
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
