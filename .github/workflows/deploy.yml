@@ -53,10 +53,6 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build application
-      run: ./gradlew build -x test
-      # Tests are already run in CI workflow - this just packages the application
-
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
