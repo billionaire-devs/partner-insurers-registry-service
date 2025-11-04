@@ -1,3 +1,10 @@
+# [1.0.0-develop.3](https://github.com/billionaire-devs/partner-insurers-core-service/compare/v1.0.0-develop.2...v1.0.0-develop.3) (2025-11-04)
+
+
+### Bug Fixes
+
+* Dockerfile permission and port issues ([#25](https://github.com/billionaire-devs/partner-insurers-core-service/issues/25)) ([14c3f81](https://github.com/billionaire-devs/partner-insurers-core-service/commit/14c3f8181e816d0be9dfb10bfd96e85a9a5415d1))
+
 # [1.0.0-develop.2](https://github.com/billionaire-devs/partner-insurers-core-service/compare/v1.0.0-develop.1...v1.0.0-develop.2) (2025-11-02)
 
 
