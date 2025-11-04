@@ -6,9 +6,9 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com.bamboo.assur"
+group = "com.bamboo.assur.partner-insurers"
 version = "0.0.1-SNAPSHOT"
-description = "partner-insurers-core-service"
+description = "Registre maître des assureurs partenaires de la plateforme Bamboo Assur"
 
 java {
     toolchain {
