@@ -21,7 +21,7 @@ jobs:
         env:
           POSTGRES_USER: postgres-username-test
           POSTGRES_PASSWORD: postgres-secret-test
-          POSTGRES_DB: partner-insurers-service-db-test
+          POSTGRES_DB: partner-insurers-registry-service-db-test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s

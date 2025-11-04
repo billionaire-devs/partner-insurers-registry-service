@@ -1,11 +1,12 @@
 server:
   servlet:
-    context-path: /bamboo-assur/partner-insurers/core/api
-    application-display-name: Partner Insurers Core Service
+    context-path: /api/partner-insurers/registry/
+    application-display-name: Partner Insurers Registry Service
+  port: 8090
 
 spring:
   application:
-    name: partner-insurers-core-service
+    name: partner-insurers-registry-service
   profiles:
     default: dev
   security:
@@ -13,7 +14,7 @@ spring:
       name: morriss
       password: morrisson
 
-partner-insurers:
+partner-insurers-registry-service:
   outbox:
     enabled: true
     processing-interval-millis: 30000
@@ -21,11 +22,11 @@ partner-insurers:
 
 logging:
   level:
-    com.bamboo.assur.partnerinsurersservice: debug
+    com.bamboo.assur.partnerinsurers.registry: debug
     org.springframework.data.r2dbc: DEBUG
     org.springframework.r2dbc: DEBUG
     io.r2dbc.postgresql: DEBUG
-    root: warn
+    root: WARN
     web: WARN
     sql: trace
     org.hibernate.SQL: DEBUG
