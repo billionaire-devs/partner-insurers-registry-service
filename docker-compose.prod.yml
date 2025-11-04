@@ -1,11 +1,11 @@
 services:
   partner-insurers-service:
-    image: ghcr.io/${GITHUB_REPOSITORY:BillionaireDevs/partner-insurers-core-service}:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GITHUB_REPOSITORY:billionaire-devs/partner-insurers-registry-service}:${IMAGE_TAG:-latest}
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - DB_HOST=postgres
       - DB_PORT=5490
-      - DB_NAME=partner_insurers_core_db
+      - DB_NAME=partner_insurers_registry_service_db
       - DB_USERNAME=postgres-username
       - DB_PASSWORD=postgres-secret
       - RABBITMQ_HOST=rabbitmq
@@ -21,7 +21,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/bamboo-assur/partner-insurers/core/api/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/bamboo-assur/api/partner-insurers/registry/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -43,7 +43,7 @@ services:
   postgres:
     image: 'postgres:17-alpine'
     environment:
-      - POSTGRES_DB=partner_insurers_core_db
+      - POSTGRES_DB=partner_insurers_registry_service_db
       - POSTGRES_PASSWORD=${DB_PASSWORD:postgres-secret}
       - POSTGRES_USER=${DB_USERNAME:postgres-username}
       - POSTGRES_MAX_CONNECTIONS=100
@@ -53,7 +53,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:postgres-username} -d partner_insurers_core_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:postgres-username} -d partner_insurers_registry_service_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -96,11 +96,11 @@ services:
 
 volumes:
   postgres-data:
-    name: partner-insurers-core-prod-postgres-data
+    name: partner-insurers-registry-service-prod-postgres-data
   rabbitmq-data:
-    name: partner-insurers-core-prod-rabbitmq-data
+    name: partner-insurers-registry-service-prod-rabbitmq-data
 
 networks:
   backend:
-    name: partner-insurers-core-prod-network
+    name: partner-insurers-registry-service-prod-network
     driver: bridge

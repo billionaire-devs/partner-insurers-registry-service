@@ -57,6 +57,6 @@ EXPOSE 8090
 
 # Health check using Spring Boot Actuator
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8090/bamboo-assur/partner-insurers/core/api/actuator/health || exit 1
+    CMD curl -f http://localhost:8090/bamboo-assur/api/partner-insurers/registry/actuator/health || exit 1
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
