@@ -17,4 +17,10 @@ spring:
     port: 5672
     username: rabbitmq-username
     password: rabbitmq-secret
+  docker:
+    compose:
+      file: docker-compose.dev.yml
+      enabled: true
+      profiles:
+        active: dev
 

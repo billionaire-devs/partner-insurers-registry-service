@@ -3,7 +3,7 @@ name: CI
 # Add permissions block for GHCR
 permissions:
   contents: read
-  packages: write
+  packages: read
 
 on:
   push:
@@ -56,7 +56,8 @@ jobs:
       run: ./gradlew test
       env:
         SPRING_PROFILES_ACTIVE: test
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
 
 #     Not yet implemented
 #    - name: Run integration tests
@@ -93,4 +94,5 @@ jobs:
     - name: Build application
       run: ./gradlew build -x test
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}

@@ -23,7 +23,7 @@ repositories {
     // GitHub Packages repository
     maven {
         name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/billionaire-devs/shared-kernel")
+        url = uri("https://maven.pkg.github.com/billionaire-devs/partner-insurers-shared-kernel")
         credentials {
             username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
             password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
