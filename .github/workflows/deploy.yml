@@ -67,6 +67,12 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.PACKAGES_TOKEN }}
 
+    - name: build application
+      run: ./gradlew build -x test
+      env:
+        GITHUB_ACTOR=${{ github.actor }}
+        GITHUB_TOKEN=${{ secrets.PACKAGES_TOKEN }}
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v6
       with:
