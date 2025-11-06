@@ -1,6 +1,7 @@
 name: Build and Publish
 
 permissions:
+  actions: read
   contents: read
   packages: write
   security-events: write  # For security scanning
