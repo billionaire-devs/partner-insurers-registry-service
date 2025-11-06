@@ -1,0 +1,75 @@
+{
+  "branches": [
+    "main",
+    {
+      "name": "develop",
+      "prerelease": "beta"
+    },
+    {
+      "name": "feature/*",
+      "pattern": "^feature/(?<slug>.+)$",
+      "channel": "alpha-${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'feature'}",
+      "prerelease": "${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'feature'}"
+    },
+    {
+      "name": "fix/*",
+      "pattern": "^fix/(?<slug>.+)$",
+      "channel": "bugfix-${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'fix'}",
+      "prerelease": "${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'fix'}"
+    },
+    {
+      "name": "hotfix/*",
+      "pattern": "^hotfix/(?<slug>.+)$",
+      "channel": "patch-${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'hotfix'}",
+      "prerelease": "${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'hotfix'}"
+    },
+    {
+      "name": "release/*",
+      "pattern": "^release/(?<slug>.+)$",
+      "channel": "rc-${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'release'}",
+      "prerelease": "${slug.replace(/[^0-9A-Za-z-]/g, '-').replace(/^-+|-+$/g, '') || 'release'}"
+    }
+  ],
+  "plugins": [
+    "@semantic-release/release-notes-generator",
+    "gradle-semantic-release-plugin",
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md", "gradle.properties"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    "@semantic-release/github",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          {
+            "type": "docs",
+            "scope": "README",
+            "release": "patch"
+          },
+          {
+            "type": "refactor",
+            "release": "patch"
+          },
+          {
+            "type": "style",
+            "release": "patch"
+          },
+          {
+            "scope": "no-release",
+            "release": false
+          }
+        ]
+      }
+    ]
+  ]
+}
