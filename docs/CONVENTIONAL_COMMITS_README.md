@@ -49,8 +49,8 @@
 
 - **✨ feat:** ✨ add payment webhook
 - **🐛 fix:** 🐛 fix(auth): patch token refresh
-- **🧼 style:** 🧼 style: format kotlin data classes
-- **🔧 refactor:** 🔧 refactor(api): simplify validation logic
+- **💄 style:** 💄 style: format kotlin data classes
+- **♻️ refactor:** ♻️ refactor(api): simplify validation logic
 - **📝 docs:** 📝 docs(readme): clarify setup instructions
 - **🧹 chore:** 🧹 chore(no-release): update build cache
 - **⚠️ breaking:** ⚠️ feat!: deprecate legacy API

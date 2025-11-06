@@ -1,5 +1,5 @@
 services:
-  partner-insurers-service:
+  partner-insurers-registry-service:
     image: ghcr.io/${GITHUB_REPOSITORY:billionaire-devs/partner-insurers-registry-service}:${IMAGE_TAG:-latest}
     environment:
       - SPRING_PROFILES_ACTIVE=prod

@@ -1,7 +1,7 @@
 services:
   postgres:
     image: 'postgres:17-alpine'
-    container_name: partner-insurers-dev-postgres
+    container_name: partner-insurers-registry-service-dev-postgres
     environment:
       - 'POSTGRES_DB=${POSTGRES_DB:-partner_insurers_registry_service_db}'
       - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres-secret}'
@@ -20,7 +20,7 @@ services:
 
   rabbitmq:
     image: 'rabbitmq:4.2-management-alpine'
-    container_name: partner-insurers-dev-rabbitmq
+    container_name: partner-insurers-registry-service-dev-rabbitmq
     environment:
       - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-rabbitmq-secret}'
       - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-rabbitmq-username}'
@@ -39,7 +39,7 @@ services:
 
 volumes:
   postgres-data:
-    name: partner-insurers-registry-service-postgres-data
+    name: partner-insurers-registry-service-dev-postgres-data
   rabbitmq-data:
     name: partner-insurers-registry-service-dev-rabbitmq-data
 
