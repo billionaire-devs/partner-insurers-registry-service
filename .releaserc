@@ -3,15 +3,19 @@
     "main",
     {
       "name": "develop",
-      "prerelease": "M"
+      "prerelease": "beta"
     },
     {
       "name": "feature/*",
-      "prerelease": "SNAPSHOT"
+      "prerelease": "alpha"
     },
     {
       "name": "fix/*",
-      "prerelease": "SNAPSHOT"
+      "prerelease": "bugfix"
+    },
+    {
+      "name": "hotfix/*",
+      "prerelease": "patch"
     },
     {
       "name": "release/*",
@@ -21,6 +25,7 @@
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
+    "gradle-semantic-release-plugin",
     [
       "@semantic-release/changelog",
       {

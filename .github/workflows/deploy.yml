@@ -4,28 +4,21 @@ permissions:
   contents: write
   packages: write
 
-# Disabled for now - uncomment when ready to deploy
 on:
   push:
     branches:
       - main
       - develop
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - staging
-          - production
+      - release
+      - 'release/**'
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
   GITHUB_ACTOR: ${{ github.actor }}
   GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+  GPR_USER: ${{ secrets.GPR_USER }}
+  GPR_KEY: ${{ secrets.GPR_KEY }}
 
 jobs:
   build-and-push:
@@ -75,9 +68,38 @@ jobs:
           GITHUB_ACTOR=${{ github.actor }}
           GITHUB_TOKEN=${{ secrets.PACKAGES_TOKEN }}
 
+  deploy-dev:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment: dev
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.PACKAGES_TOKEN }}
+
+    - name: Tag and push dev images
+      run: |
+        docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
+        docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+
+    - name: Deploy to dev
+      run: |
+        echo "Deploying to dev environment..."
+        # Add your dev deployment commands here
+
   deploy-staging:
     needs: build-and-push
-    if: github.event.inputs.environment == 'staging'
+    if: startsWith(github.ref, 'refs/heads/release')
     runs-on: ubuntu-latest
     environment: staging
 
@@ -107,7 +129,7 @@ jobs:
 
   deploy-production:
     needs: build-and-push
-    if: github.event.inputs.environment == 'production'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
 

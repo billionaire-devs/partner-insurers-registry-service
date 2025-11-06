@@ -47,4 +47,5 @@ node_modules
 .actrc
 
 ### Gradle ###
-gradle.properties
+# Track project version in gradle.properties; keep local secrets in gradle.local.properties
+gradle.local.properties
