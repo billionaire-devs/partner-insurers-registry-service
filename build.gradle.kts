@@ -1,9 +1,42 @@
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.bundling.Jar
+
 plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.spring") version "2.2.20"
     kotlin("plugin.serialization") version "2.2.0"
     id("org.springframework.boot") version "4.0.0-M3"
     id("io.spring.dependency-management") version "1.1.7"
+    id("maven-publish")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            artifactId = "partner-insurers-registry-service"
+            from(components["java"])
+            artifact(tasks.named("bootJar"))
+        }
+    }
+
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/billionaire-devs/partner-insurers-registry-service")
+            credentials {
+                username = System.getenv("GPR_USER")
+                    ?: System.getenv("GITHUB_ACTOR")
+                    ?: project.findProperty("gpr.user") as String?
+                password = System.getenv("GPR_KEY")
+                    ?: System.getenv("GITHUB_TOKEN")
+                    ?: project.findProperty("gpr.key") as String?
+            }
+        }
+    }
+}
+
+tasks.named<Jar>("jar") {
+    enabled = true
 }
 
 group = "com.bamboo.assur.partner-insurers"

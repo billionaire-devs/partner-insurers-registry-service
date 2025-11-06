@@ -18,6 +18,11 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  ci-checks:
+    uses: ./.github/workflows/ci.yml
+    secrets:
+      PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -101,31 +106,12 @@ jobs:
           printf '📝 Log Level: %s\n' "$LOG_LEVEL"
 
   build-and-push:
-    needs: setup
+    needs: [setup, ci-checks]
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.environment }}
 
     steps:
     - uses: actions/checkout@v5
-
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        java-version: '21'
-        distribution: 'temurin'
-
-    - name: Cache Gradle packages
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3

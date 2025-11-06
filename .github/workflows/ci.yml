@@ -6,10 +6,12 @@ permissions:
   packages: read
 
 on:
-  push:
-    branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, release/*, hotfix/*, feature/*, fix/*, chore/*]
+  workflow_call:
+    secrets:
+      PACKAGES_TOKEN:
+        required: true
 
 jobs:
   test:
