@@ -51,4 +51,9 @@ jobs:
     - name: Semantic Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GPR_USER: ${{ secrets.GPR_USER }}
+        GPR_KEY: ${{ secrets.GPR_KEY }}
+        ORG_GRADLE_PROJECT_gpr_user: ${{ secrets.GPR_USER }}
+        ORG_GRADLE_PROJECT_gpr_key: ${{ secrets.GPR_KEY }}
+        ORG_GRADLE_PROJECT_githubPackagesRepo: https://maven.pkg.github.com/billionaire-devs/partner-insurers-shared-kernel
       run: npx semantic-release
