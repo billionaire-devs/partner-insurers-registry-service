@@ -1,18 +1,18 @@
 services:
-  partner-insurers-service:
+  partner-insurers-registry-service:
     image: ghcr.io/${GITHUB_REPOSITORY:billionaire-devs/partner-insurers-registry-service}:${IMAGE_TAG:-latest}
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DB_HOST=postgres
-      - DB_PORT=5490
-      - DB_NAME=partner_insurers_registry_service_db
-      - DB_USERNAME=postgres-username
-      - DB_PASSWORD=postgres-secret
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_PORT=5690
-      - RABBITMQ_USERNAME=rabbitmq-username
-      - RABBITMQ_PASSWORD=rabbitmq-secret
-      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+UseG1GC
+      - DB_HOST=${DB_HOST:-postgres}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_NAME=${DB_NAME:-partner_insurers_registry_service_db}
+      - DB_USERNAME=${DB_USERNAME:-postgres-username}
+      - DB_PASSWORD=${DB_PASSWORD:-postgres-secret}
+      - RABBITMQ_HOST=${RABBITMQ_HOST:-rabbitmq}
+      - RABBITMQ_PORT=${RABBITMQ_PORT:-5672}
+      - RABBITMQ_USERNAME=${RABBITMQ_USERNAME:-rabbitmq-username}
+      - RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD:-rabbitmq-secret}
+      - JAVA_TOOL_OPTIONS=${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75.0 -XX:InitialRAMPercentage=50.0 -XX:+UseG1GC}
     ports:
       - '8090:8090'
     depends_on:
@@ -21,7 +21,7 @@ services:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/bamboo-assur/api/partner-insurers/registry/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8090/api/partner-insurers/registry/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -43,17 +43,17 @@ services:
   postgres:
     image: 'postgres:17-alpine'
     environment:
-      - POSTGRES_DB=partner_insurers_registry_service_db
-      - POSTGRES_PASSWORD=${DB_PASSWORD:postgres-secret}
-      - POSTGRES_USER=${DB_USERNAME:postgres-username}
+      - POSTGRES_DB=${DB_NAME:-partner_insurers_registry_service_db}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-postgres-secret}
+      - POSTGRES_USER=${DB_USERNAME:-postgres-username}
       - POSTGRES_MAX_CONNECTIONS=100
       - PGDATA=/var/lib/postgresql/data/pgdata
     ports:
-      - '5490:5490'
+      - '${DB_EXTERNAL_PORT:-5490}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:postgres-username} -d partner_insurers_registry_service_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres-username} -d ${DB_NAME:-partner_insurers_registry_service_db}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -74,8 +74,8 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-rabbitmq-secret}
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-rabbitmq-username}
     ports:
-      - '5690:5690'   # AMQP protocol port
-      - '15690:15690' # Management console
+      - '${RABBITMQ_EXTERNAL_PORT:-5690}:5672'   # AMQP protocol port
+      - '${RABBITMQ_MANAGEMENT_EXTERNAL_PORT:-15690}:15672' # Management console
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     healthcheck:

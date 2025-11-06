@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.bamboo.assur.partner-insurers"
-version = "0.0.1-SNAPSHOT"
+version = (findProperty("version") as String?) ?: "0.0.0"
 description = "Registre maître des assureurs partenaires de la plateforme Bamboo Assur"
 
 java {
@@ -25,8 +25,12 @@ repositories {
         name = "GitHubPackages"
         url = uri("https://maven.pkg.github.com/billionaire-devs/partner-insurers-shared-kernel")
         credentials {
-            username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as String?
-            password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as String?
+            username = System.getenv("GPR_USER")
+                ?: System.getenv("GITHUB_ACTOR")
+                ?: project.findProperty("gpr.user") as String?
+            password = System.getenv("GPR_KEY")
+                ?: System.getenv("GITHUB_TOKEN")
+                ?: project.findProperty("gpr.key") as String?
         }
     }
 

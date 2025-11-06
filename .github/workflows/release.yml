@@ -1,20 +1,31 @@
 name: Release
 
-# Disabled for now - uncomment when ready to use semantic releases
-# on:
-#   push:
-#     branches:
-#       - main
-#   workflow_dispatch:
-
-# Manual trigger only for now
 on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/**'
+      - 'hotfix/**'
+      - 'feature/**'
+      - 'fix/**'
+
   workflow_dispatch:
+
+env:
+  GPR_USER: ${{ secrets.GPR_USER }}
+  GPR_KEY: ${{ secrets.GPR_KEY }}
 
 jobs:
   release:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, 'skip ci')"
+    
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      packages: read
 
     steps:
     - uses: actions/checkout@v5
@@ -46,8 +57,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        semantic_version: 21
+        semantic_version: 24.0.8
         extra_plugins: |
+          gradle-semantic-release-plugin
+          @semantic-release/commit-analyzer
+          @semantic-release/release-notes-generator
           @semantic-release/changelog
           @semantic-release/git
           @semantic-release/github
+          @semantic-release/exec
