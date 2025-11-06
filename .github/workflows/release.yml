@@ -12,10 +12,6 @@ on:
 
   workflow_dispatch:
 
-env:
-  GPR_USER: ${{ secrets.GPR_USER }}
-  GPR_KEY: ${{ secrets.GPR_KEY }}
-
 jobs:
   ci-checks:
     uses: ./.github/workflows/ci.yml
@@ -52,15 +48,24 @@ jobs:
         node-version: '22.x'
         cache: npm
 
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
     - name: Install dependencies
       run: npm ci
 
     - name: Semantic Release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GPR_USER: ${{ secrets.GPR_USER }}
-        GPR_KEY: ${{ secrets.GPR_KEY }}
-        ORG_GRADLE_PROJECT_gpr_user: ${{ secrets.GPR_USER }}
-        ORG_GRADLE_PROJECT_gpr_key: ${{ secrets.GPR_KEY }}
-        ORG_GRADLE_PROJECT_githubPackagesRepo: https://maven.pkg.github.com/billionaire-devs/partner-insurers-shared-kernel
+        GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
       run: npx semantic-release
