@@ -39,6 +39,13 @@ jobs:
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
 
+      # Minimal Java setup for semantic-release Gradle build
+    - name: Set up JDK 21
+      uses: actions/setup-java@v5
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
