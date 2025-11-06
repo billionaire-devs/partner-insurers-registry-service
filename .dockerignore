@@ -1,16 +1,11 @@
-# Git
-.git
-.gitignore
-.gitattributes
-
-# Build outputs
+# Build artifacts
 build/
-target/
-*.jar
-*.war
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
 
 # IDE files
 .idea/
+.vscode/
 *.iml
 *.ipr
 *.iws
