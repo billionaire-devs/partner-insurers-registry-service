@@ -6,11 +6,15 @@ name: Build and Publish
 
 on:
   workflow_call:
+    secrets:
+      PACKAGES_TOKEN:
+        required: true
     inputs:
       version:
         required: true
         type: string
         description: "Semantic version determined by semantic-release (e.g., 1.2.3-beta.1)"
+
 
 permissions:
   actions: read

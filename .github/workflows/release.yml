@@ -76,6 +76,12 @@ jobs:
       run: npx semantic-release
 
   build-and-publish:
+    permissions:
+      actions: read
+      contents: read
+      packages: write
+      security-events: write
+
     needs: release
     if: needs.release.outputs.released == 'true'
     uses: ./.github/workflows/build-and-publish.yml
