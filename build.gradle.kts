@@ -13,7 +13,6 @@ plugins {
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
-            artifactId = "partner-insurers-registry-service"
             from(components["java"])
             artifact(tasks.named("bootJar"))
         }
@@ -22,7 +21,7 @@ publishing {
     repositories {
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/billionaire-devs/partner-insurers-registry-service")
+            url = uri("https://maven.pkg.github.com/${System.getenv("GITHUB_REPOSITORY")}")
             credentials {
                 username = System.getenv("GPR_USER")
                     ?: System.getenv("GITHUB_ACTOR")

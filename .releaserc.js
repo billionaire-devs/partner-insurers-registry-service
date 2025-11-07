@@ -74,12 +74,22 @@ module.exports = {
             {
                 changelogFile: 'CHANGELOG.md',
                 changelogTitle: '# Changelog\n\nAll notable changes to this project will be documented in this file.',
+                changelogGeneratorOpts: {
+                    preset: 'conventionalcommits',
+                    presetConfig: {
+                        types: changelogTypes,
+                    },
+                    writerOpts: {
+                        commitGroupsSort: 'title',
+                        commitsSort: ['scope', 'subject'],
+                    },
+                },
             },
         ],
         [
             '@semantic-release/git',
             {
-                assets: ['CHANGELOG.md', 'gradle.properties'],
+                assets: ['CHANGELOG.md', 'gradle.properties', 'package.json'],
                 message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
             },
         ],

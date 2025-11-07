@@ -1,29 +1,32 @@
 name: Build and Publish
 
+# This is a REUSABLE WORKFLOW called by release.yml
+# It should NOT be triggered independently by push/pull_request events
+# This ensures semantic-release completes first before Docker build starts
+
+on:
+  workflow_call:
+    secrets:
+      PACKAGES_TOKEN:
+        required: true
+    inputs:
+      version:
+        required: true
+        type: string
+        description: "Semantic version determined by semantic-release (e.g., 1.2.3-beta.1)"
+
+
 permissions:
   actions: read
   contents: read
   packages: write
-  security-events: write  # For security scanning
-
-on:
-  push:
-    branches:
-      - main
-      - develop
-      - release
-      - 'release/**'
+  security-events: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  ci-checks:
-    uses: ./.github/workflows/ci.yml
-    secrets:
-      PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
-
   setup:
     runs-on: ubuntu-latest
     outputs:
@@ -34,60 +37,105 @@ jobs:
       log_level: ${{ steps.env.outputs.log_level }}
       primary_image_tag: ${{ steps.env.outputs.primary_image_tag }}
     steps:
-      - name: Determine environment and settings
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Determine environment and versioning
         id: env
         run: |
           REGISTRY="${{ env.REGISTRY }}"
           IMAGE_NAME="${{ env.IMAGE_NAME }}"
           COMMIT_SHA="${{ github.sha }}"
-          RUN_NUMBER="${{ github.run_number }}"
-          REF="${{ github.ref }}"
-
-          ENVIRONMENT="dev"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          BRANCH_NAME="${{ github.ref_name }}"
+          PROJECT_VERSION="${{ github.event.inputs.version }}"
+          
+          # Default values
+          ENVIRONMENT="preview"
           SPRING_PROFILE="dev"
           LOG_LEVEL="DEBUG"
-          BUILD_VERSION="${RUN_NUMBER}-preview"
-          PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:preview-${COMMIT_SHA}"
+          PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}-${SHORT_SHA}"
           IMAGE_TAGS="${PRIMARY_TAG}"
-
-          if [[ "$REF" == "refs/heads/main" ]]; then
+          
+          # Determine environment and tags based on branch
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            # Main branch - STABLE PRODUCTION
             ENVIRONMENT="production"
             SPRING_PROFILE="prod"
             LOG_LEVEL="INFO"
-            BUILD_VERSION="${RUN_NUMBER}"
             PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:latest"
-            IMAGE_TAGS=$(printf "%s\n%s\n%s" \
-              "${PRIMARY_TAG}" \
-              "${REGISTRY}/${IMAGE_NAME}:v${BUILD_VERSION}" \
-              "${REGISTRY}/${IMAGE_NAME}:prod-${COMMIT_SHA}")
-          elif [[ "$REF" == "refs/heads/develop" ]]; then
+          
+            # Parse version for additional tags
+            if [[ "$PROJECT_VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+              MAJOR="${BASH_REMATCH[1]}"
+              MINOR="${BASH_REMATCH[2]}"
+              IMAGE_TAGS=$(printf "%s\n%s\n%s\n%s\n%s" \
+                "${PRIMARY_TAG}" \
+                "${REGISTRY}/${IMAGE_NAME}:v${PROJECT_VERSION}" \
+                "${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}" \
+                "${REGISTRY}/${IMAGE_NAME}:${MAJOR}.${MINOR}" \
+                "${REGISTRY}/${IMAGE_NAME}:${MAJOR}")
+            else
+              IMAGE_TAGS=$(printf "%s\n%s\n%s" \
+                "${PRIMARY_TAG}" \
+                "${REGISTRY}/${IMAGE_NAME}:v${PROJECT_VERSION}" \
+                "${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}")
+            fi
+          
+          elif [[ "$BRANCH_NAME" == "develop" ]]; then
+            # Develop branch - BETA PRERELEASE
             ENVIRONMENT="development"
             SPRING_PROFILE="dev"
             LOG_LEVEL="DEBUG"
-            BUILD_VERSION="${RUN_NUMBER}-dev"
-            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:dev"
-            IMAGE_TAGS=$(printf "%s\n%s\n%s" \
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
               "${PRIMARY_TAG}" \
-              "${REGISTRY}/${IMAGE_NAME}:dev-${COMMIT_SHA}" \
-              "${REGISTRY}/${IMAGE_NAME}:v${BUILD_VERSION}")
-          elif [[ "$REF" =~ ^refs/heads/release ]]; then
+              "${REGISTRY}/${IMAGE_NAME}:dev")
+          
+          elif [[ "$BRANCH_NAME" =~ ^feature/ ]]; then
+            # Feature branch - ALPHA PRERELEASE
+            ENVIRONMENT="development"
+            SPRING_PROFILE="dev"
+            LOG_LEVEL="DEBUG"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}")
+          
+          elif [[ "$BRANCH_NAME" =~ ^fix/ ]]; then
+            # Fix branch - BUGFIX PRERELEASE
+            ENVIRONMENT="development"
+            SPRING_PROFILE="dev"
+            LOG_LEVEL="DEBUG"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}")
+          
+          elif [[ "$BRANCH_NAME" =~ ^hotfix/ ]]; then
+            # Hotfix branch - PATCH PRERELEASE (production bug fix)
             ENVIRONMENT="staging"
             SPRING_PROFILE="staging"
             LOG_LEVEL="INFO"
-            BUILD_VERSION="${RUN_NUMBER}-rc"
-            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:staging"
-            IMAGE_TAGS=$(printf "%s\n%s\n%s" \
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
               "${PRIMARY_TAG}" \
-              "${REGISTRY}/${IMAGE_NAME}:staging-${COMMIT_SHA}" \
-              "${REGISTRY}/${IMAGE_NAME}:v${BUILD_VERSION}")
-          else
-            ENVIRONMENT="preview"
-            SPRING_PROFILE="dev"
-            LOG_LEVEL="DEBUG"
-            BUILD_VERSION="${RUN_NUMBER}-preview"
-            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:preview-${COMMIT_SHA}"
-            IMAGE_TAGS="${PRIMARY_TAG}"
+              "${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}")
+          
+          elif [[ "$BRANCH_NAME" =~ ^release/ ]]; then
+            # Release branch - RELEASE CANDIDATE
+            ENVIRONMENT="staging"
+            SPRING_PROFILE="staging"
+            LOG_LEVEL="INFO"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:staging")
           fi
+
+          BUILD_VERSION="${PROJECT_VERSION}"
 
           {
             echo "environment=${ENVIRONMENT}"
@@ -101,13 +149,15 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
           printf '🏷️ Environment: %s\n' "$ENVIRONMENT"
+          printf '🎯 Branch: %s\n' "$BRANCH_NAME"
+          printf '📦 Semantic Version: %s\n' "$PROJECT_VERSION"
           printf '🔖 Primary Tag: %s\n' "$PRIMARY_TAG"
-          printf '📦 Build Version: %s\n' "$BUILD_VERSION"
           printf '🌱 Spring Profile: %s\n' "$SPRING_PROFILE"
           printf '📝 Log Level: %s\n' "$LOG_LEVEL"
+          printf '📋 All Tags:\n%s\n' "$IMAGE_TAGS"
 
   build-and-push:
-    needs: [setup, ci-checks]
+    needs: [setup]
     runs-on: ubuntu-latest
     environment: ${{ needs.setup.outputs.environment }}
 
@@ -145,6 +195,7 @@ jobs:
         build-args: |
           GITHUB_ACTOR=${{ github.actor }}
           GITHUB_TOKEN=${{ secrets.PACKAGES_TOKEN }}
+          GITHUB_REPOSITORY=${{ github.repository }}
           BUILD_DATE=${{ steps.build_meta.outputs.build_date }}
           VERSION=${{ needs.setup.outputs.build_version }}
           VCS_REF=${{ github.sha }}
@@ -158,9 +209,14 @@ jobs:
           org.opencontainers.image.title=${{ steps.build_meta.outputs.project_name }}
           org.opencontainers.image.description=Master registry service powering Bamboo Assur partner insurers - ${{ needs.setup.outputs.environment }} environment
           org.opencontainers.image.source=${{ steps.build_meta.outputs.project_repo }}
+          org.opencontainers.image.url=${{ steps.build_meta.outputs.project_repo }}
+          org.opencontainers.image.documentation=${{ steps.build_meta.outputs.project_repo }}/blob/main/README.md
           org.opencontainers.image.revision=${{ github.sha }}
           org.opencontainers.image.created=${{ steps.build_meta.outputs.build_date }}
           org.opencontainers.image.version=${{ needs.setup.outputs.build_version }}
+          org.opencontainers.image.vendor=${{ github.repository_owner }}
+          org.opencontainers.image.authors=${{ github.actor }} <${{ steps.build_meta.outputs.maintainer_email }}>
+          org.opencontainers.image.licenses=Apache-2.0
           bamboo.assur.environment=${{ needs.setup.outputs.environment }}
           bamboo.assur.spring.profile=${{ needs.setup.outputs.spring_profile }}
           bamboo.assur.log.level=${{ needs.setup.outputs.log_level }}
@@ -171,7 +227,7 @@ jobs:
       id: scan
       with:
         image: ${{ needs.setup.outputs.primary_image_tag }}
-        fail-build: false  # Don't fail build on vulnerabilities, but report them
+        fail-build: false
         severity-cutoff: high
       continue-on-error: true
 
