@@ -1,10 +1,10 @@
-# Gestion des Assureurs Partenaires
+# Gestion des Assureurs Partenaires: Registre
 
-# Microservice : `partner-insurer-core-service`
+# Microservice : `partner-insurers-registry-service`
 
-**Version : 1.0**
+**Version : 1.1**
 
-**Date : Octobre 2025**
+**Date : 07 novembre 2025**
 
 **Auteur: MAKOSSO Loïck Esdras**
 
@@ -12,7 +12,7 @@
 
 ## 1. Objectif du microservice
 
-`partner-insurer-core-service` est le **registre maître des assureurs partenaires** de la plateforme Bamboo Assur.
+`partner-insurers-registry-service` est le **registre maître des assureurs partenaires** de la plateforme Bamboo Assur.
 
 Il gère :
 
@@ -31,25 +31,25 @@ Il dépend du **`identity-service`** pour la validation des utilisateurs et dél
 
 | Microservice | Type d’interaction | Données échangées |
 | --- | --- | --- |
-| `partner-portal-service` | REST (lecture seule) | Liste et détails des partenaires / contrats |
-| `document-exchange-service` | Events (RabbitMQ) | Références de documents associés à un contrat |
-| `insurer-integration-service` | Events | Notification création / activation partenaires |
+| `partner-insurers-portal-service` | REST (lecture seule) | Liste et détails des partenaires / contrats |
+| `partner-insurers-ocument-service` | Events (RabbitMQ) | Références de documents associés à un contrat |
+| `partner-insurers-integration-service` | Events | Notification création / activation partenaires |
 | `claims-service` | Events | Association sinistres ↔ assureur |
 | `identity-service` | REST | Introspection JWT, validation des rôles |
 
-Le `partner-insurer-core-service` est une **source de vérité métier**, mais **non technique**.
+Le service `partner-insurers-registry-service` agit comme **source de vérité fonctionnelle** pour le domaine “Assureurs partenaires”.
 
 ---
 
 ## 3. Domaine fonctionnel
 
-Chaque fonctionnalité est identifiée par un **ID unique PIS-COR-XXX**.
+Chaque fonctionnalité est identifiée par un **ID unique PIS-REG-XXX**.
 
 Ce service couvre **trois sous-domaines** :
 
 1. Gestion des partenaires assureurs
-2. Gestion des contacts (VO)
-3. Gestion des accords de partenariat (agreements)
+2. Gestion des contacts du partenaire
+3. Gestion des accords de partenariat
 
 ---
 
@@ -57,12 +57,12 @@ Ce service couvre **trois sous-domaines** :
 
 | ID | Fonctionnalité | Description |
 | --- | --- | --- |
-| **PIS-COR-101** | Création d’un partenaire | Créer un assureur avec code unique, nom légal, NIF, adresse, logo, statut `ONBOARDING`. |
-| **PIS-COR-102** | Consultation | Lecture d’un partenaire par ID ou code. |
-| **PIS-COR-103** | Recherche filtrée | Pagination et filtres (status, nom, date). |
-| **PIS-COR-104** | Mise à jour | Modification d’informations (nom, adresse, logo). |
-| **PIS-COR-105** | Changement de statut | Transition de statut (ONBOARDING → ACTIVE / SUSPENDED / REVOKED). |
-| **PIS-COR-106** | Suppression logique | Marquage `deleted_at`, `deleted_by`. |
+| **PIS-REG-101** | Création d’un partenaire | Créer un assureur avec code unique, nom légal, NIF, adresse, logo, statut `ONBOARDING`. |
+| **PIS-REG-102** | Consultation | Lecture d’un partenaire par ID ou code. |
+| **PIS-REG-103** | Recherche filtrée | Pagination et filtres (status, nom, date). |
+| **PIS-REG-104** | Mise à jour | Modification d’informations (nom, adresse, logo). |
+| **PIS-REG-105** | Changement de statut | Transition de statut (ONBOARDING → ACTIVE / SUSPENDED / REVOKED). |
+| **PIS-REG-106** | Suppression logique | Marquage `deleted_at`, `deleted_by`. |
 
 **Événements générés :**
 
@@ -77,10 +77,10 @@ Ce service couvre **trois sous-domaines** :
 
 | ID | Fonctionnalité | Description |
 | --- | --- | --- |
-| **PIS-COR-120** | Ajout de contact | Enregistrement d’un contact associé au partenaire. |
-| **PIS-COR-121** | Mise à jour d’un contact | Modification des champs (nom, email, téléphone, rôle). |
-| **PIS-COR-122** | Suppression logique de contact | Soft delete avec traçabilité. |
-| **PIS-COR-123** | Liste des contacts | Récupération paginée pour un partenaire. |
+| **PIS-REG-120** | Ajout de contact | Enregistrement d’un contact associé au partenaire. |
+| **PIS-REG-121** | Mise à jour d’un contact | Modification des champs (nom, email, téléphone, rôle). |
+| **PIS-REG-122** | Suppression logique de contact | Soft delete avec traçabilité. |
+| **PIS-REG-123** | Liste des contacts | Récupération paginée pour un partenaire. |
 
 ---
 
@@ -88,12 +88,12 @@ Ce service couvre **trois sous-domaines** :
 
 | ID | Fonctionnalité | Description |
 | --- | --- | --- |
-| **PIS-COR-140** | Création d’accord | Création d’un enregistrement `broker_partner_insurer_agreement` avec toutes ses métadonnées. |
-| **PIS-COR-141** | Mise à jour d’accord | Mise à jour des champs non immuables (titre, dates, pénalités, etc.). |
-| **PIS-COR-142** | Changement de statut d’accord | DRAFT → ACTIVE / EXPIRED / TERMINATED. |
-| **PIS-COR-143** | Expiration automatique | Tâche planifiée pour marquer les accords expirés et émettre un event. |
-| **PIS-COR-144** | Consultation d’accords | Liste ou consultation par ID. |
-| **PIS-COR-145** | Validation du `payment_method` | Vérification structurelle du JSON (BankTransfer, MobileMoney, Manual). |
+| **PIS-REG-140** | Création d’accord | Création d’un enregistrement avec toutes ses métadonnées. |
+| **PIS-REG-141** | Mise à jour d’accord | Mise à jour des champs non immuables (titre, dates, pénalités, etc.). |
+| **PIS-REG-142** | Changement de statut d’accord | DRAFT → ACTIVE / EXPIRED / TERMINATED. |
+| **PIS-REG-143** | Expiration automatique | Tâche planifiée pour marquer les accords expirés et émettre un event. |
+| **PIS-REG-144** | Consultation d’accords | Liste ou consultation par ID. |
+| **PIS-REG-145** | Validation du `payment_method` | Vérification structurelle du JSON (BankTransfer, MobileMoney, Manual). |
 
 **Événements générés :**
 
@@ -108,9 +108,9 @@ Ce service couvre **trois sous-domaines** :
 
 | ID | Fonctionnalité | Description |
 | --- | --- | --- |
-| **PIS-COR-180** | Enregistrement d’événement métier | Insertion dans `outbox` table dans la même transaction. |
-| **PIS-COR-181** | Dispatcher Outbox → RabbitMQ | Traitement des événements PENDING → SENT / FAILED. |
-| **PIS-COR-182** | Audit trail interne | Journalisation des changements CRUD dans les tables partenaires et accords. |
+| **PIS-REG-180** | Enregistrement d’événement métier | Insertion dans `outbox` table dans la même transaction. |
+| **PIS-REG-181** | Dispatcher Outbox → RabbitMQ | Traitement des événements PENDING → SENT / FAILED. |
+| **PIS-REG-182** | Audit trail interne | Journalisation des changements CRUD dans les tables partenaires et accords. |
 
 ---
 
@@ -186,6 +186,20 @@ CREATE TABLE broker_partner_insurer_agreements (
 
 Utilisée pour la publication d’événements RabbitMQ transactionnels.
 
+```sql
+CREATE TABLE IF NOT EXISTS outbox(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    aggregate_id UUID NOT NULL,
+    aggregate_type VARCHAR(255) NOT NULL,
+    event_type VARCHAR(255) NOT NULL,
+    payload JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    processed BOOLEAN NOT NULL DEFAULT FALSE,
+    processed_at TIMESTAMP WITH TIME ZONE,
+    error TEXT
+);
+```
+
 ---
 
 ## 5. Communications externes
@@ -214,7 +228,7 @@ JWT Bearer token validé par `identity-service` (scopes : `partner:read`, `partn
 
 ### 5.2 Événements RabbitMQ
 
-**Exchange :** `bamboo.partner.events`
+**Exchange :** `partner-insurers.registry.direct`
 
 **Type :** `topic`
 
@@ -233,7 +247,7 @@ JWT Bearer token validé par `identity-service` (scopes : `partner:read`, `partn
 2. Un partenaire ne peut être **activé** (`ACTIVE`) que si au moins un **accord actif** existe.
 3. Tout accord sans `end_date` est considéré comme actif indéfiniment.
 4. La suppression physique des partenaires, contacts ou accords est interdite (soft delete).
-5. Chaque modification crée un **event Outbox** + une **entrée d’audit**.
+5. Chaque modification crée un **événement métier** + une **entrée d’audit**.
 6. `payment_method` JSON doit suivre le format documenté dans `payment_method_examples.json`.
 
 ---
@@ -242,7 +256,7 @@ JWT Bearer token validé par `identity-service` (scopes : `partner:read`, `partn
 
 | Domaine | Détail |
 | --- | --- |
-| Langage | Kotlin 2.x |
+| Langage | Kotlin 2.2+ |
 | Framework | Spring Boot WebFlux + Coroutines |
 | Base de données | PostgreSQL (R2DBC) |
 | Migration | Flyway |
@@ -251,35 +265,56 @@ JWT Bearer token validé par `identity-service` (scopes : `partner:read`, `partn
 | Observabilité | Micrometer, Prometheus (à définir) |
 | Tests | JUnit 5 + Testcontainers |
 | CI/CD | GitHub Actions + Docker |
+| Nom du package | `com.bamboo.assur.partner-insurers.registry` |
 
 ---
 
 ## 8. Livrables attendus
 
 1. Code Kotlin structuré [***Architecture Explicite***](https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/)
-    
-    [DDD, Hexagonal, Onion, Clean, CQRS, … How I put it all together](https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/)
-    
+
+   [DDD, Hexagonal, Onion, Clean, CQRS, … How I put it all together](https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/)
+
     <aside>
     💡
-    
-    Cette architecture place le cœur applicatif/domaine au centre, isolé des mécanismes techniques (UI, base de données, services externes) via des ports et adaptateurs — ce qui permet de changer l’infrastructure sans impacter la logique métier.
-    Elle organise le code en couches concentriques (Onion/Clean), en veillant à ce que les dépendances pointent toujours vers l’intérieur (du plus spécifique au générique), renforçant cohésion et testabilité.
-    Elle adopte le principe de séparation des commandes et des requêtes (CQRS) ainsi que celui du « modèle centré domaine » (DDD) pour structurer clairement les use-cases, entités et services métier, en évitant que le domaine ne soit pollué par les détails de l’infrastructure
-    
+
+   Cette architecture place le cœur applicatif/domaine au centre, isolé des mécanismes techniques (UI, base de données, services externes) via des ports et adaptateurs — ce qui permet de changer l’infrastructure sans impacter la logique métier.
+   Elle organise le code en couches concentriques (Onion/Clean), en veillant à ce que les dépendances pointent toujours vers l’intérieur (du plus spécifique au générique), renforçant cohésion et testabilité.
+   Elle adopte le principe de séparation des commandes et des requêtes (CQRS) ainsi que celui du « modèle centré domaine » (DDD) pour structurer clairement les use-cases, entités et services métier, en évitant que le domaine ne soit pollué par les détails de l’infrastructure
+
     </aside>
-    
+
 2. Scripts Flyway :
     - `V1__Create_partner_insurer_schema.sql`
     - `V1.1__Create_outbox_table.sql`
 3. Documentation OpenAPI 3.0.
+4. Schémas JSON des événements métier.
 
 ---
 
 ## Résumé
 
-`partner-insurer-core-service` :
+`partner-insurers-registry-service` :
 
+- constitue le **registre maître** des assureurs partenaires,
 - est **purement métier**,
-- ne gère ni authentification ni connecteurs techniques,
-- est conçu pour être le **noyau DDD** du domaine des partenaires assureurs.
+- est le **pivot fonctionnel** du domaine `Partner Insurers` dans  `Bamboo Assur`
+- 
+---
+
+## Versioning & Release
+
+Ce projet utilise **semantic-release** pour la gestion automatique des versions basée sur les conventional commits.
+
+- **Versions**: Gérées automatiquement dans `gradle.properties` par semantic-release
+- **Docker Images**: Tags créés automatiquement basés sur les versions sémantiques
+- **Releases**: GitHub releases créés automatiquement avec changelog
+- **Documentation**: Voir [docs/VERSIONING.md](docs/VERSIONING.md) pour les détails complets
+
+### Conventional Commits
+
+```bash
+feat: nouvelle fonctionnalité (bump MINOR)
+fix: correction de bug (bump PATCH)  
+feat!: breaking change (bump MAJOR)
+```

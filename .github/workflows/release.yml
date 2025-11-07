@@ -29,6 +29,10 @@ jobs:
       pull-requests: write
       packages: read
 
+    outputs:
+      version: ${{ steps.semantic.outputs.new_release_version }}
+      released: ${{ steps.semantic.outputs.new_release_published }}
+
     steps:
     - uses: actions/checkout@v5
       with:
@@ -65,7 +69,17 @@ jobs:
       run: npm ci
 
     - name: Semantic Release
+      id: semantic
       env:
         GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
       run: npx semantic-release
+
+  build-and-publish:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    uses: ./.github/workflows/build-and-publish.yml
+    secrets:
+      PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+    with:
+      version: ${{ needs.release.outputs.version }}
