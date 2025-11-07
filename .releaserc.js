@@ -89,7 +89,7 @@ module.exports = {
         [
             '@semantic-release/git',
             {
-                assets: ['CHANGELOG.md', 'gradle.properties'],
+                assets: ['CHANGELOG.md', 'gradle.properties', 'package.json'],
                 message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
             },
         ],

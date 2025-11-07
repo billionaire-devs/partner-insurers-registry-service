@@ -70,10 +70,20 @@ jobs:
 
     - name: Semantic Release
       id: semantic
+      uses: cycjimmy/semantic-release-action@v5
       env:
         GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
-      run: npx semantic-release
+      with:
+        semantic_version: 24.0.8
+        extra_plugins: |
+          gradle-semantic-release-plugin
+          @semantic-release/commit-analyzer
+          @semantic-release/release-notes-generator
+          @semantic-release/changelog
+          @semantic-release/git
+          @semantic-release/github
+          @semantic-release/exec
 
   build-and-publish:
     permissions:
