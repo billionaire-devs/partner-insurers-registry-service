@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.net.URI
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
@@ -48,7 +49,12 @@ class PartnerInsurerController(
         request: CreatePartnerInsurerRequestDto,
     ): ResponseEntity<CreatePartnerInsurerResponseDto> {
         val response = createCommandHandler(request.toCommand())
-        val location = URI.create("/v1/partner-insurers/${response.id}")
+        val location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(response.id)
+            .toUri()
+
         return ResponseEntity.created(location).body(response)
     }
 
