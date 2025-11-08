@@ -1,6 +1,6 @@
 package com.bamboo.assur.partnerinsurers.registry.domain.enums
 
-enum class  PartnerInsurerStatus {
+enum class PartnerInsurerStatus {
     ONBOARDING, ACTIVE, SUSPENDED, MAINTENANCE, DEACTIVATED;
 
     fun isActive() = this == ACTIVE
