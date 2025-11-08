@@ -2,13 +2,11 @@ package com.bamboo.assur.partnerinsurers.registry
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
 
 @SpringBootApplication
-class PartnerInsurersServiceApplication
+class PartnerInsurersRegistryServiceApplication
 
 @Suppress("SpreadOperator")
 fun main(args: Array<String>) {
-    runApplication<PartnerInsurersServiceApplication>(*args)
+    runApplication<PartnerInsurersRegistryServiceApplication>(*args)
 }
