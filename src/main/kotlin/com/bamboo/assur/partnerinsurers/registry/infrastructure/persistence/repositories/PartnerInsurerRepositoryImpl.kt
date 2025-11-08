@@ -8,7 +8,6 @@ import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.enti
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerContactTable.Companion.toEntityTable
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerTable
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerTable.Companion.toEntityTable
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityAlreadyExistsException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityNotFoundException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToSaveEntityException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToUpdateEntityException
@@ -48,43 +47,6 @@ class PartnerInsurerRepositoryImpl(
         logger.info("Saving partner insurer {}", partnerInsurerEntity.id)
 
         return transactionalOperator.executeAndAwait {
-            if (partnerInsurerR2dbcRepository.existsById(partnerInsurerEntity.id)) {
-                logger.warn("Duplicate partner insurer detected by id {}", partnerInsurerEntity.id)
-                throw EntityAlreadyExistsException(
-                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                    partnerInsurerEntity.id,
-                )
-            }
-
-            if (partnerInsurerR2dbcRepository.existsByPartnerInsurerCode(partnerInsurerEntity.partnerInsurerCode)) {
-                logger.warn(
-                    "Duplicate partner insurer detected by code {}",
-                    partnerInsurerEntity.partnerInsurerCode
-                )
-                throw EntityAlreadyExistsException(
-                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                    partnerInsurerEntity.partnerInsurerCode,
-                    entityIdentifierName = "Partner insurer code"
-                )
-            }
-
-            if (
-                partnerInsurerR2dbcRepository.existsByTaxIdentificationNumber(
-                    partnerInsurerEntity.taxIdentificationNumber
-                )
-            ) {
-                logger.warn(
-                    "Duplicate partner insurer detected by TIN {}",
-                    partnerInsurerEntity.taxIdentificationNumber
-                )
-                throw EntityAlreadyExistsException(
-                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                    partnerInsurerEntity.taxIdentificationNumber,
-                    entityIdentifierName = "Tax identification number"
-                )
-            }
-
-
             // Save partner insurer and contacts in a single transaction
             r2dbcEntityTemplate.insert(partnerInsurerEntity).awaitSingleOrNull()
                 ?: throw FailedToSaveEntityException(
@@ -150,6 +112,11 @@ class PartnerInsurerRepositoryImpl(
 
     override suspend fun existsByPartnerCode(partnerCode: String): Boolean =
         partnerInsurerR2dbcRepository.existsByPartnerInsurerCode(partnerCode)
+
+    override suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean =
+        partnerInsurerR2dbcRepository.existsByTaxIdentificationNumber(taxIdentificationNumber)
+
+    override suspend fun existById(id: UUID): Boolean = partnerInsurerR2dbcRepository.existsById(id)
 
     override suspend fun streamAll(
         status: String?,
