@@ -12,6 +12,7 @@ import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.Ge
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.ChangePartnerInsurerStatusRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.CreatePartnerInsurerRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.UpdatePartnerInsurerRequestDto
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.PartnerInsurerDetailResponseDto.Companion.toResponseDTO
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.net.URI
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -44,14 +46,10 @@ class PartnerInsurerController(
         @Validated
         @RequestBody
         request: CreatePartnerInsurerRequestDto,
-    ): ResponseEntity<Any> {
-        val command = request.toCommand()
-        return when (val result = createCommandHandler(command)) {
-            is Result.Success -> ResponseEntity.ok(mapOf("id" to result.value))
-            is Result.Failure -> ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(mapOf("error" to result.message))
-        }
+    ): ResponseEntity<CreatePartnerInsurerResponseDto> {
+        val response = createCommandHandler(request.toCommand())
+        val location = URI.create("/v1/partner-insurers/${response.id}")
+        return ResponseEntity.created(location).body(response)
     }
 
     @GetMapping("/{id}")
