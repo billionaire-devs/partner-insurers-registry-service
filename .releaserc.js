@@ -1,5 +1,28 @@
-const sanitizedNameTemplate = (fallback) =>
-    `\${((name || '${fallback}').replace(/[^0-9A-Za-z-]/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || '${fallback}')}`;
+const sanitizeBranchSegment = (value, fallback = '') =>
+    (value || fallback)
+        .replace(/[^0-9A-Za-z-]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '') || fallback;
+
+const sanitizedNameTemplate = (fallback, channel) => {
+    const sanitizedChannel = sanitizeBranchSegment(channel);
+    const sanitizedFallback = fallback ? sanitizeBranchSegment(fallback, fallback) : '';
+
+    const transformations = [
+        '(name || "")',
+        ".replace(/[^0-9A-Za-z-]/g, '-')",
+        ".replace(/-+/g, '-')",
+        ".replace(/^-+|-+$/g, '')",
+    ];
+
+    if (sanitizedFallback) {
+        transformations.push(`.replace(/^${sanitizedFallback}-/, '')`);
+    }
+
+    const sanitizedExpression = transformations.join('');
+
+    return `\${['${sanitizedChannel}', ${sanitizedExpression}].filter(Boolean).join('-')}`;
+};
 
 const changelogTypes = [
     {type: 'feat', section: '🚀 Features'},
@@ -18,9 +41,9 @@ const changelogTypes = [
 ];
 
 const wildcardBranch = (prefix, channel, fallback) => ({
-    name: `${prefix}/*`,
+    name: `${prefix}/**`,
     ...(channel ? {channel} : {}),
-    prerelease: sanitizedNameTemplate(fallback),
+    prerelease: sanitizedNameTemplate(fallback, channel),
 });
 
 module.exports = {
@@ -41,7 +64,7 @@ module.exports = {
             {
                 preset: 'conventionalcommits',
                 presetConfig: {
-                    issuePrefixes: ['PIS-', 'COR-', 'BUG-', '#'],
+                    issuePrefixes: ['PIS-', 'REG-', 'BUG-', '#'],
                 },
                 releaseRules: [
                     {type: 'docs', scope: 'README', release: 'patch'},
