@@ -55,21 +55,22 @@ Ce service couvre **trois sous-domaines** :
 
 ### A. Gestion des partenaires assureurs
 
-| ID | Fonctionnalité | Description |
-| --- | --- | --- |
+| ID | Fonctionnalité | Description                                                                             |
+| --- | --- |-----------------------------------------------------------------------------------------|
 | **PIS-REG-101** | Création d’un partenaire | Créer un assureur avec code unique, nom légal, NIF, adresse, logo, statut `ONBOARDING`. |
-| **PIS-REG-102** | Consultation | Lecture d’un partenaire par ID ou code. |
-| **PIS-REG-103** | Recherche filtrée | Pagination et filtres (status, nom, date). |
-| **PIS-REG-104** | Mise à jour | Modification d’informations (nom, adresse, logo). |
-| **PIS-REG-105** | Changement de statut | Transition de statut (ONBOARDING → ACTIVE / SUSPENDED / REVOKED). |
-| **PIS-REG-106** | Suppression logique | Marquage `deleted_at`, `deleted_by`. |
+| **PIS-REG-102** | Consultation | Lecture d’un partenaire par ID ou code.                                                 |
+| **PIS-REG-103** | Recherche filtrée | Pagination et filtres (status, nom, date).                                              |
+| **PIS-REG-104** | Mise à jour | Modification d’informations (nom, adresse, logo).                                       |
+| **PIS-REG-105** | Changement de statut | Transition de statut (ONBOARDING → ACTIVE / SUSPENDED / MAINTENANCE / DEACTIVATED).     |
+| **PIS-REG-106** | Suppression logique | Marquage `deleted_at`, `deleted_by`.                                                    |
 
 **Événements générés :**
 
 - `PartnerInsurerCreated`
 - `PartnerInsurerActivated`
 - `PartnerInsurerSuspended`
-- `PartnerInsurerRevoked`
+- `PartnerInsurerPutInMaintenance`
+- `PartnerInsurerDeactivated`
 
 ---
 
