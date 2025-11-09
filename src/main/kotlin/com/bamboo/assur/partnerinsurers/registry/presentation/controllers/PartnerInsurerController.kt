@@ -12,9 +12,12 @@ import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.Ge
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.ChangePartnerInsurerStatusRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.CreatePartnerInsurerRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.UpdatePartnerInsurerRequestDto
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.PartnerInsurerDetailResponseDto.Companion.toResponseDTO
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.server.ServerHttpRequest
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -44,14 +48,15 @@ class PartnerInsurerController(
         @Validated
         @RequestBody
         request: CreatePartnerInsurerRequestDto,
-    ): ResponseEntity<Any> {
-        val command = request.toCommand()
-        return when (val result = createCommandHandler(command)) {
-            is Result.Success -> ResponseEntity.ok(mapOf("id" to result.value))
-            is Result.Failure -> ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(mapOf("error" to result.message))
-        }
+        serverRequest: HttpServletRequest
+    ): ResponseEntity<CreatePartnerInsurerResponseDto> {
+        val response = createCommandHandler(request.toCommand())
+        val location = ServletUriComponentsBuilder
+            .fromRequest(serverRequest)
+            .buildAndExpand(response.id)
+            .toUri()
+
+        return ResponseEntity.created(location).body(response)
     }
 
     @GetMapping("/{id}")

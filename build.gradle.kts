@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") version "2.2.20"
     kotlin("plugin.spring") version "2.2.20"
     kotlin("plugin.serialization") version "2.2.0"
-    id("org.springframework.boot") version "4.0.0-M3"
+    id("org.springframework.boot") version "4.0.0-RC2"
     id("io.spring.dependency-management") version "1.1.7"
     id("maven-publish")
 }
@@ -69,7 +69,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.bamboo.assur.partner-insurers:shared-kernel:0.1.0")
+    implementation("com.bamboo.assur.partner-insurers:shared-kernel:1.0.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
@@ -89,6 +89,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework:spring-jdbc")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.4"))
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:rabbitmq")

@@ -18,7 +18,9 @@ interface PartnerInsurerRepository {
     suspend fun update(partnerInsurer: PartnerInsurer): Boolean
     suspend fun partialUpdate(id: UUID, update: PartnerInsurerUpdate): Boolean
     suspend fun delete(partnerInsurer: PartnerInsurer)
+    suspend fun existById(id: UUID): Boolean
     suspend fun existsByPartnerCode(partnerCode: String): Boolean
+    suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean
     suspend fun streamAll(
         status: String?,
         search: String?,

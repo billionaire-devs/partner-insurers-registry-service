@@ -1,10 +1,5 @@
 package com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.repositories
 
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityAlreadyExistsException
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityNotFoundException
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToSaveEntityException
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToUpdateEntityException
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
 import com.bamboo.assur.partnerinsurers.registry.application.commands.models.PartnerInsurerUpdate
 import com.bamboo.assur.partnerinsurers.registry.application.queries.models.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
@@ -13,12 +8,18 @@ import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.enti
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerContactTable.Companion.toEntityTable
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerTable
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerTable.Companion.toEntityTable
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityNotFoundException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToSaveEntityException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToUpdateEntityException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.getAggregateTypeOrEmpty
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
@@ -38,82 +39,38 @@ class PartnerInsurerRepositoryImpl(
     private val r2dbcEntityTemplate: R2dbcEntityTemplate,
     private val transactionalOperator: TransactionalOperator,
 ) : PartnerInsurerRepository {
-    val logger = LoggerFactory.getLogger(javaClass)
+    val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-    @Transactional
     override suspend fun save(partnerInsurer: PartnerInsurer): Boolean {
-        logger.info("Starting to save Partner insurer: {}", partnerInsurer)
         val partnerInsurerEntity = partnerInsurer.toEntityTable()
 
-        logger.info("Persisting Partner insurer entity: {}", partnerInsurerEntity)
+        logger.info("Saving partner insurer {}", partnerInsurerEntity.id)
 
-        return try {
-            // Check if entity exists
-            logger.info("Checking if entity already exists")
-
-            if (partnerInsurerR2dbcRepository.existsById(partnerInsurerEntity.id)) {
-                logger.info("Entity exists with same ID: {}", true)
-                throw EntityAlreadyExistsException(
-                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                    partnerInsurerEntity.id,
-                )
-            }
-
-            if (
-                partnerInsurerR2dbcRepository.existsByPartnerInsurerCode(
-                    partnerInsurerEntity.partnerInsurerCode
-                )
-            ) {
-                logger.info("Entity exists with same partner insurer code: {}", true)
-                throw EntityAlreadyExistsException(
-                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                    partnerInsurerEntity.id,
-                    entityIdentifierName = "Partner insurer code"
-                )
-            }
-
-            if (
-                partnerInsurerR2dbcRepository.existsByTaxIdentificationNumber(
-                    partnerInsurerEntity.taxIdentificationNumber
-                )
-            ) {
-                logger.info("Entity exists with same tax identification number: {}", true)
-                throw EntityAlreadyExistsException(
-                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                    partnerInsurerEntity.id,
-                    entityIdentifierName = "Tax identification number"
-                )
-            }
-
-
+        return transactionalOperator.executeAndAwait {
             // Save partner insurer and contacts in a single transaction
-            transactionalOperator.executeAndAwait {
-                // Insert partner insurer and capture the saved entity (so we get the DB-generated id if any)
-                val savedPartner = r2dbcEntityTemplate.insert(partnerInsurerEntity).awaitSingleOrNull()
+            r2dbcEntityTemplate.insert(partnerInsurerEntity).awaitSingleOrNull()
+                ?: throw FailedToSaveEntityException(
+                    PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
+                    partnerInsurerEntity.id
+                )
+
+            partnerInsurer.contacts.forEach { contact ->
+                val contactEntity = contact.toEntityTable(partnerInsurer.id.value)
+
+                logger.debug(
+                    "Saving partner insurer contact {} for partner {}",
+                    contactEntity.id,
+                    partnerInsurerEntity.id
+                )
+
+                r2dbcEntityTemplate.insert(contactEntity).awaitSingleOrNull()
                     ?: throw FailedToSaveEntityException(
-                        PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-                        partnerInsurerEntity.id
-                    ).also { logger.error("Failed to save partner insurer: {}", partnerInsurerEntity) }
-
-                logger.debug("Partner insurer saved: {}", savedPartner)
-
-                // Save contacts using the saved partner insurer id
-                partnerInsurer.contacts.forEach { contact ->
-                    logger.debug("Saving contact: {}", contact)
-                    val contactEntity = contact.toEntityTable(savedPartner.id)
-
-                    r2dbcEntityTemplate.insert(contactEntity).awaitSingleOrNull() ?: throw FailedToSaveEntityException(
-                        PartnerInsurerContactTable::class.simpleName ?: "PartnerInsurerContactTable",
+                        getAggregateTypeOrEmpty<PartnerInsurerContactTable>(),
                         contact.id
                     )
-                }
             }
-
-            logger.info("Partner insurer saved successfully with contacts")
+            logger.info("Partner insurer saved successfully {}", partnerInsurerEntity.id)
             true
-        } catch (e: Exception) {
-            logger.error("Failed to save partner insurer with contacts", e)
-            throw e
         }
     }
 
@@ -155,6 +112,11 @@ class PartnerInsurerRepositoryImpl(
 
     override suspend fun existsByPartnerCode(partnerCode: String): Boolean =
         partnerInsurerR2dbcRepository.existsByPartnerInsurerCode(partnerCode)
+
+    override suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean =
+        partnerInsurerR2dbcRepository.existsByTaxIdentificationNumber(taxIdentificationNumber)
+
+    override suspend fun existById(id: UUID): Boolean = partnerInsurerR2dbcRepository.existsById(id)
 
     override suspend fun streamAll(
         status: String?,

@@ -1,18 +1,18 @@
 package com.bamboo.assur.partnerinsurers.registry.application.commands.handlers
 
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
-import com.bamboo.assur.partnerinsurers.sharedkernel.application.CommandHandler
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityAlreadyExistsException
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
-import com.bamboo.assur.partnerinsurers.registry.infrastructure.events.DomainEventPublisher
 import com.bamboo.assur.partnerinsurers.registry.application.commands.CreatePartnerInsurerCommand
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerRepository
 import com.bamboo.assur.partnerinsurers.registry.domain.valueObjects.TaxIdentificationNumber
+import com.bamboo.assur.partnerinsurers.registry.infrastructure.events.DomainEventPublisher
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto.Companion.toResponseDto
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.CommandHandler
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityAlreadyExistsException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -21,23 +21,16 @@ import kotlin.uuid.ExperimentalUuidApi
 class CreatePartnerInsurerCommandHandler(
     private val partnerInsurerRepository: PartnerInsurerRepository,
     private val domainEventPublisher: DomainEventPublisher,
-) : CommandHandler<CreatePartnerInsurerCommand, Result<UUID>> {
+) : CommandHandler<CreatePartnerInsurerCommand, CreatePartnerInsurerResponseDto> {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
-    override suspend fun invoke(command: CreatePartnerInsurerCommand): Result<UUID> {
-        if (partnerInsurerRepository.existsByPartnerCode(command.partnerCode)) {
-            throw EntityAlreadyExistsException(
-                "PartnerInsurer",
-                entityIdentifierName = "Partner Code",
-                entityIdentifier = command.partnerCode
-            )
-        }
+    override suspend fun invoke(command: CreatePartnerInsurerCommand): CreatePartnerInsurerResponseDto {
+        logger.info("Creating partner insurer with code {}", command.partnerInsurerCode)
 
-        logger.info("Creating partner insurer: {}", command)
         val partnerInsurer = PartnerInsurer.create(
             legalName = command.legalName,
-            partnerInsurerCode = command.partnerCode,
+            partnerInsurerCode = command.partnerInsurerCode,
             taxIdentificationNumber = TaxIdentificationNumber(command.taxIdentificationNumber),
             logoUrl = command.logoUrl?.let { Url(it) },
             contacts = command.contacts,
@@ -45,26 +38,88 @@ class CreatePartnerInsurerCommandHandler(
             status = command.status,
         )
 
-        // Let exceptions propagate to trigger rollback
-        val isSaved = partnerInsurerRepository.save(partnerInsurer)
-        logger.info("Partner insurer saved: {}", isSaved)
+        partnerInsurer.ensurePartnerInsurerIsUnique()
 
-        if (!isSaved) {
-            error("Partner insurer could not have been saved")
+        try {
+            partnerInsurerRepository.save(partnerInsurer)
+            logger.info("Partner insurer persisted with id {}", partnerInsurer.id)
+
+            // Publish events to transactional outbox (joins same transaction)
+            if (partnerInsurer.hasPendingEvents()) {
+                val events = partnerInsurer.getDomainEvents()
+                logger.info(
+                    "Publishing {} domain events for partner insurer {}",
+                    events.size,
+                    partnerInsurer.id
+                )
+                domainEventPublisher.publish(events)
+                partnerInsurer.clearDomainEvents()
+                logger.debug("Domain events cleared for partner insurer {}", partnerInsurer.id)
+            }
+
+            return partnerInsurer.toResponseDto()
+        } catch (e: EntityAlreadyExistsException) {
+            logger.warn(
+                "Failed to create partner insurer with code {} due to duplicate entity",
+                command.partnerInsurerCode,
+                e
+            )
+            throw e
+        } catch (e: Exception) {
+            logger.error(
+                "Unexpected error while creating partner insurer with code {}",
+                command.partnerInsurerCode,
+                e
+            )
+            throw IllegalStateException("Unable to create partner insurer", e)
+        }
+    }
+
+    /**
+     * Ensures that the partner insurer is unique in the system.
+     *
+     * This method checks for duplicates by id, partner code, and tax identification number.
+     * If any duplicates are found, it throws an [EntityAlreadyExistsException].
+     *
+     * @throws EntityAlreadyExistsException if a duplicate is found
+     */
+    @Suppress("ThrowsCount")
+    private suspend fun PartnerInsurer.ensurePartnerInsurerIsUnique() {
+        if (partnerInsurerRepository.existById(this.id.value)) {
+            logger.warn(
+                "Duplicate partner insurer detected by id {}",
+                this.id
+            )
+            throw EntityAlreadyExistsException(
+                PartnerInsurer::class.simpleName ?: "PartnerInsurer",
+                this.id,
+                entityIdentifierName = "Partner insurer id"
+            )
         }
 
-        // Publish events to transactional outbox (joins same transaction)
-        logger.info("Checking for pending events")
-        if (partnerInsurer.hasPendingEvents()) {
-            logger.info("Publishing events to transactional outbox")
-            domainEventPublisher.publish(partnerInsurer.getDomainEvents())
-            logger.info("Events published to transactional outbox")
-            logger.info("Clearing domain events")
-            partnerInsurer.clearDomainEvents()
-            logger.info("Domain events cleared")
+        if (partnerInsurerRepository.existsByPartnerCode(this.partnerInsurerCode)) {
+            logger.warn(
+                "Duplicate partner insurer detected by code {}",
+                this.partnerInsurerCode
+            )
+            throw EntityAlreadyExistsException(
+                PartnerInsurer::class.simpleName ?: "PartnerInsurer",
+                this.partnerInsurerCode,
+                entityIdentifierName = "Partner insurer code"
+            )
         }
 
-        return Result.success(partnerInsurer.id.value)
+
+        if (partnerInsurerRepository.existsByTaxIdentificationNumber(this.taxIdentificationNumber.value)) {
+            logger.warn(
+                "Duplicate partner insurer detected by TIN {}",
+                this.taxIdentificationNumber
+            )
+            throw EntityAlreadyExistsException(
+                PartnerInsurer::class.simpleName ?: "PartnerInsurer",
+                this.taxIdentificationNumber,
+                entityIdentifierName = "Tax identification number"
+            )
+        }
     }
 }
-

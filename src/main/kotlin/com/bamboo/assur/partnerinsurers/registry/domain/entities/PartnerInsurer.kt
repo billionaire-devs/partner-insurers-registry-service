@@ -2,11 +2,6 @@
 
 package com.bamboo.assur.partnerinsurers.registry.domain.entities
 
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.AggregateRoot
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.InvalidOperationException
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Address
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 import com.bamboo.assur.partnerinsurers.registry.application.commands.models.PartnerInsurerUpdate
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactAddedEvent
@@ -14,7 +9,11 @@ import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerCre
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerStatusChangedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerUpdatedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.valueObjects.TaxIdentificationNumber
-import org.slf4j.LoggerFactory
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.AggregateRoot
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.InvalidOperationException
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Address
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -38,7 +37,7 @@ import kotlin.uuid.ExperimentalUuidApi
 @Suppress("LongParameterList")
 class PartnerInsurer private constructor(
     id: DomainEntityId,
-    val partnerInsurerCode: String,
+    val partnerInsurerCode: String, // TODO(Define business validation rules for code creation)
     var legalName: String,
     val taxIdentificationNumber: TaxIdentificationNumber,
     var logoUrl: Url?,
@@ -79,10 +78,7 @@ class PartnerInsurer private constructor(
             address: Address,
             status: PartnerInsurerStatus = PartnerInsurerStatus.ONBOARDING,
         ): PartnerInsurer {
-            val logger = LoggerFactory.getLogger(PartnerInsurer::class.java)
-
             val id = DomainEntityId.random()
-            logger.info("Creating partner insurer with id: {}", id)
 
             val partnerInsurer = PartnerInsurer(
                 id = id,
@@ -101,6 +97,7 @@ class PartnerInsurer private constructor(
                     aggregateIdValue = id,
                     partnerInsurerCode = partnerInsurerCode,
                     legalName = legalName,
+                    taxIdentificationNumber = taxIdentificationNumber.value,
                     status = status,
                     createdAt = partnerInsurer.createdAt
                 )
