@@ -50,7 +50,14 @@ jobs:
           COMMIT_SHA="${{ github.sha }}"
           SHORT_SHA="${COMMIT_SHA:0:7}"
           BRANCH_NAME="${{ github.ref_name }}"
-          PROJECT_VERSION="${{ github.event.inputs.version }}"
+          PROJECT_VERSION="${{ inputs.version }}"
+
+          if [[ -z "$PROJECT_VERSION" ]]; then
+            echo "::error ::No semantic-release version provided to build-and-publish workflow"
+            exit 1
+          fi
+
+          SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^0-9a-z]+/-/g' | sed -E 's/^-+|-+$//g')
           
           # Default values
           ENVIRONMENT="preview"
@@ -102,7 +109,7 @@ jobs:
             PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
             IMAGE_TAGS=$(printf "%s\n%s" \
               "${PRIMARY_TAG}" \
-              "${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}")
+              "${REGISTRY}/${IMAGE_NAME}:${SANITIZED_BRANCH}-${SHORT_SHA}")
           
           elif [[ "$BRANCH_NAME" =~ ^fix/ ]]; then
             # Fix branch - BUGFIX PRERELEASE
@@ -112,7 +119,7 @@ jobs:
             PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
             IMAGE_TAGS=$(printf "%s\n%s" \
               "${PRIMARY_TAG}" \
-              "${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}")
+              "${REGISTRY}/${IMAGE_NAME}:${SANITIZED_BRANCH}-${SHORT_SHA}")
           
           elif [[ "$BRANCH_NAME" =~ ^hotfix/ ]]; then
             # Hotfix branch - PATCH PRERELEASE (production bug fix)
@@ -122,14 +129,12 @@ jobs:
             PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
             IMAGE_TAGS=$(printf "%s\n%s" \
               "${PRIMARY_TAG}" \
-              "${REGISTRY}/${IMAGE_NAME}:${BRANCH_NAME}-${SHORT_SHA}")
-          
+              "${REGISTRY}/${IMAGE_NAME}:${SANITIZED_BRANCH}-${SHORT_SHA}")
+
           elif [[ "$BRANCH_NAME" =~ ^release/ ]]; then
-            # Release branch - RELEASE CANDIDATE
             ENVIRONMENT="staging"
             SPRING_PROFILE="staging"
             LOG_LEVEL="INFO"
-            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
             IMAGE_TAGS=$(printf "%s\n%s" \
               "${PRIMARY_TAG}" \
               "${REGISTRY}/${IMAGE_NAME}:staging")
