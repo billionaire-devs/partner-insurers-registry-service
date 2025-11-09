@@ -14,8 +14,10 @@ import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.Crea
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.UpdatePartnerInsurerRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.PartnerInsurerDetailResponseDto.Companion.toResponseDTO
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.server.ServerHttpRequest
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
@@ -27,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder
-import java.net.URI
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -47,11 +48,11 @@ class PartnerInsurerController(
         @Validated
         @RequestBody
         request: CreatePartnerInsurerRequestDto,
+        serverRequest: HttpServletRequest
     ): ResponseEntity<CreatePartnerInsurerResponseDto> {
         val response = createCommandHandler(request.toCommand())
         val location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}")
+            .fromRequest(serverRequest)
             .buildAndExpand(response.id)
             .toUri()
 
