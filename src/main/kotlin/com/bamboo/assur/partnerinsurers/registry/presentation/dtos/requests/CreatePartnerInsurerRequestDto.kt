@@ -12,16 +12,23 @@ import org.hibernate.validator.constraints.URL
 
 data class CreatePartnerInsurerRequestDto(
     @field:NotBlank(message = "Partner code cannot be blank")
+    @field:NotNull
+    @field:NotEmpty(message = "Partner code cannot be empty")
     val partnerInsurerCode: String,
 
     @field:NotBlank(message = "Legal name cannot be blank")
+    @field:NotNull
+    @field:NotEmpty(message = "Legal name cannot be empty")
     val legalName: String,
 
     @field:NotBlank(message = "Tax identification number cannot be blank")
+    @field:NotNull
+    @field:NotEmpty(message = "Tax identification number cannot be empty")
     val taxIdentificationNumber: String,
 
     @field:Valid
     @field:NotEmpty("Contacts cannot be empty. At least one is required")
+    @field:NotNull
     val contacts: Set<ContactDto>,
 
     @field:NotNull(message = "Address cannot be null")
@@ -29,6 +36,7 @@ data class CreatePartnerInsurerRequestDto(
     val address: AddressDto,
 
     @field:NotBlank(message = "Status cannot be blank")
+    @field:NotEmpty(message = "Status cannot be empty")
     @field:NotNull
     val status: String,
 

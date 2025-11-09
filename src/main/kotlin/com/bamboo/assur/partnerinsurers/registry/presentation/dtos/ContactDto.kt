@@ -4,6 +4,7 @@ import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.Contact
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 
@@ -12,6 +13,7 @@ typealias DomainEmail = com.bamboo.assur.partnerinsurers.sharedkernel.domain.val
 data class ContactDto(
     @field:NotBlank(message = "Full name cannot be blank")
     @field:NotNull
+    @field:NotEmpty(message = "Full name cannot be empty")
     val fullName: String,
 
     @field:NotBlank(message = "Email cannot be blank")
@@ -20,6 +22,7 @@ data class ContactDto(
     val email: String,
 
     @field:NotBlank(message = "Phone cannot be blank")
+    @field:NotEmpty(message = "Phone must be between 10 and 15 digits and may start with +")
     @field:Pattern(
         regexp = Phone.PHONE_REGEX,
         message = "Phone number must be between 10 and 15 digits and may start with +"
@@ -28,6 +31,7 @@ data class ContactDto(
     val phone: String,
 
     @field:NotBlank(message = "Role cannot be blank")
+    @field:NotEmpty
     @field:NotNull
     val role: String
 ) {
