@@ -1,9 +1,8 @@
 package com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.repositories
 
 import com.bamboo.assur.partnerinsurers.registry.application.commands.models.PartnerInsurerUpdate
-import com.bamboo.assur.partnerinsurers.registry.application.queries.models.PartnerInsurerSummary
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
-import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerCommandRepository
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerContactTable
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerContactTable.Companion.toEntityTable
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerTable
@@ -11,11 +10,7 @@ import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.enti
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityNotFoundException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToSaveEntityException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToUpdateEntityException
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.getAggregateTypeOrEmpty
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.encodeToJsonElement
@@ -33,12 +28,12 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 @Repository
 @Transactional
-class PartnerInsurerRepositoryImpl(
+class PartnerInsurerCommandRepositoryImpl(
     private val partnerInsurerR2dbcRepository: PartnerInsurerR2dbcRepository,
     private val partnerInsurerContactR2dbcRepository: PartnerInsurerContactR2dbcRepository,
     private val r2dbcEntityTemplate: R2dbcEntityTemplate,
     private val transactionalOperator: TransactionalOperator,
-) : PartnerInsurerRepository {
+) : PartnerInsurerCommandRepository {
     val logger: Logger = LoggerFactory.getLogger(javaClass)
 
     override suspend fun save(partnerInsurer: PartnerInsurer): Boolean {
@@ -74,67 +69,8 @@ class PartnerInsurerRepositoryImpl(
         }
     }
 
-    @Transactional
-    override suspend fun findById(id: UUID): PartnerInsurer? {
-        val entity = partnerInsurerR2dbcRepository.findById(id) ?: throw EntityNotFoundException(
-            PartnerInsurerTable::class.simpleName ?: "PartnerInsurerTable",
-            id
-        )
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
-            .map { it.toDomain() }
-            .toSet()
-
-        return entity.toDomain(contacts = contacts, agreements = emptySet())
-    }
-
-    /**
-     * Used for partial update (PATCH) - returns the PartnerInsurerTable entity (without contacts)
-     */
-    override suspend fun findByIdForUpdate(id: UUID): PartnerInsurer? {
-        val entity = partnerInsurerR2dbcRepository.findById(id) ?: return null
-        // For updates, we don't need contacts, so return with empty contacts set
-        return entity.toDomain(contacts = emptySet(), agreements = emptySet())
-    }
-
-    override suspend fun findByPartnerCode(partnerCode: String): PartnerInsurer? {
-        val entity = partnerInsurerR2dbcRepository.findByPartnerInsurerCode(partnerCode) ?: return null
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
-            .map { it.toDomain() }
-            .toSet()
-            .firstOrNull() ?: return null
-
-        return entity.toDomain(contacts = setOf(contacts), agreements = emptySet())
-    }
-
     override suspend fun delete(partnerInsurer: PartnerInsurer) {
         partnerInsurerR2dbcRepository.deleteById(partnerInsurer.id.value)
-    }
-
-    override suspend fun existsByPartnerCode(partnerCode: String): Boolean =
-        partnerInsurerR2dbcRepository.existsByPartnerInsurerCode(partnerCode)
-
-    override suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean =
-        partnerInsurerR2dbcRepository.existsByTaxIdentificationNumber(taxIdentificationNumber)
-
-    override suspend fun existById(id: UUID): Boolean = partnerInsurerR2dbcRepository.existsById(id)
-
-    override suspend fun streamAll(
-        status: String?,
-        search: String?,
-        page: Int,
-        size: Int,
-        sortBy: String?,
-        sortDirection: SortDirection,
-    ): Flow<PartnerInsurerSummary> {
-        val offset = page * size
-        return partnerInsurerR2dbcRepository.findAll(
-            status = status,
-            search = search,
-            offset = offset,
-            size = size,
-            sortBy = sortBy,
-            sortDirection = sortDirection.name
-        )
     }
 
     override suspend fun update(partnerInsurer: PartnerInsurer): Boolean {

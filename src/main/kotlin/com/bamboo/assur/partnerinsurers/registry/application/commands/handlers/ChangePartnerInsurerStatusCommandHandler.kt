@@ -6,7 +6,8 @@ import com.bamboo.assur.partnerinsurers.registry.infrastructure.events.DomainEve
 import com.bamboo.assur.partnerinsurers.registry.application.commands.ChangePartnerInsurerStatusCommand
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
-import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerCommandRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerQueryRepository
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.ChangePartnerInsurerStatusResponseDto
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -14,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ChangePartnerInsurerStatusCommandHandler(
-    private val repository: PartnerInsurerRepository,
+    private val queryRepository: PartnerInsurerQueryRepository,
+    private val commandRepository: PartnerInsurerCommandRepository,
     private val domainEventPublisher: DomainEventPublisher,
 ) : CommandHandler<ChangePartnerInsurerStatusCommand, Result<ChangePartnerInsurerStatusResponseDto>> {
 
@@ -26,14 +28,14 @@ class ChangePartnerInsurerStatusCommandHandler(
     ): Result<ChangePartnerInsurerStatusResponseDto> = Result.of {
         logger.info("Changing status for partner insurer {} to {}", command.id, command.targetStatus)
 
-        val partner = repository.findById(command.id)
+        val partner = queryRepository.findById(command.id)
             ?: throw NoSuchElementException("Partner insurer with id ${command.id} not found")
 
         val oldStatus = partner.status.name
         applyStatusChange(partner, command.targetStatus, command.reason)
         val newStatus = partner.status.name
 
-        val updated = repository.update(partner)
+        val updated = commandRepository.update(partner)
         if (!updated) error("Failed to update partner insurer status for id ${command.id}")
 
         if (partner.hasPendingEvents()) {
