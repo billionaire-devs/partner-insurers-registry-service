@@ -42,7 +42,7 @@ class PartnerInsurer private constructor(
     val taxIdentificationNumber: TaxIdentificationNumber,
     var logoUrl: Url?,
     val contacts: MutableSet<Contact>,
-    val brokerPartnerInsurerAgreements: MutableSet<BrokerPartnerInsurerAgreement>,
+    val brokerPartnerInsurerAgreements: MutableSet<BrokerPartnerInsurerAgreement>, // TODO: To remove
     var status: PartnerInsurerStatus,
     var address: Address,
 ) : AggregateRoot(id) {
