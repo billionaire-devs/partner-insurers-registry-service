@@ -5,6 +5,7 @@ import com.bamboo.assur.partnerinsurers.registry.application.queries.models.Part
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant
 import java.util.*
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -13,7 +14,7 @@ import kotlin.uuid.ExperimentalUuidApi
 interface PartnerInsurerQueryRepository {
 
     suspend fun findByIdSummary(id: UUID): PartnerInsurerProjection.SummaryProjection?
-    suspend fun findByIdDetailed(id: UUID): PartnerInsurerProjection.DetailedProjection?
+    suspend fun findByIdDetailed(id: UUID): PartnerInsurerProjection.FullProjection?
     suspend fun findById(id: UUID): PartnerInsurer?
 
     suspend fun findByPartnerCodeSummary(
@@ -21,7 +22,7 @@ interface PartnerInsurerQueryRepository {
     ): PartnerInsurerProjection.SummaryProjection?
     suspend fun findByPartnerCodeDetailed(
         partnerCode: String
-    ): PartnerInsurerProjection.DetailedProjection?
+    ): PartnerInsurerProjection.FullProjection?
     suspend fun findByPartnerCode(partnerCode: String): PartnerInsurer?
 
     suspend fun findByTaxIdentificationNumberSummary(
@@ -29,7 +30,7 @@ interface PartnerInsurerQueryRepository {
     ): PartnerInsurerProjection.SummaryProjection?
     suspend fun findByTaxIdentificationNumberDetailed(
         taxIdentificationNumber: String
-    ): PartnerInsurerProjection.DetailedProjection?
+    ): PartnerInsurerProjection.FullProjection?
     suspend fun findByTaxIdentificationNumber(taxIdentificationNumber: String): PartnerInsurer?
 
     suspend fun findByIdForUpdate(id: UUID): PartnerInsurer?
@@ -46,4 +47,28 @@ interface PartnerInsurerQueryRepository {
         sortBy: String?,
         sortDirection: SortDirection,
     ): Flow<PartnerInsurerSummary>
+
+    @Suppress("LongParameterList")
+    suspend fun findAllSummary(
+        status: String?,
+        search: String?,
+        page: Int,
+        size: Int,
+        sortBy: String?,
+        sortDirection: String,
+        createdBefore: Instant?,
+        createdAfter: Instant?,
+    ): Flow<PartnerInsurerProjection.SummaryProjection>
+
+    @Suppress("LongParameterList")
+    suspend fun findAllDetailed(
+        status: String?,
+        search: String?,
+        page: Int,
+        size: Int,
+        sortBy: String?,
+        sortDirection: String,
+        createdBefore: Instant?,
+        createdAfter: Instant?,
+    ): Flow<PartnerInsurer>
 }

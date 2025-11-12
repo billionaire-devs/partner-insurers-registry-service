@@ -7,13 +7,17 @@ import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStat
 import com.bamboo.assur.partnerinsurers.registry.domain.valueObjects.TaxIdentificationNumber
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.ContactResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.ContactResponseDto.Companion.toResponseDto
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Address
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
+import com.fasterxml.jackson.annotation.JsonFormat
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
@@ -27,10 +31,16 @@ sealed interface PartnerInsurerProjection {
         val taxIdentificationNumber: TaxIdentificationNumber,
         val legalName: String,
         val status: PartnerInsurerStatus,
-        val createdAt: Instant,
+
+        @field:JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss.XX",
+            timezone = "Africa/Libreville"
+        )
+        val createdAt: OffsetDateTime,
     ) : PartnerInsurerProjection
 
-    data class DetailedProjection(
+    data class FullProjection(
         @Contextual
         val id: UUID,
         val partnerInsurerCode: String,
@@ -42,14 +52,26 @@ sealed interface PartnerInsurerProjection {
         val address: JsonElement,
         val contacts: Set<ContactResponseDto> = emptySet(), // TODO: Implement when adding features about contacts
         val agreementsSummary: Set<Nothing> = emptySet(), // TODO: Implement when adding features about agreements
-        val createdAt: Instant,
-        val updatedAt: Instant,
+
+        @field:JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ssXX",
+            timezone = "Africa/Libreville"
+        )
+        val createdAt: OffsetDateTime,
+
+        @field:JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss.ssZ",
+            timezone = "Africa/Libreville"
+        )
+        val updatedAt: OffsetDateTime,
     ) : PartnerInsurerProjection {
         companion object {
             fun PartnerInsurer.toProjection(
                 agreementsSummary: Set<Nothing> = emptySet(),
-            ): DetailedProjection {
-                return DetailedProjection(
+            ): FullProjection {
+                return FullProjection(
                     id = this.id.value,
                     partnerInsurerCode = this.partnerInsurerCode,
                     legalName = this.legalName,
@@ -59,8 +81,8 @@ sealed interface PartnerInsurerProjection {
                     address = json.encodeToJsonElement(  this.address),
                     contacts = this.contacts.map { it.toResponseDto() }.toSet(),
 //                    agreementsSummary = , TODO: Implement when adding features about agreements
-                    createdAt = this.createdAt.toJavaInstant(),
-                    updatedAt = this.updatedAt.toJavaInstant(),
+                    createdAt = this.createdAt.toJavaInstant().atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
+                    updatedAt = this.updatedAt.toJavaInstant().atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
                 )
             }
         }

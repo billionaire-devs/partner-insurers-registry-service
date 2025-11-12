@@ -11,8 +11,10 @@ import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.getAggregateTy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.toSet
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 import java.util.*
 import kotlin.collections.emptySet
 import kotlin.time.ExperimentalTime
@@ -24,12 +26,13 @@ import kotlin.time.ExperimentalTime
 class PartnerInsurerQueryRepositoryImpl(
     private val partnerInsurerR2dbcRepository: PartnerInsurerR2dbcRepository,
     private val partnerInsurerContactR2dbcRepository: PartnerInsurerContactR2dbcRepository,
+    private val template: R2dbcEntityTemplate,
 ): PartnerInsurerQueryRepository {
     override suspend fun findByIdSummary(id: UUID): PartnerInsurerProjection.SummaryProjection =
         partnerInsurerR2dbcRepository.findByIdSummary(id)
 
     @OptIn(ExperimentalTime::class)
-    override suspend fun findByIdDetailed(id: UUID): PartnerInsurerProjection.DetailedProjection? {
+    override suspend fun findByIdDetailed(id: UUID): PartnerInsurerProjection.FullProjection? {
         val partner = partnerInsurerR2dbcRepository.findByIdDetailed(id) ?: return null
         val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(partner.id)
             .map { it.toDomain().toResponseDto() } //TODO: Simplify the conversion
@@ -67,7 +70,7 @@ class PartnerInsurerQueryRepositoryImpl(
     override suspend fun findByPartnerCodeSummary(partnerCode: String) : PartnerInsurerProjection.SummaryProjection? =
         partnerInsurerR2dbcRepository.findByPartnerCodeSummary(partnerCode)
 
-    override suspend fun findByPartnerCodeDetailed(partnerCode: String): PartnerInsurerProjection.DetailedProjection? {
+    override suspend fun findByPartnerCodeDetailed(partnerCode: String): PartnerInsurerProjection.FullProjection? {
         val partner = partnerInsurerR2dbcRepository.findByPartnerCodeDetailed(partnerCode) ?: return null
         val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(partner.id)
             .map { it.toDomain().toResponseDto() }
@@ -92,7 +95,7 @@ class PartnerInsurerQueryRepositoryImpl(
 
     override suspend fun findByTaxIdentificationNumberDetailed(
         taxIdentificationNumber: String
-    ): PartnerInsurerProjection.DetailedProjection? {
+    ): PartnerInsurerProjection.FullProjection? {
         val partner = partnerInsurerR2dbcRepository.findByTaxIdentificationNumberDetailed(taxIdentificationNumber)
             ?: return null
         val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(partner.id)
@@ -138,4 +141,54 @@ class PartnerInsurerQueryRepositoryImpl(
             sortDirection = sortDirection.name
         )
     }
+
+    override suspend fun findAllSummary(
+        status: String?,
+        search: String?,
+        page: Int,
+        size: Int,
+        sortBy: String?,
+        sortDirection: String,
+        createdBefore: Instant?,
+        createdAfter: Instant?
+    ): Flow<PartnerInsurerProjection.SummaryProjection> = partnerInsurerR2dbcRepository.findAllSummary(
+            status = status,
+            search = search,
+            page = page,
+            size = size,
+            sortBy = sortBy,
+            sortDirection = sortDirection,
+            createdBefore = createdBefore,
+            createdAfter = createdAfter
+        )
+
+
+    override suspend fun findAllDetailed(
+        status: String?,
+        search: String?,
+        page: Int,
+        size: Int,
+        sortBy: String?,
+        sortDirection: String,
+        createdBefore: Instant?,
+        createdAfter: Instant?,
+    ): Flow<PartnerInsurer> = partnerInsurerR2dbcRepository.findAllDetailed(
+        status = status,
+        search = search,
+        page = page,
+        size = size,
+        sortBy = sortBy,
+        sortDirection = sortDirection,
+        createdBefore = createdBefore,
+        createdAfter = createdAfter
+    ).map { partnerTable ->
+        partnerTable.toDomain(
+            contacts = partnerInsurerContactR2dbcRepository
+                .findByPartnerInsurerId(partnerTable.id)
+                .map { contact -> contact.toDomain() }
+                .toSet(),
+            agreements = emptySet()
+        )
+    }
+
 }
