@@ -40,6 +40,12 @@ const changelogTypes = [
     {type: 'wip', hidden: true},
 ];
 
+const parserOpts = {
+    noteKeywords: ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING'],
+    headerPattern: /^(?:([^ \t]+)[ \t]+)?([a-z]+)(?:\(([^)]+)\))?(!)?:\s*(.+)$/u,
+    headerCorrespondence: ['emoji', 'type', 'scope', 'breaking', 'subject'],
+};
+
 const wildcardBranch = (prefix, channel, fallback) => ({
     name: `${prefix}/**`,
     ...(channel ? {channel} : {}),
@@ -73,9 +79,7 @@ module.exports = {
                     {type: 'chore', scope: 'deps', release: 'patch'},
                     {scope: 'no-release', release: false},
                 ],
-                parserOpts: {
-                    noteKeywords: ['BREAKING CHANGE', 'BREAKING CHANGES', 'BREAKING'],
-                },
+                parserOpts,
             },
         ],
         [
@@ -85,6 +89,7 @@ module.exports = {
                 presetConfig: {
                     types: changelogTypes,
                 },
+                parserOpts,
                 writerOpts: {
                     commitGroupsSort: 'title',
                     commitsSort: ['scope', 'subject'],
@@ -102,6 +107,7 @@ module.exports = {
                     presetConfig: {
                         types: changelogTypes,
                     },
+                    parserOpts,
                     writerOpts: {
                         commitGroupsSort: 'title',
                         commitsSort: ['scope', 'subject'],

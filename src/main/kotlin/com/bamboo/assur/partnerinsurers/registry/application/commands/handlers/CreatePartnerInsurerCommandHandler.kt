@@ -2,7 +2,8 @@ package com.bamboo.assur.partnerinsurers.registry.application.commands.handlers
 
 import com.bamboo.assur.partnerinsurers.registry.application.commands.CreatePartnerInsurerCommand
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
-import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerCommandRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerQueryRepository
 import com.bamboo.assur.partnerinsurers.registry.domain.valueObjects.TaxIdentificationNumber
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.events.DomainEventPublisher
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
@@ -19,7 +20,8 @@ import kotlin.uuid.ExperimentalUuidApi
 @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
 @Service
 class CreatePartnerInsurerCommandHandler(
-    private val partnerInsurerRepository: PartnerInsurerRepository,
+    private val queryRepository: PartnerInsurerQueryRepository,
+    private val commandRepository: PartnerInsurerCommandRepository,
     private val domainEventPublisher: DomainEventPublisher,
 ) : CommandHandler<CreatePartnerInsurerCommand, CreatePartnerInsurerResponseDto> {
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -41,7 +43,7 @@ class CreatePartnerInsurerCommandHandler(
         partnerInsurer.ensurePartnerInsurerIsUnique()
 
         try {
-            partnerInsurerRepository.save(partnerInsurer)
+            commandRepository.save(partnerInsurer)
             logger.info("Partner insurer persisted with id {}", partnerInsurer.id)
 
             // Publish events to transactional outbox (joins same transaction)
@@ -85,7 +87,7 @@ class CreatePartnerInsurerCommandHandler(
      */
     @Suppress("ThrowsCount")
     private suspend fun PartnerInsurer.ensurePartnerInsurerIsUnique() {
-        if (partnerInsurerRepository.existById(this.id.value)) {
+        if (queryRepository.existById(this.id.value)) {
             logger.warn(
                 "Duplicate partner insurer detected by id {}",
                 this.id
@@ -97,7 +99,7 @@ class CreatePartnerInsurerCommandHandler(
             )
         }
 
-        if (partnerInsurerRepository.existsByPartnerCode(this.partnerInsurerCode)) {
+        if (queryRepository.existsByPartnerCode(this.partnerInsurerCode)) {
             logger.warn(
                 "Duplicate partner insurer detected by code {}",
                 this.partnerInsurerCode
@@ -110,7 +112,7 @@ class CreatePartnerInsurerCommandHandler(
         }
 
 
-        if (partnerInsurerRepository.existsByTaxIdentificationNumber(this.taxIdentificationNumber.value)) {
+        if (queryRepository.existsByTaxIdentificationNumber(this.taxIdentificationNumber.value)) {
             logger.warn(
                 "Duplicate partner insurer detected by TIN {}",
                 this.taxIdentificationNumber

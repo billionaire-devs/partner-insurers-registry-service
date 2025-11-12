@@ -1,10 +1,10 @@
 package com.bamboo.assur.partnerinsurers.registry.application.queries.handlers
 
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
-import com.bamboo.assur.partnerinsurers.sharedkernel.application.QueryHandler
 import com.bamboo.assur.partnerinsurers.registry.application.queries.GetPartnerSummariesQuery
 import com.bamboo.assur.partnerinsurers.registry.application.queries.models.PartnerInsurerSummary
-import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerQueryRepository
+import com.bamboo.assur.partnerinsurers.sharedkernel.application.QueryHandler
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
 import kotlinx.coroutines.flow.toList
 import org.springframework.stereotype.Service
 
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class GetPartnerSummariesQueryHandler(
-    private val readRepository: PartnerInsurerRepository,
+    private val readRepository: PartnerInsurerQueryRepository,
 ) : QueryHandler<GetPartnerSummariesQuery, Result<List<PartnerInsurerSummary>>> {
 
     override suspend fun invoke(query: GetPartnerSummariesQuery): Result<List<PartnerInsurerSummary>> = Result.of {

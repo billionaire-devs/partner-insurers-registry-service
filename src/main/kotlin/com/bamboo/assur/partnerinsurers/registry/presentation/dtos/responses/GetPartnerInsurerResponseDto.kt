@@ -15,7 +15,7 @@ import kotlin.uuid.ExperimentalUuidApi
  * including contacts and full address information.
  */
 @OptIn(ExperimentalUuidApi::class)
-data class PartnerInsurerDetailResponseDto(
+data class GetPartnerInsurerResponseDto(
     val id: UUID,
     val partnerInsurerCode: String,
     val legalName: String,
@@ -27,10 +27,10 @@ data class PartnerInsurerDetailResponseDto(
 ) {
     companion object {
         /**
-         * Factory method to create a [PartnerInsurerDetailResponseDto] from a domain [PartnerInsurer] entity.
+         * Factory method to create a [GetPartnerInsurerResponseDto] from a domain [PartnerInsurer] entity.
          */
-        fun PartnerInsurer.toResponseDTO(): PartnerInsurerDetailResponseDto {
-            return PartnerInsurerDetailResponseDto(
+        fun PartnerInsurer.toResponseDto(): GetPartnerInsurerResponseDto {
+            return GetPartnerInsurerResponseDto(
                 id = id.value,
                 partnerInsurerCode = partnerInsurerCode,
                 legalName = legalName,

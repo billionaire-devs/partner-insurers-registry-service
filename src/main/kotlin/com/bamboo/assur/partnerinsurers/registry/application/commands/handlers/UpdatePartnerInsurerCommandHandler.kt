@@ -5,7 +5,8 @@ import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.EntityNotFoundException
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.events.DomainEventPublisher
 import com.bamboo.assur.partnerinsurers.registry.application.commands.UpdatePartnerInsurerCommand
-import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerCommandRepository
+import com.bamboo.assur.partnerinsurers.registry.domain.repositories.PartnerInsurerQueryRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -13,9 +14,10 @@ import java.util.*
 
 @Service
 class UpdatePartnerInsurerCommandHandler(
-    private val partnerInsurerRepository: PartnerInsurerRepository,
+    private val queryRepository: PartnerInsurerQueryRepository,
+    private val commandRepository: PartnerInsurerCommandRepository,
     private val domainEventPublisher: DomainEventPublisher,
-) : CommandHandler<UpdatePartnerInsurerCommand, com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result<UUID>> {
+) : CommandHandler<UpdatePartnerInsurerCommand, Result<UUID>> {
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional
@@ -31,14 +33,14 @@ class UpdatePartnerInsurerCommandHandler(
             }
 
             // Use partial update to avoid fetching contacts and updating only changed fields
-            val success = partnerInsurerRepository.partialUpdate(command.id, partialUpdate)
+            val success = commandRepository.partialUpdate(command.id, partialUpdate)
 
             if (!success) {
                 return Result.failure("Failed to update partner insurer with id: ${command.id}")
             }
 
             // For domain events, we need to get the updated entity to publish events
-            val updatedPartner = partnerInsurerRepository.findByIdForUpdate(command.id)
+            val updatedPartner = queryRepository.findByIdForUpdate(command.id)
                 ?: throw EntityNotFoundException("PartnerInsurer", command.id.toString())
 
             // Apply the partial update to trigger domain events

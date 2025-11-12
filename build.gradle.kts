@@ -69,7 +69,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.bamboo.assur.partner-insurers:shared-kernel:1.0.0")
+    implementation("com.bamboo.assur.partner-insurers:shared-kernel:1.1.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
@@ -106,6 +106,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
     testImplementation("org.springframework.amqp:spring-rabbit-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.mockito:mockito-core")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -119,5 +120,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
+    }
+
+    // Add Mockito agent to avoid self-attaching warning
+    classpath.find { it.name.contains("mockito-core") }?.let { jar ->
+        jvmArgs("-javaagent:${jar.absolutePath}")
     }
 }
