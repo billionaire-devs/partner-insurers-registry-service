@@ -7,7 +7,8 @@ import com.bamboo.assur.partnerinsurers.registry.application.queries.GetPartnerI
 import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.GetPartnerInsurerDetailedProjectionQueryHandler
 import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.GetPartnerInsurerQueryHandler
 import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.GetPartnerInsurerSummaryProjectionQueryHandler
-import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.GetPartnerSummariesQueryHandler
+import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.GetPartnerInsurersQueryHandler
+import com.bamboo.assur.partnerinsurers.registry.application.queries.handlers.GetPartnerInsurersSummariesQueryHandler
 import com.bamboo.assur.partnerinsurers.registry.application.queries.models.PartnerInsurerProjection
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
@@ -29,22 +30,25 @@ import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import org.mockito.junit.jupiter.MockitoExtension
 import java.time.Instant
-import java.util.UUID
+import java.time.ZoneId
+import java.util.*
 
 @ExtendWith(MockitoExtension::class)
 class PartnerInsurerControllerTest {
 
     @Mock private lateinit var createCommandHandler: CreatePartnerInsurerCommandHandler
-    @Mock private lateinit var getPartnerSummariesQueryHandler: GetPartnerSummariesQueryHandler
+    @Mock
+    private lateinit var getPartnerInsurersQueryHandler: GetPartnerInsurersQueryHandler
     @Mock private lateinit var getPartnerInsurerSummaryProjectionQueryHandler: GetPartnerInsurerSummaryProjectionQueryHandler
     @Mock private lateinit var getPartnerInsurerDetailedProjectionQueryHandler: GetPartnerInsurerDetailedProjectionQueryHandler
     @Mock private lateinit var getFullPartnerInsurerQueryHandler: GetPartnerInsurerQueryHandler
     @Mock private lateinit var changeStatusCommandHandler: ChangePartnerInsurerStatusCommandHandler
     @Mock private lateinit var updatePartnerInsurerCommandHandler: UpdatePartnerInsurerCommandHandler
+    @Mock
+    private lateinit var getPartnerInsurersSummariesQueryHandler: GetPartnerInsurersSummariesQueryHandler
 
     @InjectMocks
     private lateinit var controller: PartnerInsurerController
@@ -69,7 +73,7 @@ class PartnerInsurerControllerTest {
                 taxIdentificationNumber = TaxIdentificationNumber(taxIdentificationNumber),
                 legalName = "AXA Gabon",
                 status = PartnerInsurerStatus.ACTIVE,
-                createdAt = now,
+                createdAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
             )
 
             `when`(getPartnerInsurerSummaryProjectionQueryHandler.invoke(query)).thenReturn(summary)
@@ -86,7 +90,7 @@ class PartnerInsurerControllerTest {
         @Test
         fun `should return detailed projection`() = runTest {
             val query = GetPartnerInsurerQuery(GetPartnerInsurerQuery.Identifier.ById(partnerId))
-            val detailed = PartnerInsurerProjection.DetailedProjection(
+            val detailed = PartnerInsurerProjection.FullProjection(
                 id = partnerId,
                 partnerInsurerCode = partnerCode,
                 legalName = "AXA Gabon",
@@ -96,8 +100,8 @@ class PartnerInsurerControllerTest {
                 address = jsonAddress,
                 contacts = emptySet(),
                 agreementsSummary = emptySet(),
-                createdAt = now,
-                updatedAt = now,
+                createdAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
+                updatedAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
             )
 
             `when`(getPartnerInsurerDetailedProjectionQueryHandler.invoke(query)).thenReturn(detailed)
@@ -105,7 +109,7 @@ class PartnerInsurerControllerTest {
             val response = controller.getPartnerInsurerById(partnerId, QueryView.DETAILED)
 
             assertEquals(200, response.statusCode.value())
-            val body = response.body as PartnerInsurerProjection.DetailedProjection
+            val body = response.body as PartnerInsurerProjection.FullProjection
             assertEquals("AXA Gabon", body.legalName)
             assertEquals(PartnerInsurerStatus.ACTIVE.name, body.status)
             assertEquals(jsonAddress, body.address)
@@ -140,7 +144,12 @@ class PartnerInsurerControllerTest {
         @Test
         suspend fun `should throw when partner not found`() {
             val query = GetPartnerInsurerQuery(GetPartnerInsurerQuery.Identifier.ById(partnerId))
-`when`(getPartnerInsurerDetailedProjectionQueryHandler.invoke(query)).thenAnswer { throw EntityNotFoundException("PartnerInsurer", partnerId) }
+            `when`(getPartnerInsurerDetailedProjectionQueryHandler.invoke(query)).thenAnswer {
+                throw EntityNotFoundException(
+                    "PartnerInsurer",
+                    partnerId
+                )
+            }
 
             assertThrows<EntityNotFoundException> {
                 controller.getPartnerInsurerById(partnerId, QueryView.DETAILED)
@@ -160,7 +169,7 @@ class PartnerInsurerControllerTest {
                 taxIdentificationNumber = TaxIdentificationNumber(taxIdentificationNumber),
                 legalName = "AXA Gabon",
                 status = PartnerInsurerStatus.ACTIVE,
-                createdAt = now,
+                createdAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
             )
 
             `when`(getPartnerInsurerSummaryProjectionQueryHandler.invoke(query)).thenReturn(projection)
@@ -175,7 +184,7 @@ class PartnerInsurerControllerTest {
         @Test
         fun `should delegate to detailed handler`() = runTest {
             val query = GetPartnerInsurerQuery(GetPartnerInsurerQuery.Identifier.ByPartnerCode(partnerCode))
-            val projection = PartnerInsurerProjection.DetailedProjection(
+            val projection = PartnerInsurerProjection.FullProjection(
                 id = partnerId,
                 partnerInsurerCode = partnerCode,
                 legalName = "AXA Gabon",
@@ -185,8 +194,8 @@ class PartnerInsurerControllerTest {
                 address = jsonAddress,
                 contacts = emptySet(),
                 agreementsSummary = emptySet(),
-                createdAt = now,
-                updatedAt = now,
+                createdAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
+                updatedAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
             )
 
             `when`(getPartnerInsurerDetailedProjectionQueryHandler.invoke(query)).thenReturn(projection)
@@ -194,7 +203,7 @@ class PartnerInsurerControllerTest {
             val response = controller.getPartnerInsurerByPartnerCode(partnerCode, QueryView.DETAILED)
 
             assertEquals(200, response.statusCode.value())
-            val body = response.body as PartnerInsurerProjection.DetailedProjection
+            val body = response.body as PartnerInsurerProjection.FullProjection
             assertEquals("AXA Gabon", body.legalName)
         }
 
@@ -225,7 +234,12 @@ class PartnerInsurerControllerTest {
         @Test
         suspend fun `should throw when partner code unknown`() {
             val query = GetPartnerInsurerQuery(GetPartnerInsurerQuery.Identifier.ByPartnerCode(partnerCode))
-`when`(getPartnerInsurerSummaryProjectionQueryHandler.invoke(query)).thenAnswer { throw EntityNotFoundException("PartnerInsurer", partnerCode) }
+            `when`(getPartnerInsurerSummaryProjectionQueryHandler.invoke(query)).thenAnswer {
+                throw EntityNotFoundException(
+                    "PartnerInsurer",
+                    partnerCode
+                )
+            }
 
             assertThrows<EntityNotFoundException> {
                 controller.getPartnerInsurerByPartnerCode(partnerCode, QueryView.SUMMARY)
@@ -247,7 +261,7 @@ class PartnerInsurerControllerTest {
                 taxIdentificationNumber = TaxIdentificationNumber(taxIdentificationNumber),
                 legalName = "AXA Gabon",
                 status = PartnerInsurerStatus.ACTIVE,
-                createdAt = now,
+                createdAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
             )
 
             `when`(getPartnerInsurerSummaryProjectionQueryHandler.invoke(query)).thenReturn(projection)
@@ -264,7 +278,7 @@ class PartnerInsurerControllerTest {
             val query = GetPartnerInsurerQuery(
                 GetPartnerInsurerQuery.Identifier.ByTaxIdentificationNumber(taxIdentificationNumber)
             )
-            val projection = PartnerInsurerProjection.DetailedProjection(
+            val projection = PartnerInsurerProjection.FullProjection(
                 id = partnerId,
                 partnerInsurerCode = partnerCode,
                 legalName = "AXA Gabon",
@@ -274,8 +288,8 @@ class PartnerInsurerControllerTest {
                 address = jsonAddress,
                 contacts = emptySet(),
                 agreementsSummary = emptySet(),
-                createdAt = now,
-                updatedAt = now,
+                createdAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
+                updatedAt = now.atZone(ZoneId.of("Africa/Libreville")).toOffsetDateTime(),
             )
 
             `when`(getPartnerInsurerDetailedProjectionQueryHandler.invoke(query)).thenReturn(projection)
@@ -283,7 +297,7 @@ class PartnerInsurerControllerTest {
             val response = controller.getPartnerInsurerByTaxIdentificationNumber(taxIdentificationNumber, QueryView.DETAILED)
 
             assertEquals(200, response.statusCode.value())
-            val body = response.body as PartnerInsurerProjection.DetailedProjection
+            val body = response.body as PartnerInsurerProjection.FullProjection
             assertEquals("ACTIVE", body.status)
         }
 
@@ -320,7 +334,12 @@ class PartnerInsurerControllerTest {
             val query = GetPartnerInsurerQuery(
                 GetPartnerInsurerQuery.Identifier.ByTaxIdentificationNumber(taxIdentificationNumber)
             )
-`when`(getPartnerInsurerDetailedProjectionQueryHandler.invoke(query)).thenAnswer { throw EntityNotFoundException("PartnerInsurer", taxIdentificationNumber) }
+            `when`(getPartnerInsurerDetailedProjectionQueryHandler.invoke(query)).thenAnswer {
+                throw EntityNotFoundException(
+                    "PartnerInsurer",
+                    taxIdentificationNumber
+                )
+            }
 
             assertThrows<EntityNotFoundException> {
                 controller.getPartnerInsurerByTaxIdentificationNumber(taxIdentificationNumber, QueryView.DETAILED)
