@@ -50,7 +50,7 @@ data class PartnerInsurerTable(
         // decode Address from JsonElement
         address = json.decodeFromJsonElement(address),
         status = PartnerInsurerStatus.valueOf(status),
-        brokerPartnerInsurerAgreements = agreements,
+        brokerPartnerInsurerAgreements = agreements
     )
 
     companion object {

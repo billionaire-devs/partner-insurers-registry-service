@@ -14,11 +14,11 @@ import kotlin.uuid.ExperimentalUuidApi
 @Service
 class GetPartnerInsurerDetailedProjectionQueryHandler(
     private val repository: PartnerInsurerQueryRepository,
-) : QueryHandler<GetPartnerInsurerQuery, PartnerInsurerProjection.DetailedProjection?> {
+) : QueryHandler<GetPartnerInsurerQuery, PartnerInsurerProjection.FullProjection?> {
 
     override suspend fun invoke(
         query: GetPartnerInsurerQuery,
-    ): PartnerInsurerProjection.DetailedProjection? {
+    ): PartnerInsurerProjection.FullProjection? {
         return when (query.identifier) {
             is GetPartnerInsurerQuery.Identifier.ById -> {
                 repository.findByIdDetailed(query.identifier.id) ?: throw EntityNotFoundException(
