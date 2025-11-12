@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-beta.3](https://github.com/billionaire-devs/partner-insurers-registry-service/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2025-11-12)
+
+### 🚀 Features
+
+* **api:** add PIS-REG-102 - Consultation d’un partenaire assureur ([#38](https://github.com/billionaire-devs/partner-insurers-registry-service/issues/38)) ([4fc541e](https://github.com/billionaire-devs/partner-insurers-registry-service/commit/4fc541e32c31ecc4eda60911616e6baec008a2fa))
+
 ## 1.0.0-alpha-PIS-REG-102.1 (2025-11-11)
 
 ### ⚠ BREAKING CHANGES
