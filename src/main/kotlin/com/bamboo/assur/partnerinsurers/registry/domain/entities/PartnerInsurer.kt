@@ -174,12 +174,12 @@ class PartnerInsurer private constructor(
      * Puts the partner insurer on maintenance.
      *
      * Changes the partner's status to [PartnerInsurerStatus.MAINTENANCE].
-     * Throws an [InvalidOperationException] if the partner is currently active.
+     * Throws an [InvalidOperationException] if the partner is already in maintenance.
      *
      * @param reason The reason for putting the partner on maintenance.
      */
     fun putInMaintenance(reason: String) {
-        changeStatusTo(PartnerInsurerStatus.MAINTENANCE, reason) { status == PartnerInsurerStatus.ACTIVE }
+        changeStatusTo(PartnerInsurerStatus.MAINTENANCE, reason) { status == PartnerInsurerStatus.MAINTENANCE }
     }
 
     /**
