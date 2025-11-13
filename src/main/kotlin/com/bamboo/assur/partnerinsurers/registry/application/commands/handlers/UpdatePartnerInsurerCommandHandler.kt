@@ -36,10 +36,18 @@ class UpdatePartnerInsurerCommandHandler(
             address = command.address
         )
 
-        try {
+        val updateSuccessful = try {
             commandRepository.update(partnerInsurer)
         } catch (e: Exception) {
             logger.error("Error updating partner insurer with id: ${command.id}", e)
+            throw FailedToUpdateEntityException(
+                getAggregateTypeOrEmpty<PartnerInsurer>(),
+                command.id
+            )
+        }
+
+        if (!updateSuccessful) {
+            logger.error("Failed to update partner insurer with id: ${command.id}")
             throw FailedToUpdateEntityException(
                 getAggregateTypeOrEmpty<PartnerInsurer>(),
                 command.id

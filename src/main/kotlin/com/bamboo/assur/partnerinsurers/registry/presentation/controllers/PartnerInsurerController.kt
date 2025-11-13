@@ -17,6 +17,7 @@ import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.Crea
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.UpdatePartnerInsurerRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.GetPartnerInsurerResponseDto.Companion.toResponseDto
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.UpdatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.sharedkernel.application.QueryView
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
@@ -148,7 +149,7 @@ class PartnerInsurerController(
     suspend fun updatePartnerInsurer(
         @PathVariable id: UUID,
         @Validated @RequestBody request: UpdatePartnerInsurerRequestDto,
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<UpdatePartnerInsurerResponseDto> {
         val command = request.toCommand(id)
         val result = updatePartnerInsurerCommandHandler(command)
         return ResponseEntity.ok(result)
