@@ -15,11 +15,11 @@ import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStat
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.ChangePartnerInsurerStatusRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.CreatePartnerInsurerRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.UpdatePartnerInsurerRequestDto
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.ChangePartnerInsurerStatusResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.GetPartnerInsurerResponseDto.Companion.toResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.UpdatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.sharedkernel.application.QueryView
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Result
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.SortDirection
 import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.flow.Flow
@@ -102,13 +102,10 @@ class PartnerInsurerController(
     suspend fun changePartnerInsurerStatus(
         @PathVariable id: UUID,
         @Validated @RequestBody request: ChangePartnerInsurerStatusRequestDto,
-    ): ResponseEntity<Any> {
+    ): ResponseEntity<ChangePartnerInsurerStatusResponseDto> {
         val command = request.toCommand(id)
-        return when (val result = changeStatusCommandHandler(command)) {
-            is Result.Success -> ResponseEntity.ok(result.value)
-            is Result.Failure -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to result.message))
-        }
+        val result = changeStatusCommandHandler(command)
+        return ResponseEntity.ok(result)
     }
 
     @Suppress("LongParameterList")
