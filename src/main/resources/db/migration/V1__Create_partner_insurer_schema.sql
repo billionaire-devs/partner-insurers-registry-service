@@ -16,7 +16,8 @@ CREATE TYPE partner_insurers_status AS ENUM (
     'ONBOARDING',
     'ACTIVE',
     'SUSPENDED',
-    'MAINTENANCE'
+    'MAINTENANCE',
+    'DEACTIVATED'
     );
 
 CREATE TYPE agreement_status AS ENUM (

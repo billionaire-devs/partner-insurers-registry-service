@@ -2,6 +2,7 @@ package com.bamboo.assur.partnerinsurers.registry.presentation.controllers
 
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.ChangePartnerInsurerStatusCommandHandler
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.CreatePartnerInsurerCommandHandler
+import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.DeletePartnerInsurerCommandHandler
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.UpdatePartnerInsurerCommandHandler
 import com.bamboo.assur.partnerinsurers.registry.application.queries.GetPartnerInsurerQuery
 import com.bamboo.assur.partnerinsurers.registry.application.queries.GetPartnerInsurersQuery
@@ -14,9 +15,11 @@ import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerSort
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.ChangePartnerInsurerStatusRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.CreatePartnerInsurerRequestDto
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.DeletePartnerInsurerRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.UpdatePartnerInsurerRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.ChangePartnerInsurerStatusResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.CreatePartnerInsurerResponseDto
+import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.DeletePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.GetPartnerInsurerResponseDto.Companion.toResponseDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.UpdatePartnerInsurerResponseDto
 import com.bamboo.assur.partnerinsurers.sharedkernel.application.QueryView
@@ -43,6 +46,7 @@ class PartnerInsurerController(
     private val getFullPartnerInsurerQueryHandler: GetPartnerInsurerQueryHandler,
     private val changeStatusCommandHandler: ChangePartnerInsurerStatusCommandHandler,
     private val updatePartnerInsurerCommandHandler: UpdatePartnerInsurerCommandHandler,
+    private val deletePartnerInsurerCommandHandler: DeletePartnerInsurerCommandHandler,
     private val getPartnerInsurersSummariesQueryHandler: GetPartnerInsurersSummariesQueryHandler,
 ) {
 
@@ -152,6 +156,15 @@ class PartnerInsurerController(
         return ResponseEntity.ok(result)
     }
 
+    @DeleteMapping("/{id}")
+    suspend fun deletePartnerInsurer(
+        @PathVariable id: UUID,
+        @Validated @RequestBody request: DeletePartnerInsurerRequestDto,
+    ): ResponseEntity<DeletePartnerInsurerResponseDto> {
+        val command = request.toCommand(id)
+        val result = deletePartnerInsurerCommandHandler(command)
+        return ResponseEntity.ok(result)
+    }
 
     private suspend fun getPartnerInsurer(
         view: QueryView,
