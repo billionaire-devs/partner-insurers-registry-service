@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-beta.7](https://github.com/billionaire-devs/partner-insurers-registry-service/compare/v1.0.0-beta.6...v1.0.0-beta.7) (2025-11-13)
+
+### 🚀 Features
+
+* add PIS-REG-106 - Suppression logique d’un partenaire assureur ([#42](https://github.com/billionaire-devs/partner-insurers-registry-service/issues/42)) ([f53d80d](https://github.com/billionaire-devs/partner-insurers-registry-service/commit/f53d80d28975e57e6d56ec4f57a9c46fa4de0ab7))
+
 ## [1.0.0-alpha-PIS-REG-106.2](https://github.com/billionaire-devs/partner-insurers-registry-service/compare/v1.0.0-alpha-PIS-REG-106.1...v1.0.0-alpha-PIS-REG-106.2) (2025-11-13)
 
 ### 🐛 Bug Fixes
