@@ -1,5 +1,17 @@
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.bundling.Jar
+import java.util.Properties
+import java.io.FileInputStream
+
+// Load local properties if they exist
+val localPropertiesFile = rootProject.file("gradle.local.properties")
+if (localPropertiesFile.exists()) {
+    val localProperties = Properties()
+    localProperties.load(FileInputStream(localPropertiesFile))
+    localProperties.forEach { key: Any, value: Any ->
+        project.ext.set(key.toString(), value)
+    }
+}
 
 plugins {
     kotlin("jvm") version "2.2.20"
@@ -124,7 +136,9 @@ tasks.withType<Test> {
     }
 
     // Add Mockito agent to avoid self-attaching warning
-    classpath.find { it.name.contains("mockito-core") }?.let { jar ->
-        jvmArgs("-javaagent:${jar.absolutePath}")
+    doFirst {
+        classpath.find { it.name.contains("mockito-core") }?.let { jar ->
+            jvmArgs("-javaagent:${jar.absolutePath}")
+        }
     }
 }
