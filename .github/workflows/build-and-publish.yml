@@ -1,0 +1,289 @@
+name: Build and Publish
+
+# This is a REUSABLE WORKFLOW called by release.yml
+# It should NOT be triggered independently by push/pull_request events
+# This ensures semantic-release completes first before Docker build starts
+
+on:
+  workflow_call:
+    secrets:
+      PACKAGES_TOKEN:
+        required: true
+    inputs:
+      version:
+        required: true
+        type: string
+        description: "Semantic version determined by semantic-release (e.g., 1.2.3-beta.1)"
+
+
+permissions:
+  actions: read
+  contents: read
+  packages: write
+  security-events: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      image_tags: ${{ steps.env.outputs.image_tags }}
+      build_version: ${{ steps.env.outputs.build_version }}
+      spring_profile: ${{ steps.env.outputs.spring_profile }}
+      log_level: ${{ steps.env.outputs.log_level }}
+      primary_image_tag: ${{ steps.env.outputs.primary_image_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Determine environment and versioning
+        id: env
+        run: |
+          REGISTRY="${{ env.REGISTRY }}"
+          IMAGE_NAME="${{ env.IMAGE_NAME }}"
+          COMMIT_SHA="${{ github.sha }}"
+          SHORT_SHA="${COMMIT_SHA:0:7}"
+          BRANCH_NAME="${{ github.ref_name }}"
+          PROJECT_VERSION="${{ inputs.version }}"
+
+          if [[ -z "$PROJECT_VERSION" ]]; then
+            echo "::error ::No semantic-release version provided to build-and-publish workflow"
+            exit 1
+          fi
+
+          SANITIZED_BRANCH=$(echo "$BRANCH_NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^0-9a-z]+/-/g' | sed -E 's/^-+|-+$//g')
+          
+          # Default values
+          ENVIRONMENT="preview"
+          SPRING_PROFILE="dev"
+          LOG_LEVEL="DEBUG"
+          PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}-${SHORT_SHA}"
+          IMAGE_TAGS="${PRIMARY_TAG}"
+          
+          # Determine environment and tags based on branch
+          if [[ "$BRANCH_NAME" == "main" ]]; then
+            # Main branch - STABLE PRODUCTION
+            ENVIRONMENT="production"
+            SPRING_PROFILE="prod"
+            LOG_LEVEL="INFO"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:latest"
+          
+            # Parse version for additional tags
+            if [[ "$PROJECT_VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+              MAJOR="${BASH_REMATCH[1]}"
+              MINOR="${BASH_REMATCH[2]}"
+              IMAGE_TAGS=$(printf "%s\n%s\n%s\n%s\n%s" \
+                "${PRIMARY_TAG}" \
+                "${REGISTRY}/${IMAGE_NAME}:v${PROJECT_VERSION}" \
+                "${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}" \
+                "${REGISTRY}/${IMAGE_NAME}:${MAJOR}.${MINOR}" \
+                "${REGISTRY}/${IMAGE_NAME}:${MAJOR}")
+            else
+              IMAGE_TAGS=$(printf "%s\n%s\n%s" \
+                "${PRIMARY_TAG}" \
+                "${REGISTRY}/${IMAGE_NAME}:v${PROJECT_VERSION}" \
+                "${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}")
+            fi
+          
+          elif [[ "$BRANCH_NAME" == "develop" ]]; then
+            # Develop branch - BETA PRERELEASE
+            ENVIRONMENT="development"
+            SPRING_PROFILE="dev"
+            LOG_LEVEL="DEBUG"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:dev")
+          
+          elif [[ "$BRANCH_NAME" =~ ^feature/ ]]; then
+            # Feature branch - ALPHA PRERELEASE
+            ENVIRONMENT="development"
+            SPRING_PROFILE="dev"
+            LOG_LEVEL="DEBUG"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:${SANITIZED_BRANCH}-${SHORT_SHA}")
+          
+          elif [[ "$BRANCH_NAME" =~ ^fix/ ]]; then
+            # Fix branch - BUGFIX PRERELEASE
+            ENVIRONMENT="development"
+            SPRING_PROFILE="dev"
+            LOG_LEVEL="DEBUG"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:${SANITIZED_BRANCH}-${SHORT_SHA}")
+          
+          elif [[ "$BRANCH_NAME" =~ ^hotfix/ ]]; then
+            # Hotfix branch - PATCH PRERELEASE (production bug fix)
+            ENVIRONMENT="staging"
+            SPRING_PROFILE="staging"
+            LOG_LEVEL="INFO"
+            PRIMARY_TAG="${REGISTRY}/${IMAGE_NAME}:${PROJECT_VERSION}"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:${SANITIZED_BRANCH}-${SHORT_SHA}")
+
+          elif [[ "$BRANCH_NAME" =~ ^release/ ]]; then
+            ENVIRONMENT="staging"
+            SPRING_PROFILE="staging"
+            LOG_LEVEL="INFO"
+            IMAGE_TAGS=$(printf "%s\n%s" \
+              "${PRIMARY_TAG}" \
+              "${REGISTRY}/${IMAGE_NAME}:staging")
+          fi
+
+          BUILD_VERSION="${PROJECT_VERSION}"
+
+          {
+            echo "environment=${ENVIRONMENT}"
+            echo "build_version=${BUILD_VERSION}"
+            echo "spring_profile=${SPRING_PROFILE}"
+            echo "log_level=${LOG_LEVEL}"
+            echo "primary_image_tag=${PRIMARY_TAG}"
+            echo 'image_tags<<EOF'
+            echo "${IMAGE_TAGS}"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
+
+          printf '🏷️ Environment: %s\n' "$ENVIRONMENT"
+          printf '🎯 Branch: %s\n' "$BRANCH_NAME"
+          printf '📦 Semantic Version: %s\n' "$PROJECT_VERSION"
+          printf '🔖 Primary Tag: %s\n' "$PRIMARY_TAG"
+          printf '🌱 Spring Profile: %s\n' "$SPRING_PROFILE"
+          printf '📝 Log Level: %s\n' "$LOG_LEVEL"
+          printf '📋 All Tags:\n%s\n' "$IMAGE_TAGS"
+
+  build-and-push:
+    needs: [setup]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.setup.outputs.environment }}
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.PACKAGES_TOKEN }}
+
+    - name: Prepare build metadata
+      id: build_meta
+      shell: bash
+      run: |
+        echo "build_date=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "$GITHUB_OUTPUT"
+        echo "project_name=${GITHUB_REPOSITORY##*/}" >> "$GITHUB_OUTPUT"
+        echo "project_repo=https://github.com/${GITHUB_REPOSITORY}" >> "$GITHUB_OUTPUT"
+        echo "maintainer_email=${{ github.actor }}@users.noreply.github.com" >> "$GITHUB_OUTPUT"
+        echo "maintainer_url=https://github.com/${{ github.actor }}" >> "$GITHUB_OUTPUT"
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        push: true
+        tags: ${{ needs.setup.outputs.image_tags }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          GITHUB_ACTOR=${{ github.actor }}
+          GITHUB_TOKEN=${{ secrets.PACKAGES_TOKEN }}
+          GITHUB_REPOSITORY=${{ github.repository }}
+          BUILD_DATE=${{ steps.build_meta.outputs.build_date }}
+          VERSION=${{ needs.setup.outputs.build_version }}
+          VCS_REF=${{ github.sha }}
+          VENDOR=${{ github.repository_owner }}
+          MAINTAINER_NAME=${{ github.actor }}
+          MAINTAINER_EMAIL=${{ steps.build_meta.outputs.maintainer_email }}
+          MAINTAINER_URL=${{ steps.build_meta.outputs.maintainer_url }}
+          PROJECT_NAME=${{ steps.build_meta.outputs.project_name }}
+          PROJECT_REPO=${{ steps.build_meta.outputs.project_repo }}
+        labels: |
+          org.opencontainers.image.title=${{ steps.build_meta.outputs.project_name }}
+          org.opencontainers.image.description=Master registry service powering Bamboo Assur partner insurers - ${{ needs.setup.outputs.environment }} environment
+          org.opencontainers.image.source=${{ steps.build_meta.outputs.project_repo }}
+          org.opencontainers.image.url=${{ steps.build_meta.outputs.project_repo }}
+          org.opencontainers.image.documentation=${{ steps.build_meta.outputs.project_repo }}/blob/main/README.md
+          org.opencontainers.image.revision=${{ github.sha }}
+          org.opencontainers.image.created=${{ steps.build_meta.outputs.build_date }}
+          org.opencontainers.image.version=${{ needs.setup.outputs.build_version }}
+          org.opencontainers.image.vendor=${{ github.repository_owner }}
+          org.opencontainers.image.authors=${{ github.actor }} <${{ steps.build_meta.outputs.maintainer_email }}>
+          org.opencontainers.image.licenses=Apache-2.0
+          bamboo.assur.environment=${{ needs.setup.outputs.environment }}
+          bamboo.assur.spring.profile=${{ needs.setup.outputs.spring_profile }}
+          bamboo.assur.log.level=${{ needs.setup.outputs.log_level }}
+          bamboo.assur.branch=${{ github.ref_name }}
+
+    - name: Scan Docker image for vulnerabilities
+      uses: anchore/scan-action@v3
+      id: scan
+      with:
+        image: ${{ needs.setup.outputs.primary_image_tag }}
+        fail-build: false
+        severity-cutoff: high
+      continue-on-error: true
+
+    - name: Generate SBOM
+      uses: anchore/sbom-action@v0
+      with:
+        image: ${{ needs.setup.outputs.primary_image_tag }}
+        format: spdx-json
+        upload-artifact: true
+
+    - name: Image digest
+      run: |
+        echo '### Image tags pushed' >> "$GITHUB_STEP_SUMMARY"
+        while IFS= read -r tag; do
+          echo "- \`${tag}\`" >> "$GITHUB_STEP_SUMMARY"
+        done <<< "${{ needs.setup.outputs.image_tags }}"
+
+  publish-env-config:
+    needs: [ setup, build-and-push ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create environment configuration artifact
+        run: |
+          mkdir -p config
+          cat > config/environment-config.json << EOF
+          {
+            "environment": "${{ needs.setup.outputs.environment }}",
+            "build_version": "${{ needs.setup.outputs.build_version }}",
+            "spring_profile": "${{ needs.setup.outputs.spring_profile }}",
+            "log_level": "${{ needs.setup.outputs.log_level }}",
+            "image_tags": "${{ needs.setup.outputs.image_tags }}",
+            "commit_sha": "${{ github.sha }}",
+            "branch": "${{ github.ref_name }}",
+            "build_date": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "recommended_env_vars": {
+              "SPRING_PROFILES_ACTIVE": "${{ needs.setup.outputs.spring_profile }}",
+              "LOGGING_LEVEL_ROOT": "${{ needs.setup.outputs.log_level }}",
+              "LOGGING_LEVEL_COM_BAMBOO_ASSUR": "${{ needs.setup.outputs.log_level }}",
+              "MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE": "health,info,metrics,prometheus",
+              "MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS": "when_authorized",
+              "SERVER_PORT": "8090"
+            }
+          }
+          EOF
+          
+          echo "📦 Environment configuration created for ${{ needs.setup.outputs.environment }}"
+          cat config/environment-config.json
+
+      - name: Upload environment configuration
+        uses: actions/upload-artifact@v4
+        with:
+          name: environment-config-${{ needs.setup.outputs.environment }}
+          path: config/environment-config.json
+          retention-days: 30

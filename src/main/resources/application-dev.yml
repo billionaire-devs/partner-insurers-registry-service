@@ -1,0 +1,26 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5490/partner_insurers_registry_service_db
+    username: postgres-username
+    password: postgres-secret
+    name: partner_insurers_registry_service_db
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5490/partner_insurers_registry_service_db
+    user: postgres-username
+    password: postgres-secret
+  rabbitmq:
+    host: localhost
+    port: 5690
+    username: rabbitmq-username
+    password: rabbitmq-secret
+  docker:
+    compose:
+      file: docker-compose.dev.yml
+      enabled: true
+      profiles:
+        active: dev
+

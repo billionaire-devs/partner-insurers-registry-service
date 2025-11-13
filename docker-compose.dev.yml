@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: 'postgres:17-alpine'
+    container_name: partner-insurers-registry-service-dev-postgres
+    environment:
+      - 'POSTGRES_DB=${POSTGRES_DB:-partner_insurers_registry_service_db}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres-secret}'
+      - 'POSTGRES_USER=${POSTGRES_USER:-postgres-username}'
+    ports:
+      - '${POSTGRES_PORT:-5490}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres-username -d partner_insurers_registry_service_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  rabbitmq:
+    image: 'rabbitmq:4.2-management-alpine'
+    container_name: partner-insurers-registry-service-dev-rabbitmq
+    environment:
+      - 'RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-rabbitmq-secret}'
+      - 'RABBITMQ_DEFAULT_USER=${RABBITMQ_USERNAME:-rabbitmq-username}'
+    ports:
+      - '${RABBITMQ_PORT:-5690}:5672'   # AMQP protocol port
+      - '${RABBITMQ_MANAGEMENT_PORT:-15690}:15672' # Management console
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+    name: partner-insurers-registry-service-dev-postgres-data
+  rabbitmq-data:
+    name: partner-insurers-registry-service-dev-rabbitmq-data
+
+networks:
+  default:
+    name: partner-insurers-registry-service-dev-network
+    driver: bridge

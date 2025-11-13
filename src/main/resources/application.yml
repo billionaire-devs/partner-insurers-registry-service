@@ -1,0 +1,33 @@
+server:
+  servlet:
+    context-path: /api/partner-insurers/registry/
+    application-display-name: Partner Insurers Registry Service
+  port: 8090
+
+spring:
+  application:
+    name: partner-insurers-registry-service
+  profiles:
+    default: dev
+  security:
+    user:
+      name: morriss
+      password: morrisson
+
+partner-insurers-registry-service:
+  outbox:
+    enabled: true
+    processing-interval-millis: 30000
+    batch-size: 100
+
+logging:
+  level:
+    com.bamboo.assur.partnerinsurers.registry: debug
+    org.springframework.data.r2dbc: DEBUG
+    org.springframework.r2dbc: DEBUG
+    io.r2dbc.postgresql: DEBUG
+    root: WARN
+    web: WARN
+    sql: trace
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: DEBUG

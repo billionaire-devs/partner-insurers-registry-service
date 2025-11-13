@@ -38,3 +38,14 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Node.js ###
+node_modules
+
+### GitHub Actions local testing ###
+.secrets
+.actrc
+
+### Gradle ###
+# Track project version in gradle.properties; keep local secrets in gradle.local.properties
+gradle.local.properties

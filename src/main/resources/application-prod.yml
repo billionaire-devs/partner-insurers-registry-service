@@ -1,0 +1,30 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME:partner_insurers_registry_service_db}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    name: ${DB_NAME:partner_insurers_registry_service_db}
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME:partner_insurers_registry_service_db}
+    user: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+  docker:
+    compose:
+      enabled: true
+      file: docker-compose.prod.yml
+      profiles:
+        active: prod
+
+logging:
+  level:
+    com.bamboo.assur.partnerinsurersservice: info
+    root: warn
