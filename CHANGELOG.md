@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.0 (2025-11-13)
+
+### 🚀 Features
+
+* **release:** release v1.0.0 - Partner Insurers Management  ([#43](https://github.com/billionaire-devs/partner-insurers-registry-service/issues/43)) ([6a7129a](https://github.com/billionaire-devs/partner-insurers-registry-service/commit/6a7129a737b23f72d170e228af8cb0720b5d7c2d))
+
 ## 1.0.0-rc-1-0-0.1 (2025-11-13)
 
 ### ⚠ BREAKING CHANGES
