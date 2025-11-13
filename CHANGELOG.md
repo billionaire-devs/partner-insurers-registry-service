@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha-PIS-REG-106.2](https://github.com/billionaire-devs/partner-insurers-registry-service/compare/v1.0.0-alpha-PIS-REG-106.1...v1.0.0-alpha-PIS-REG-106.2) (2025-11-13)
+
+### 🐛 Bug Fixes
+
+* **ci:** fix semantic-release GitHub plugin repository access error ([f84cc89](https://github.com/billionaire-devs/partner-insurers-registry-service/commit/f84cc89a5a4a28b31ee2eada2869da19ee1c17c3))
+
 ## 1.0.0-alpha-PIS-REG-106.1 (2025-11-13)
 
 ### ⚠ BREAKING CHANGES
