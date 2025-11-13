@@ -144,17 +144,14 @@ class PartnerInsurerController(
         return ResponseEntity.ok(result)
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     suspend fun updatePartnerInsurer(
         @PathVariable id: UUID,
         @Validated @RequestBody request: UpdatePartnerInsurerRequestDto,
     ): ResponseEntity<Any> {
         val command = request.toCommand(id)
-        return when (val result = updatePartnerInsurerCommandHandler(command)) {
-            is Result.Success -> ResponseEntity.ok(result.value)
-            is Result.Failure -> ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(mapOf("error" to result.message))
-        }
+        val result = updatePartnerInsurerCommandHandler(command)
+        return ResponseEntity.ok(result)
     }
 
 
