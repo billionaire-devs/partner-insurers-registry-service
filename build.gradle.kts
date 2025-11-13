@@ -69,7 +69,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.bamboo.assur.partner-insurers:shared-kernel:1.2.0")
+    implementation("com.bamboo.assur.partner-insurers:shared-kernel:1.3.0")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-amqp")
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
