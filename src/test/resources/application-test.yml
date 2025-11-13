@@ -1,0 +1,22 @@
+spring:
+  security:
+    user:
+      name: test
+      password: test
+
+partner-insurers-registry-service:
+  outbox:
+    enabled: false  # Disable outbox processing in tests
+
+logging:
+  level:
+    com.bamboo.assur: INFO
+    org.testcontainers: INFO
+    org.springframework: WARN
+    root: WARN
+    
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

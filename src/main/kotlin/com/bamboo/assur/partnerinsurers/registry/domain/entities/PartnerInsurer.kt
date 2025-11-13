@@ -2,7 +2,6 @@
 
 package com.bamboo.assur.partnerinsurers.registry.domain.entities
 
-import com.bamboo.assur.partnerinsurers.registry.application.commands.models.PartnerInsurerUpdate
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactAddedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerCreatedEvent
@@ -248,16 +247,17 @@ class PartnerInsurer private constructor(
      * @param address The new physical address of the partner.
      */
     fun update(
-        legalName: String,
+        legalName: String?,
         logoUrl: Url?,
-        address: Address,
+        address: Address?,
     ) {
-        require(legalName.isNotBlank()) { "Legal name cannot be blank" }
+        require(legalName != null || logoUrl != null || address != null) { "At least one field must be updated" }
+        legalName?.let { require(it.isNotBlank()) { "Legal name cannot be blank" } }
 
         // Update mutable properties
-        this.legalName = legalName
-        this.logoUrl = logoUrl
-        this.address = address
+        legalName?.let { this.legalName = it }
+        logoUrl?.let { this.logoUrl = it }
+        address?.let { this.address = it }
 
         touch()
 
@@ -267,40 +267,6 @@ class PartnerInsurer private constructor(
                 legalName = legalName,
                 logoUrl = logoUrl,
                 address = address,
-            )
-        )
-    }
-
-    /**
-     * Performs a partial update of the partner insurer with only the provided fields.
-     * This is more efficient than a full update as it only changes the specified properties.
-     *
-     * @param update The partial update containing only the fields to be changed.
-     */
-    fun partialUpdate(update: PartnerInsurerUpdate) {
-        if (!update.hasChanges()) return
-
-        if (update.legalName != null) {
-            require(update.legalName.isNotBlank()) { "Legal name cannot be blank" }
-            this.legalName = update.legalName
-        }
-
-        if (update.logoUrl != null) {
-            this.logoUrl = update.logoUrl
-        }
-
-        if (update.address != null) {
-            this.address = update.address
-        }
-
-        touch()
-
-        addDomainEvent(
-            PartnerInsurerUpdatedEvent(
-                aggregateIdValue = id,
-                legalName = update.legalName,
-                logoUrl = update.logoUrl,
-                address = update.address,
             )
         )
     }
