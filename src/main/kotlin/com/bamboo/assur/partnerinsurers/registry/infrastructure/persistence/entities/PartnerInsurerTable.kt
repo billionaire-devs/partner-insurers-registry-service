@@ -39,6 +39,7 @@ data class PartnerInsurerTable(
     val createdAt: java.time.Instant,
     val updatedAt: java.time.Instant,
     val deletedAt: java.time.Instant? = null,
+    val deletedBy: UUID? = null,
 ) {
     fun toDomain(contacts: Set<Contact>, agreements: Set<BrokerPartnerInsurerAgreement>) = PartnerInsurer.reconstitute(
         id = DomainEntityId(id),
@@ -69,6 +70,9 @@ data class PartnerInsurerTable(
             status = status.name,
             createdAt = createdAt.toJavaInstant(),
             updatedAt = updatedAt.toJavaInstant(),
+            deletedAt = deletedAt?.toJavaInstant(),
+            // TODO: Add support for deletedBy when user context is available
+            deletedBy = null
         )
     }
 }

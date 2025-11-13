@@ -2,6 +2,7 @@ package com.bamboo.assur.partnerinsurers.registry.presentation.controllers
 
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.ChangePartnerInsurerStatusCommandHandler
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.CreatePartnerInsurerCommandHandler
+import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.DeletePartnerInsurerCommandHandler
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.UpdatePartnerInsurerCommandHandler
 import com.bamboo.assur.partnerinsurers.registry.application.queries.GetPartnerInsurerQuery
 import com.bamboo.assur.partnerinsurers.registry.application.queries.GetPartnerInsurersQuery
@@ -52,6 +53,8 @@ class PartnerInsurerControllerTest {
     @Mock private lateinit var getFullPartnerInsurerQueryHandler: GetPartnerInsurerQueryHandler
     @Mock private lateinit var changeStatusCommandHandler: ChangePartnerInsurerStatusCommandHandler
     @Mock private lateinit var updatePartnerInsurerCommandHandler: UpdatePartnerInsurerCommandHandler
+    @Mock
+    private lateinit var deletePartnerInsurerCommandHandler: DeletePartnerInsurerCommandHandler
     @Mock
     private lateinit var getPartnerInsurersSummariesQueryHandler: GetPartnerInsurersSummariesQueryHandler
 

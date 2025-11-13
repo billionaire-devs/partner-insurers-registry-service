@@ -42,6 +42,7 @@ class UpdatePartnerInsurerControllerTest {
             getFullPartnerInsurerQueryHandler = mock(),
             changeStatusCommandHandler = mock(),
             updatePartnerInsurerCommandHandler = updatePartnerInsurerCommandHandler,
+            deletePartnerInsurerCommandHandler = mock(),
             getPartnerInsurersSummariesQueryHandler = mock()
         )
     }

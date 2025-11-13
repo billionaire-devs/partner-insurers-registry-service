@@ -1,10 +1,12 @@
-@file:OptIn(ExperimentalUuidApi::class)
+@file:OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
 
 package com.bamboo.assur.partnerinsurers.registry.domain.entities
 
+import com.bamboo.assur.partnerinsurers.registry.domain.enums.AgreementStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactAddedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerCreatedEvent
+import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerDeletedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerStatusChangedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerUpdatedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.valueObjects.TaxIdentificationNumber
@@ -267,6 +269,57 @@ class PartnerInsurer private constructor(
                 legalName = legalName,
                 logoUrl = logoUrl,
                 address = address,
+            )
+        )
+    }
+
+    /**
+     * Soft deletes the partner insurer using the shared kernel soft deletion mechanism.
+     *
+     * This method performs a logical deletion which ensures data traceability
+     * and preserves historical records. It validates that no active contracts
+     * are still associated with the partner.
+     *
+     * @param reason An optional reason for the deletion.
+     * @param deletedBy The ID of the user performing the deletion (optional for now).
+     * @throws InvalidOperationException if the partner is already deleted or has active contracts.
+     */
+    fun delete(reason: String?, deletedBy: DomainEntityId? = null) {
+        // Check if already deleted using shared kernel method
+        if (isDeleted()) {
+            throw InvalidOperationException("Partner insurer is already deleted.")
+        }
+
+        // Check for active agreements - prevent deletion if any active contracts exist
+        val activeAgreements = brokerPartnerInsurerAgreements.filter {
+            it.status == AgreementStatus.ACTIVE
+        }
+
+        if (activeAgreements.isNotEmpty()) {
+            throw InvalidOperationException(
+                "Cannot delete partner insurer with active contracts. " +
+                        "Found ${activeAgreements.size} active agreement(s)."
+            )
+        }
+
+        // Use shared kernel soft deletion
+        if (deletedBy != null) {
+            softDelete(deletedBy)
+        } else {
+            // For now, we don't have user context, so we'll need to update this when auth is implemented
+            // TODO: Pass actual user ID when authentication context is available
+            softDelete(DomainEntityId.random()) // Temporary placeholder
+        }
+
+        // Set status to DEACTIVATED for domain-specific logic
+        status = PartnerInsurerStatus.DEACTIVATED
+
+        addDomainEvent(
+            PartnerInsurerDeletedEvent(
+                aggregateIdValue = id,
+                partnerInsurerCode = partnerInsurerCode,
+                status = status.name,
+                reason = reason
             )
         )
     }

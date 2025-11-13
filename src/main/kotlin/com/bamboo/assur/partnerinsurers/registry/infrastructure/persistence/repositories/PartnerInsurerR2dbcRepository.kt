@@ -20,7 +20,8 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
     @Query("""
         SELECT id, partner_insurer_code, legal_name, tax_identification_number, status, logo_url, address
         FROM partner_insurers
-        WHERE (:status IS NULL OR status::text = :status)
+        WHERE deleted_at IS NULL
+            AND (:status IS NULL OR status::text = :status)
             AND (:search IS NULL OR search_vector @@ plainto_tsquery('french', :search) 
             OR LOWER(legal_name) LIKE LOWER(CONCAT('%', :search, '%')) 
             OR LOWER(partner_insurer_code) LIKE LOWER(CONCAT('%', :search, '%')))
@@ -58,7 +59,8 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
         SELECT id, partner_insurer_code, tax_identification_number, legal_name, status, created_at
         FROM partner_insurers
-        WHERE (:status IS NULL OR status::text = :status)
+        WHERE deleted_at IS NULL
+            AND (:status IS NULL OR status::text = :status)
             AND (:createdBefore IS NULL OR created_at < :createdBefore)
             AND (:createdAfter IS NULL OR created_at > :createdAfter)
             AND (
@@ -95,7 +97,8 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
             SELECT id, partner_insurer_code, tax_identification_number, legal_name, address, status, created_at, updated_at
             FROM partner_insurers
-            WHERE (:status IS NULL OR status::text = :status)
+            WHERE deleted_at IS NULL
+                AND (:status IS NULL OR status::text = :status)
                 AND (:createdBefore IS NULL OR created_at < :createdBefore)
                 AND (:createdAfter IS NULL OR created_at > :createdAfter)
                 AND (
@@ -132,7 +135,7 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
         SELECT id, partner_insurer_code, tax_identification_number, legal_name, status, created_at, updated_at
         FROM partner_insurers
-        WHERE id = :id
+        WHERE id = :id AND deleted_at IS NULL
         LIMIT 1
         """
     )
@@ -142,7 +145,7 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
         SELECT id, partner_insurer_code, tax_identification_number, legal_name, status, created_at, updated_at
         FROM partner_insurers
-        WHERE partner_insurer_code = :partnerCode
+        WHERE partner_insurer_code = :partnerCode AND deleted_at IS NULL
         LIMIT 1
         """
     )
@@ -152,7 +155,7 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
         SELECT id, partner_insurer_code, tax_identification_number, legal_name, status, logo_url, address, created_at, updated_at
         FROM partner_insurers
-        WHERE tax_identification_number = :taxIdentificationNumber
+        WHERE tax_identification_number = :taxIdentificationNumber AND deleted_at IS NULL
         LIMIT 1;
         """
     )
@@ -165,7 +168,7 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
             SELECT pi.id, pi.partner_insurer_code, pi.tax_identification_number, pi.legal_name, pi.status, pi.logo_url, pi.address, pi.created_at, pi.updated_at
             FROM partner_insurers as pi
-            WHERE id = :id
+            WHERE id = :id AND pi.deleted_at IS NULL
             LIMIT 1
         """
     )
@@ -175,7 +178,7 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
             SELECT pi.id, pi.partner_insurer_code, pi.tax_identification_number, pi.legal_name, pi.status, pi.logo_url, pi.address, pi.created_at, pi.updated_at
             FROM partner_insurers as pi
-            WHERE partner_insurer_code = :partnerCode
+            WHERE partner_insurer_code = :partnerCode AND pi.deleted_at IS NULL
             LIMIT 1
         """
     )
@@ -187,7 +190,7 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         """
             SELECT pi.id, pi.partner_insurer_code, pi.tax_identification_number, pi.legal_name, pi.status, pi.logo_url, pi.address, pi.created_at, pi.updated_at
             FROM partner_insurers as pi
-            WHERE tax_identification_number = :taxIdentificationNumber
+            WHERE tax_identification_number = :taxIdentificationNumber AND pi.deleted_at IS NULL
             LIMIT 1;
         """
     )
@@ -195,8 +198,12 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
         taxIdentificationNumber: String
     ): PartnerInsurerProjection.FullProjection?
 
+    @Query("SELECT * FROM partner_insurers WHERE partner_insurer_code = :partnerCode AND deleted_at IS NULL")
     suspend fun findByPartnerInsurerCode(partnerCode: String): PartnerInsurerTable?
-    suspend fun existsByPartnerInsurerCode(partnerCode: String): Boolean
-    suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean
-    fun findByTaxIdentificationNumber(taxIdentificationNumber: String): PartnerInsurerTable
+
+    suspend fun existsByPartnerInsurerCodeAndDeletedAtIsNull(partnerCode: String): Boolean
+
+    suspend fun existsByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber: String): Boolean
+
+    fun findByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber: String): PartnerInsurerTable
 }

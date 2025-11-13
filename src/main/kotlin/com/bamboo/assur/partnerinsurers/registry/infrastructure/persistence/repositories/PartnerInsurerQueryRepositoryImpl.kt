@@ -106,7 +106,7 @@ class PartnerInsurerQueryRepositoryImpl(
     }
 
     override suspend fun findByTaxIdentificationNumber(taxIdentificationNumber: String): PartnerInsurer? {
-        val entity = partnerInsurerR2dbcRepository.findByTaxIdentificationNumber(taxIdentificationNumber)
+        val entity = partnerInsurerR2dbcRepository.findByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber)
         val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
             .map { it.toDomain() }
             .toSet()
@@ -116,10 +116,10 @@ class PartnerInsurerQueryRepositoryImpl(
 
 
     override suspend fun existsByPartnerCode(partnerCode: String): Boolean =
-        partnerInsurerR2dbcRepository.existsByPartnerInsurerCode(partnerCode)
+        partnerInsurerR2dbcRepository.existsByPartnerInsurerCodeAndDeletedAtIsNull(partnerCode)
 
     override suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean =
-        partnerInsurerR2dbcRepository.existsByTaxIdentificationNumber(taxIdentificationNumber)
+        partnerInsurerR2dbcRepository.existsByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber)
 
     override suspend fun existById(id: UUID): Boolean = partnerInsurerR2dbcRepository.existsById(id)
 
