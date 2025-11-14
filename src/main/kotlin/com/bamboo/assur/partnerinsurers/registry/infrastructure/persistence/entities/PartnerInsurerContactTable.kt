@@ -38,7 +38,7 @@ data class PartnerInsurerContactTable(
 
     companion object {
         fun Contact.toEntityTable(partnerInsurerId: UUID) = PartnerInsurerContactTable(
-            id = UUID.randomUUID(),
+            id = this.id.value,
             partnerInsurerId = partnerInsurerId,
             fullName = fullName,
             email = email.value,

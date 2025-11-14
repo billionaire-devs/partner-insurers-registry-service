@@ -35,6 +35,7 @@ interface PartnerInsurerQueryRepository {
 
     suspend fun findByIdForUpdate(id: UUID): PartnerInsurer?
     suspend fun existById(id: UUID): Boolean
+    suspend fun existsByIdAndNotDeleted(id: UUID): Boolean
     suspend fun existsByPartnerCode(partnerCode: String): Boolean
     suspend fun existsByTaxIdentificationNumber(taxIdentificationNumber: String): Boolean
 

@@ -25,6 +25,50 @@ import kotlin.uuid.ExperimentalUuidApi
  * related to an insurance partner. It manages its own lifecycle, including status changes,
  * and ensures data consistency through its internal invariants.
  *
+ * ## Business Rules:
+ *
+ * ### Creation Rules:
+ * - Partner insurer code must be unique and not blank
+ * - Legal name must not be blank
+ * - Tax identification number must be valid and unique
+ * - Initial status defaults to ONBOARDING
+ * - At least one contact is required during creation
+ *
+ * ### Status Transition Rules:
+ * - ONBOARDING → ACTIVE: Partner can be activated after setup completion
+ * - ACTIVE → SUSPENDED: Active partners can be suspended for violations
+ * - ACTIVE → MAINTENANCE: Active partners can be put in maintenance mode
+ * - ACTIVE → DEACTIVATED: Active partners can be deactivated
+ * - SUSPENDED → ACTIVE: Suspended partners can be reactivated
+ * - MAINTENANCE → ACTIVE: Partners in maintenance can be reactivated
+ * - ONBOARDING → DEACTIVATED: Onboarding partners can be deactivated
+ * - Invalid transitions throw InvalidOperationException
+ *
+ * ### Update Rules:
+ * - At least one field must be updated when calling update()
+ * - Legal name cannot be blank if provided
+ * - Updates trigger PartnerInsurerUpdatedEvent
+ *
+ * ### Deletion Rules:
+ * - Cannot delete partner with active agreements
+ * - Soft deletion is used (sets deleted_at timestamp)
+ * - Status is set to DEACTIVATED upon deletion
+ * - Already deleted partners cannot be deleted again
+ *
+ * ### Contact Management Rules:
+ * - A contact can be added to a partner insurer if the partner insurer is not deleted and not deactivated
+ * - A contact can be added if the contact's email is not already associated with the partner insurer
+ * - Maximum 10 contacts per partner insurer
+ * - Contact must have valid email format
+ * - Contact must have valid phone format
+ * - Contact role must not be blank
+ * - Full name must not be blank
+ * - Contact associations are maintained at database level
+ *
+ * ### Agreement Rules:
+ * - Partner cannot be deleted if it has active agreements
+ * - Agreement status checking is performed before deletion
+ *
  * @property id The unique identifier of the partner insurer.
  * @property partnerInsurerCode A unique code identifying the partner insurer.
  * @property legalName The legal name of the partner insurer.
@@ -54,6 +98,12 @@ class PartnerInsurer private constructor(
 
     @OptIn(ExperimentalTime::class)
     companion object {
+
+        /**
+         * Maximum number of contacts allowed per partner insurer.
+         * This prevents unbounded growth and ensures manageable contact lists.
+         */
+        const val MAX_CONTACTS_PER_PARTNER = 10
 
         /**
          * Factory method to create a new [PartnerInsurer] instance.
@@ -224,10 +274,68 @@ class PartnerInsurer private constructor(
         )
     }
 
+    /**
+     * Adds a new contact to the partner insurer.
+     *
+     * This method enforces business rules for contact management and ensures
+     * that contacts are added only under valid business conditions.
+     *
+     * Business Rules Applied:
+     * - Partner insurer must not be deleted
+     * - Partner insurer must be in a valid status (not DEACTIVATED)
+     * - Contact cannot be null
+     * - Contact must have valid email format
+     * - Contact must have valid phone format
+     * - Contact role must not be blank
+     * - Full name must not be blank
+     * - Cannot add duplicate contacts (same email)
+     * - Maximum 10 contacts per partner insurer
+     * - Contact email must be unique within the partner insurer
+     *
+     * @param contact The contact to add to this partner insurer
+     * @throws InvalidOperationException if business rules are violated
+     * @throws IllegalArgumentException if contact data is invalid
+     */
     fun addContact(contact: Contact) {
+        // Rule: Partner insurer must not be deleted
+        if (isDeleted()) {
+            throw InvalidOperationException("Cannot add contact to deleted partner insurer")
+        }
+
+        // Rule: Partner insurer must be in a valid status
+        if (status == PartnerInsurerStatus.DEACTIVATED) {
+            throw InvalidOperationException("Cannot add contact to deactivated partner insurer")
+        }
+
+        // Rule: Contact cannot be null (handled by type system, but explicit check for clarity)
+        requireNotNull(contact) { "Contact cannot be null" }
+
+        // Rule: Contact must have valid data (delegated to Contact entity validation)
+        require(contact.fullName.isNotBlank()) { "Contact full name cannot be blank" }
+        require(contact.contactRole.isNotBlank()) { "Contact role cannot be blank" }
+
+        // Rule: Cannot exceed maximum contacts per partner
+        if (contacts.size >= MAX_CONTACTS_PER_PARTNER) {
+            throw InvalidOperationException(
+                "Cannot add more than $MAX_CONTACTS_PER_PARTNER contacts to partner insurer. " +
+                        "Current count: ${contacts.size}"
+            )
+        }
+
+        // Rule: Contact email must be unique within the partner insurer
+        val existingContact = contacts.find { it.email.value.equals(contact.email.value, ignoreCase = true) }
+        if (existingContact != null) {
+            throw InvalidOperationException(
+                "Contact with email '${contact.email.value}' already exists for this partner insurer. " +
+                        "Contact ID: ${existingContact.id}"
+            )
+        }
+
+        // Add the contact and update entity state
         contacts.add(contact)
         touch()
 
+        // Generate domain event for contact addition
         addDomainEvent(
             PartnerInsurerContactAddedEvent(
                 aggregateIdValue = id,

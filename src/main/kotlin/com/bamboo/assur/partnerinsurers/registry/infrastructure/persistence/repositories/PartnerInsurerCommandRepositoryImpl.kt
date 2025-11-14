@@ -8,6 +8,8 @@ import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.enti
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerTable.Companion.toEntityTable
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToSaveEntityException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.getAggregateTypeOrEmpty
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.toSet
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

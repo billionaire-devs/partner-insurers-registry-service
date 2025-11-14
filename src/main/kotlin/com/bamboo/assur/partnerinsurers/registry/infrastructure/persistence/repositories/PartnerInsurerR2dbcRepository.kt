@@ -206,4 +206,6 @@ interface PartnerInsurerR2dbcRepository : CoroutineCrudRepository<PartnerInsurer
     suspend fun existsByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber: String): Boolean
 
     fun findByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber: String): PartnerInsurerTable
+
+    fun existsByIdAndDeletedAtIsNull(id: UUID): Boolean
 }

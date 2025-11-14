@@ -122,7 +122,7 @@ class PartnerInsurerQueryRepositoryImpl(
         partnerInsurerR2dbcRepository.existsByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber)
 
     override suspend fun existById(id: UUID): Boolean = partnerInsurerR2dbcRepository.existsById(id)
-
+    override suspend fun existsByIdAndNotDeleted(id: UUID): Boolean = partnerInsurerR2dbcRepository.existsByIdAndDeletedAtIsNull(id)
     override suspend fun streamAll(
         status: String?,
         search: String?,
