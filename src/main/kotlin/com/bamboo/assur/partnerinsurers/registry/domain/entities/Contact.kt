@@ -1,5 +1,6 @@
 package com.bamboo.assur.partnerinsurers.registry.domain.entities
 
+import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactAddedEvent
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.Model
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
@@ -46,4 +47,4 @@ class Contact(
             )
         }
     }
-}  
+}
