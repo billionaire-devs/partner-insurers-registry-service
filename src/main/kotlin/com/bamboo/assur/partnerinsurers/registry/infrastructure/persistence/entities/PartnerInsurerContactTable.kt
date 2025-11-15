@@ -25,16 +25,22 @@ data class PartnerInsurerContactTable(
     val createdAt: Instant,
     val updatedAt: Instant,
     val deletedAt: Instant?,
+    val deletedBy: UUID?,
 ) {
-    fun toDomain() = Contact(
-        id = DomainEntityId(id),
-        fullName = fullName,
-        email = Email(email),
-        phone = Phone(phone),
-        contactRole = contactRole,
-        createdAt = createdAt.toKotlinInstant(),
-        updatedAt = updatedAt.toKotlinInstant()
-    )
+    fun toDomain(): Contact {
+        // Note: Contact entities don't handle soft deletion at the domain level
+        // since they are not aggregate roots. Soft deletion state is managed
+        // at the repository/infrastructure level only.
+        return Contact(
+            id = DomainEntityId(id),
+            fullName = fullName,
+            email = Email(email),
+            phone = Phone(phone),
+            contactRole = contactRole,
+            createdAt = createdAt.toKotlinInstant(),
+            updatedAt = updatedAt.toKotlinInstant()
+        )
+    }
 
     companion object {
         fun Contact.toEntityTable(partnerInsurerId: UUID) = PartnerInsurerContactTable(
@@ -46,7 +52,8 @@ data class PartnerInsurerContactTable(
             contactRole = contactRole,
             createdAt = createdAt.toJavaInstant(),
             updatedAt = updatedAt.toJavaInstant(),
-            deletedAt = null,
+            deletedAt = deletedAt?.toJavaInstant(),
+            deletedBy = deletedBy?.value,
         )
     }
 }

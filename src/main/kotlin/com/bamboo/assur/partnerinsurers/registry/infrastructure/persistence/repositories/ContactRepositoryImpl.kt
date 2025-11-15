@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalUuidApi::class, ExperimentalTime::class)
@@ -41,7 +43,7 @@ class ContactRepositoryImpl(
     override suspend fun findByPartnerInsurerId(partnerInsurerId: DomainEntityId): List<Contact> {
         logger.debug("Finding contacts by partner insurer id {}", partnerInsurerId)
 
-        return contactR2dbcRepository.findByPartnerInsurerId(partnerInsurerId.value)
+        return contactR2dbcRepository.findByPartnerInsurerIdAndDeletedAtIsNull(partnerInsurerId.value)
             .toList()
             .map { it.toDomain() }
     }
@@ -60,8 +62,35 @@ class ContactRepositoryImpl(
         }
     }
 
-    override suspend fun delete(contact: Contact) {
-        logger.info("Deleting contact {}", contact.id)
-        contactR2dbcRepository.deleteById(contact.id.value)
+    override suspend fun delete(contact: Contact, deletedAt: Instant, deletedBy: UUID) {
+        logger.info("Soft deleting contact {}", contact.id)
+        
+        // First get the existing contact (including deleted ones) to check if it exists
+        val existingContact = contactR2dbcRepository.findByIdAndDeletedAtIsNotNull(contact.id.value)
+        if (existingContact == null) {
+            logger.warn("Contact {} not found for soft deletion", contact.id)
+            return
+        }
+        
+        // Check if already soft deleted (idempotent operation)
+        if (existingContact.deletedAt != null) {
+            logger.info("Contact {} already soft deleted - idempotent operation", contact.id)
+            return
+        }
+
+        // Create updated contact entity with soft deletion fields
+        val softDeletedContact = existingContact.copy(
+            deletedAt = deletedAt.toJavaInstant(),
+            deletedBy = deletedBy,
+            updatedAt = deletedAt.toJavaInstant(),
+        )
+        
+        val result = tableTemplate.update(softDeletedContact).awaitSingleOrNull()
+        
+        if (result != null) {
+            logger.info("Contact soft deleted successfully {}", contact.id)
+        } else {
+            logger.warn("Failed to soft delete contact {}", contact.id)
+        }
     }
 }

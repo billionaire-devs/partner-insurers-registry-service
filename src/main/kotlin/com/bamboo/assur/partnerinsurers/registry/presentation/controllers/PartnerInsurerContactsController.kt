@@ -2,6 +2,8 @@ package com.bamboo.assur.partnerinsurers.registry.presentation.controllers
 
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.AddPartnerInsurerContactCommandHandler
 import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.UpdatePartnerInsurerContactCommandHandler
+import com.bamboo.assur.partnerinsurers.registry.application.commands.handlers.DeletePartnerInsurerContactCommandHandler
+import com.bamboo.assur.partnerinsurers.registry.application.commands.DeletePartnerInsurerContactCommand
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.AddPartnerInsurerContactRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.requests.UpdatePartnerInsurerContactRequestDto
 import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.AddPartnerInsurerContactResponseDto
@@ -9,6 +11,7 @@ import com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses.Upd
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -25,6 +28,7 @@ import kotlin.uuid.ExperimentalUuidApi
 class PartnerInsurerContactsController(
     private val addContactCommandHandler: AddPartnerInsurerContactCommandHandler,
     private val updateContactCommandHandler: UpdatePartnerInsurerContactCommandHandler,
+    private val deleteContactCommandHandler: DeletePartnerInsurerContactCommandHandler,
 ) {
     @PostMapping("/{partnerInsurerId}/contacts")
     suspend fun addPartnerInsurerContact(
@@ -52,5 +56,18 @@ class PartnerInsurerContactsController(
         val command = request.toCommand(partnerInsurerId, contactId)
         val response = updateContactCommandHandler(command)
         return ResponseEntity.ok(response)
+    }
+
+    @DeleteMapping("/{partnerInsurerId}/contacts/{contactId}")
+    suspend fun deletePartnerInsurerContact(
+        @PathVariable partnerInsurerId: UUID,
+        @PathVariable contactId: UUID,
+    ): ResponseEntity<Void> {
+        val command = DeletePartnerInsurerContactCommand(
+            partnerInsurerId = partnerInsurerId,
+            contactId = contactId
+        )
+        deleteContactCommandHandler(command)
+        return ResponseEntity.noContent().build()
     }
 }
