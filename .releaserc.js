@@ -7,20 +7,20 @@ const sanitizeBranchSegment = (value, fallback = '') =>
 const repositoryUrl = 'https://github.com/billionaire-devs/partner-insurers-registry-service.git';
 
 const successCmd = [
-    `echo "🎉 Release \\${nextRelease.version} published successfully!"`,
+    'echo "🎉 Release ${nextRelease.version} published successfully!"',
     `echo "Repository: ${repositoryUrl}"`,
-    `echo "Version: \\${nextRelease.version}"`,
-    `echo "Channel: \\${nextRelease.channel || 'latest'}"`,
-    `printf 'Release Notes:\\n%s\\n' "\\${nextRelease.notes}"`,
-    `if echo "\\${nextRelease.version}" | grep -qE "^[0-9]+\\.0\\.0$"; then`,
-    `  echo "Major release detected, consider creating announcement issue"`,
-    `fi`,
+    'echo "Version: ${nextRelease.version}"',
+    'echo "Channel: ${nextRelease.channel || \'latest\'}"',
+    'printf \'Release Notes:\n%s\n\' "${nextRelease.notes}"',
+    'if echo "${nextRelease.version}" | grep -qE "^[0-9]+\\.0\\.0$"; then',
+    '  echo "Major release detected, consider creating announcement issue"',
+    'fi',
 ].join('\n');
 
 const failCmd = [
-    `echo "❌ Release failed!"`,
-    `echo "Version: \\${nextRelease.version}"`,
-    `echo "Error: Release process encountered an error"`,
+    'echo "❌ Release failed!"',
+    'echo "Version: unavailable"',
+    'echo "Error: Release process encountered an error"',
 ].join('\n');
 
 const sanitizedNameTemplate = (fallback, channel) => {
