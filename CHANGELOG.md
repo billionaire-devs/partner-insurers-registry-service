@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-beta.10](https://github.com/billionaire-devs/partner-insurers-registry-service/compare/v1.0.0-beta.9...v1.0.0-beta.10) (2025-11-15)
+
+### 🚀 Features
+
+* add PIS-REG-122 - Partner contact soft deletion ([#47](https://github.com/billionaire-devs/partner-insurers-registry-service/issues/47)) ([a526c37](https://github.com/billionaire-devs/partner-insurers-registry-service/commit/a526c371b98d4aca89f4bff853176ff5d6a91655))
+
 ## [1.0.0-alpha-PIS-REG-122.2](https://github.com/billionaire-devs/partner-insurers-registry-service/compare/v1.0.0-alpha-PIS-REG-122.1...v1.0.0-alpha-PIS-REG-122.2) (2025-11-15)
 
 ### 🐛 Bug Fixes
