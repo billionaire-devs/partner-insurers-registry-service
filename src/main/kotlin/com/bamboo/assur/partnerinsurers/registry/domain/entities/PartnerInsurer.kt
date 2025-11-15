@@ -6,6 +6,7 @@ import com.bamboo.assur.partnerinsurers.registry.domain.enums.AgreementStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactAddedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactUpdatedEvent
+import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactDeletedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerCreatedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerDeletedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerStatusChangedEvent
@@ -18,7 +19,9 @@ import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainE
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
+import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
 
 /**
@@ -380,6 +383,53 @@ class PartnerInsurer private constructor(
                 )
             )
         }
+    }
+
+    /**
+     * Soft deletes a contact from the partner insurer.
+     *
+     * This method performs a logical (soft) deletion of a contact, marking it as deleted
+     * while preserving the record for audit and historical purposes.
+     *
+     * Business Rules Applied:
+     * - Partner insurer must not be deleted
+     * - Contact must exist and not be already deleted
+     * - Soft deletion must be idempotent
+     *
+     * @param contactId The ID of the contact to delete
+     * @param deletedBy The ID of the user performing the deletion (optional for audit trail)
+     * @return The timestamp of the deletion
+     * @throws InvalidOperationException if business rules are violated
+     */
+    @OptIn(ExperimentalTime::class)
+    fun deleteContact(contactId: DomainEntityId, deletedBy: DomainEntityId? = null): Instant {
+        // Rule: Partner insurer must not be deleted
+        if (isDeleted()) {
+            throw InvalidOperationException("Cannot delete contact from deleted partner insurer")
+        }
+
+        // Find the contact to delete
+        val existingContact = contacts.find { it.id == contactId }
+            ?: throw InvalidOperationException("Contact with ID '$contactId' not found for this partner insurer.")
+
+        // Note: Contact deletion check will be performed at the repository level
+        // since Contact entities don't expose soft deletion state in the domain
+        // TODO: Change sorftDelete() mehtod in shared kernel to use it here
+
+        // Update partner insurer timestamp
+        touch()
+
+        val now = Clock.System.now()
+        // Generate domain event for contact deletion
+        addDomainEvent(
+            PartnerInsurerContactDeletedEvent(
+                aggregateIdValue = id,
+                contactId = contactId,
+                deletedAt = now
+            )
+        )
+
+        return now
     }
 
     /**

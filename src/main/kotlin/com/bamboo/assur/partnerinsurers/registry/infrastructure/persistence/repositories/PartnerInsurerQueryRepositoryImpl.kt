@@ -26,7 +26,6 @@ import kotlin.time.ExperimentalTime
 class PartnerInsurerQueryRepositoryImpl(
     private val partnerInsurerR2dbcRepository: PartnerInsurerR2dbcRepository,
     private val partnerInsurerContactR2dbcRepository: PartnerInsurerContactR2dbcRepository,
-    private val template: R2dbcEntityTemplate,
 ): PartnerInsurerQueryRepository {
     override suspend fun findByIdSummary(id: UUID): PartnerInsurerProjection.SummaryProjection =
         partnerInsurerR2dbcRepository.findByIdSummary(id)
@@ -34,7 +33,7 @@ class PartnerInsurerQueryRepositoryImpl(
     @OptIn(ExperimentalTime::class)
     override suspend fun findByIdDetailed(id: UUID): PartnerInsurerProjection.FullProjection? {
         val partner = partnerInsurerR2dbcRepository.findByIdDetailed(id) ?: return null
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(partner.id)
+        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerIdAndDeletedAtIsNull(partner.id)
             .map { it.toDomain().toResponseDto() } //TODO: Simplify the conversion
             .toSet()
 
@@ -49,7 +48,7 @@ class PartnerInsurerQueryRepositoryImpl(
             getAggregateTypeOrEmpty<PartnerInsurer>(),
             id
         )
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
+        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerIdAndDeletedAtIsNull(entity.id)
             .map { it.toDomain() }
             .toSet()
 
@@ -60,7 +59,7 @@ class PartnerInsurerQueryRepositoryImpl(
 
     override suspend fun findByPartnerCode(partnerCode: String): PartnerInsurer? {
         val entity = partnerInsurerR2dbcRepository.findByPartnerInsurerCode(partnerCode) ?: return null
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
+        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerIdAndDeletedAtIsNull(entity.id)
             .map { it.toDomain() }
             .toSet()
 
@@ -72,7 +71,7 @@ class PartnerInsurerQueryRepositoryImpl(
 
     override suspend fun findByPartnerCodeDetailed(partnerCode: String): PartnerInsurerProjection.FullProjection? {
         val partner = partnerInsurerR2dbcRepository.findByPartnerCodeDetailed(partnerCode) ?: return null
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(partner.id)
+        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerIdAndDeletedAtIsNull(partner.id)
             .map { it.toDomain().toResponseDto() }
             .toSet()
         
@@ -98,7 +97,7 @@ class PartnerInsurerQueryRepositoryImpl(
     ): PartnerInsurerProjection.FullProjection? {
         val partner = partnerInsurerR2dbcRepository.findByTaxIdentificationNumberDetailed(taxIdentificationNumber)
             ?: return null
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(partner.id)
+        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerIdAndDeletedAtIsNull(partner.id)
             .map { it.toDomain().toResponseDto() }
             .toSet()
         
@@ -107,7 +106,7 @@ class PartnerInsurerQueryRepositoryImpl(
 
     override suspend fun findByTaxIdentificationNumber(taxIdentificationNumber: String): PartnerInsurer? {
         val entity = partnerInsurerR2dbcRepository.findByTaxIdentificationNumberAndDeletedAtIsNull(taxIdentificationNumber)
-        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerId(entity.id)
+        val contacts = partnerInsurerContactR2dbcRepository.findByPartnerInsurerIdAndDeletedAtIsNull(entity.id)
             .map { it.toDomain() }
             .toSet()
         
@@ -184,7 +183,7 @@ class PartnerInsurerQueryRepositoryImpl(
     ).map { partnerTable ->
         partnerTable.toDomain(
             contacts = partnerInsurerContactR2dbcRepository
-                .findByPartnerInsurerId(partnerTable.id)
+                .findByPartnerInsurerIdAndDeletedAtIsNull(partnerTable.id)
                 .map { contact -> contact.toDomain() }
                 .toSet(),
             agreements = emptySet()
