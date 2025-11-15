@@ -15,7 +15,9 @@ import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.ZoneId
 import kotlin.time.ExperimentalTime
+import kotlin.time.toJavaInstant
 import kotlin.uuid.ExperimentalUuidApi
 
 @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
@@ -47,44 +49,45 @@ class AddPartnerInsurerContactCommandHandler(
             contactRole = command.contactRole
         )
 
-        try {
-            partnerInsurer.addContact(contact)
+        partnerInsurer.addContact(contact)
 
-            // Save the contact with partner insurer ID
-            contactRepository.save( partnerInsurerId = command.partnerInsurerId.value, contact = contact)
-            logger.info("Contact added successfully for partner insurer {}", command.partnerInsurerId)
+        // Save the contact with partner insurer ID
+        val saved = contactRepository.save(partnerInsurerId = command.partnerInsurerId.value, contact = contact)
 
-            // Publish events to transactional outbox
-            with (partnerInsurer) {
-                if (hasPendingEvents()) {
-                    val events = partnerInsurer.getDomainEvents()
-                    logger.info(
-                        "Publishing {} domain events for partner insurer {}",
-                        events.size,
-                        partnerInsurer.id
-                    )
-                    domainEventPublisher.publish(events)
-                    partnerInsurer.clearDomainEvents()
-                    logger.debug("Domain events cleared for partner insurer {}", partnerInsurer.id)
-                }
-            }
-
-            return AddPartnerInsurerContactResponseDto(
-                contactId = contact.id.value,
-                partnerInsurerId = command.partnerInsurerId.value,
-                fullName = contact.fullName,
-                email = contact.email.value,
-                phone = contact.phone.value,
-                contactRole = contact.contactRole,
-                createdAt = contact.createdAt
-            )
-        } catch (e: Exception) {
+        if (!saved) {
             logger.error(
                 "Unexpected error while adding contact to partner insurer {}",
                 command.partnerInsurerId,
-                e
             )
-            throw IllegalStateException("Unable to add contact to partner insurer", e)
         }
+
+        logger.info("Contact added successfully for partner insurer {}", command.partnerInsurerId)
+
+        // Publish events to transactional outbox
+        with(partnerInsurer) {
+            if (hasPendingEvents()) {
+                val events = partnerInsurer.getDomainEvents()
+                logger.info(
+                    "Publishing {} domain events for partner insurer {}",
+                    events.size,
+                    partnerInsurer.id
+                )
+                domainEventPublisher.publish(events)
+                partnerInsurer.clearDomainEvents()
+                logger.debug("Domain events cleared for partner insurer {}", partnerInsurer.id)
+            }
+        }
+
+        return AddPartnerInsurerContactResponseDto(
+            contactId = contact.id.value.toString(),
+            partnerInsurerId = command.partnerInsurerId.value.toString(),
+            fullName = contact.fullName,
+            email = contact.email.value,
+            phone = contact.phone.value,
+            contactRole = contact.contactRole,
+            createdAt = contact.createdAt.toJavaInstant()
+                .atZone(ZoneId.of("Africa/Libreville"))
+                .toOffsetDateTime(),
+            )
     }
 }

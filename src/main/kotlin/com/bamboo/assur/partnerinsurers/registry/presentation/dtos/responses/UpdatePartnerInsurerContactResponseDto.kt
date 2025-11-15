@@ -1,13 +1,13 @@
 package com.bamboo.assur.partnerinsurers.registry.presentation.dtos.responses
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import java.time.Instant
 import java.time.OffsetDateTime
-import kotlin.time.ExperimentalTime
+import java.util.UUID
 
-@OptIn(ExperimentalTime::class)
-data class AddPartnerInsurerContactResponseDto(
-    val contactId: String,
-    val partnerInsurerId: String,
+data class UpdatePartnerInsurerContactResponseDto(
+    val contactId: UUID,
+    val partnerInsurerId: UUID,
     val fullName: String,
     val email: String,
     val phone: String,
@@ -19,4 +19,11 @@ data class AddPartnerInsurerContactResponseDto(
         timezone = "Africa/Libreville"
     )
     val createdAt: OffsetDateTime,
+
+    @field:JsonFormat(
+        shape = JsonFormat.Shape.STRING,
+        pattern = "yyyy-MM-dd'T'HH:mm:ssXX",
+        timezone = "Africa/Libreville"
+    )
+    val updatedAt: OffsetDateTime
 )
