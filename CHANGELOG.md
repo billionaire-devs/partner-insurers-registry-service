@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0-alpha-PIS-REG-122.2](https://github.com/billionaire-devs/partner-insurers-registry-service/compare/v1.0.0-alpha-PIS-REG-122.1...v1.0.0-alpha-PIS-REG-122.2) (2025-11-15)
+
+### 🐛 Bug Fixes
+
+* **ci:** correct semantic-release exec command quoting ([223817d](https://github.com/billionaire-devs/partner-insurers-registry-service/commit/223817d51ca4f144d0e64482c1c44c5e8678e895))
+* **ci:** correct semantic-release exec command quoting ([bd0262d](https://github.com/billionaire-devs/partner-insurers-registry-service/commit/bd0262df87b0e67b97b4ff445a71d4095863b433))
+
 ## 1.0.0-alpha-PIS-REG-122.1 (2025-11-15)
 
 ### ⚠ BREAKING CHANGES
