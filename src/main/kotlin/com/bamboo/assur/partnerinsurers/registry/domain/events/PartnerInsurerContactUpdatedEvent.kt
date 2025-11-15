@@ -4,23 +4,18 @@ import com.bamboo.assur.partnerinsurers.registry.domain.entities.PartnerInsurer
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.DomainEvent
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.utils.getAggregateTypeOrEmpty
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
-
 @Serializable
-data class PartnerInsurerContactAddedEvent(
+data class PartnerInsurerContactUpdatedEvent(
     @Contextual
     val aggregateIdValue: DomainEntityId,
-    val partnerCode: String,
-    val fullName: String,
-    val email: Email,
-    val phone: Phone,
-    val contactRole: String,
+    @Contextual
+    val contactId: DomainEntityId,
+    val updatedFields: Map<String, String?>,
 ) : DomainEvent(
     aggregateId = aggregateIdValue,
     aggregateType = getAggregateTypeOrEmpty<PartnerInsurer>(),
-    eventType = getEventTypeNameOrDefault<PartnerInsurerContactAddedEvent>()
+    eventType = "partner.contact.updated"
 )

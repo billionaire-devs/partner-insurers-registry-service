@@ -26,6 +26,40 @@ class Contact(
         require(contactRole.isNotBlank()) { "Contact role cannot be blank." }
     }
 
+    fun update(
+        fullName: String?,
+        email: Email?,
+        phone: Phone?,
+        contactRole: String?
+    ): Pair<Contact, Map<String, String?>> {
+        val updatedFields = mutableMapOf<String, String?>()
+
+        val newFullName = fullName?.takeIf { it != this.fullName }
+            ?.also { updatedFields["fullName"] = it }?: this.fullName
+        val newEmail = email?.takeIf { it != this.email }
+            ?.also { updatedFields["email"] = it.value } ?: this.email
+        val newPhone = phone?.takeIf { it != this.phone }
+            ?.also { updatedFields["phone"] = it.value } ?: this.phone
+        val newContactRole = contactRole?.takeIf { it != this.contactRole }
+            ?.also { updatedFields["contactRole"] = it } ?: this.contactRole
+
+        val updatedContact = if (updatedFields.isNotEmpty()) {
+            Contact(
+                id = this.id,
+                fullName = newFullName,
+                email = newEmail,
+                phone = newPhone,
+                contactRole = newContactRole,
+                createdAt = this.createdAt,
+                updatedAt = Clock.System.now()
+            )
+        } else {
+            this
+        }
+
+        return updatedContact to updatedFields
+    }
+
     companion object {
         fun create(
             fullName: String,
