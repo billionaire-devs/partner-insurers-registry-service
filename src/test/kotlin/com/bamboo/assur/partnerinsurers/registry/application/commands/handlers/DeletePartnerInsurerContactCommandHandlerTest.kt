@@ -16,6 +16,7 @@ import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainE
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import kotlinx.coroutines.test.runTest
+import org.hibernate.validator.internal.util.Contracts.assertTrue
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -28,9 +29,11 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.eq
 import java.util.*
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 @ExtendWith(MockitoExtension::class)
 class DeletePartnerInsurerContactCommandHandlerTest {
@@ -97,7 +100,11 @@ class DeletePartnerInsurerContactCommandHandlerTest {
             handler.invoke(command)
 
             // Then
-            verify(contactRepository).delete(contact, deletedAt = Clock.System.now(), UUID.randomUUID())
+            verify(contactRepository).delete(
+                eq(contact),
+                any<Instant>(),
+                any<UUID>()
+            )
 
             val eventCaptor = argumentCaptor<List<DomainEvent>>()
             verify(domainEventPublisher).publish(eventCaptor.capture())
