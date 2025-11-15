@@ -4,6 +4,25 @@ const sanitizeBranchSegment = (value, fallback = '') =>
         .replace(/-+/g, '-')
         .replace(/^-+|-+$/g, '') || fallback;
 
+const repositoryUrl = 'https://github.com/billionaire-devs/partner-insurers-registry-service.git';
+
+const successCmd = [
+    `echo "🎉 Release \\${nextRelease.version} published successfully!"`,
+    `echo "Repository: ${repositoryUrl}"`,
+    `echo "Version: \\${nextRelease.version}"`,
+    `echo "Channel: \\${nextRelease.channel || 'latest'}"`,
+    `printf 'Release Notes:\\n%s\\n' "\\${nextRelease.notes}"`,
+    `if echo "\\${nextRelease.version}" | grep -qE "^[0-9]+\\.0\\.0$"; then`,
+    `  echo "Major release detected, consider creating announcement issue"`,
+    `fi`,
+].join('\n');
+
+const failCmd = [
+    `echo "❌ Release failed!"`,
+    `echo "Version: \\${nextRelease.version}"`,
+    `echo "Error: Release process encountered an error"`,
+].join('\n');
+
 const sanitizedNameTemplate = (fallback, channel) => {
     const sanitizedChannel = sanitizeBranchSegment(channel);
     const sanitizedFallback = fallback ? sanitizeBranchSegment(fallback, fallback) : '';
@@ -53,7 +72,7 @@ const wildcardBranch = (prefix, channel, fallback) => ({
 });
 
 module.exports = {
-    repositoryUrl: 'https://github.com/billionaire-devs/partner-insurers-registry-service.git',
+    repositoryUrl,
 
     branches: [
         'main',
@@ -144,23 +163,8 @@ module.exports = {
             '@semantic-release/exec',
             {
                 prepareCmd: './gradlew clean build -x test',
-                successCmd: `
-                    echo "🎉 Release \${nextRelease.version} published successfully!"
-                    echo "Repository: ${module.exports.repositoryUrl}"
-                    echo "Version: \${nextRelease.version}"
-                    echo "Channel: \${nextRelease.channel || 'latest'}"
-                    echo "Release Notes:"
-                    echo "\${nextRelease.notes}"
-                    
-                    if echo "\${nextRelease.version}" | grep -qE "^[0-9]+\\.0\\.0"; then
-                        echo "Major release detected, consider creating announcement issue"
-                    fi
-                `,
-                failCmd: `
-                    echo "❌ Release failed!"
-                    echo "Version: \${nextRelease.version}"
-                    echo "Error: Release process encountered an error"
-                `,
+                successCmd,
+                failCmd,
             },
         ],
     ],
