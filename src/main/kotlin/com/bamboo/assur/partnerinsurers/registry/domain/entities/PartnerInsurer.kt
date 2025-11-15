@@ -5,6 +5,7 @@ package com.bamboo.assur.partnerinsurers.registry.domain.entities
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.AgreementStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.enums.PartnerInsurerStatus
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactAddedEvent
+import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerContactUpdatedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerCreatedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerDeletedEvent
 import com.bamboo.assur.partnerinsurers.registry.domain.events.PartnerInsurerStatusChangedEvent
@@ -14,6 +15,8 @@ import com.bamboo.assur.partnerinsurers.sharedkernel.domain.AggregateRoot
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.InvalidOperationException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Address
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Email
+import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Phone
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.Url
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
@@ -339,10 +342,44 @@ class PartnerInsurer private constructor(
         addDomainEvent(
             PartnerInsurerContactAddedEvent(
                 aggregateIdValue = id,
-                contact = contact,
                 partnerCode = partnerInsurerCode,
+                fullName = contact.fullName,
+                email = contact.email,
+                phone = contact.phone,
+                contactRole = contact.contactRole,
             )
         )
+    }
+
+    fun updateContact(
+        contactId: DomainEntityId,
+        fullName: String?,
+        email: Email?,
+        phone: Phone?,
+        contactRole: String?
+    ) {
+        if (isDeleted() || status == PartnerInsurerStatus.DEACTIVATED) {
+            throw InvalidOperationException("Cannot update contact on a deleted or deactivated partner insurer.")
+        }
+
+        val existingContact = contacts.find { it.id == contactId }
+            ?: throw InvalidOperationException("Contact with ID '$contactId' not found for this partner insurer.")
+
+        val (updatedContact, updatedFields) = existingContact.update(fullName, email, phone, contactRole)
+
+        if (updatedFields.isNotEmpty()) {
+            contacts.remove(existingContact)
+            contacts.add(updatedContact)
+            touch()
+
+            addDomainEvent(
+                PartnerInsurerContactUpdatedEvent(
+                    aggregateIdValue = this.id,
+                    contactId = contactId,
+                    updatedFields = updatedFields
+                )
+            )
+        }
     }
 
     /**

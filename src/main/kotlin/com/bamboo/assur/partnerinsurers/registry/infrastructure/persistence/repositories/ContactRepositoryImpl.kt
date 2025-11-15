@@ -2,9 +2,7 @@ package com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.rep
 
 import com.bamboo.assur.partnerinsurers.registry.domain.entities.Contact
 import com.bamboo.assur.partnerinsurers.registry.domain.repositories.ContactRepository
-import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerContactTable
 import com.bamboo.assur.partnerinsurers.registry.infrastructure.persistence.entities.PartnerInsurerContactTable.Companion.toEntityTable
-import com.bamboo.assur.partnerinsurers.sharedkernel.domain.FailedToSaveEntityException
 import com.bamboo.assur.partnerinsurers.sharedkernel.domain.valueObjects.DomainEntityId
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -13,7 +11,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
+import java.util.*
 import kotlin.time.ExperimentalTime
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -29,11 +27,9 @@ class ContactRepositoryImpl(
         logger.info("Saving contact {} for partner {}", contact.id, partnerInsurerId)
 
         val contactEntity = contact.toEntityTable(partnerInsurerId)
-        contactR2dbcRepository.save(contactEntity)
+        val saved = tableTemplate.insert(contactEntity)
 
-        logger.info("Contact saved successfully {}", contact.id)
-
-        return true
+        return saved.awaitSingleOrNull() == null
     }
 
     override suspend fun findById(id: DomainEntityId): Contact? {
@@ -50,14 +46,7 @@ class ContactRepositoryImpl(
             .map { it.toDomain() }
     }
 
-    override suspend fun update(contact: Contact): Boolean {
-        logger.info("Updating contact {}", contact.id)
-
-        // Note: partnerInsurerId is passed as parameter since it's not stored in the Contact entity
-        throw IllegalStateException("Use update(contact, partnerInsurerId) method instead")
-    }
-
-    suspend fun update(contact: Contact, partnerInsurerId: UUID): Boolean {
+    override suspend fun update(contact: Contact, partnerInsurerId: UUID): Boolean {
         logger.info("Updating contact {} for partner {}", contact.id, partnerInsurerId)
 
         val contactEntity = contact.toEntityTable(partnerInsurerId)

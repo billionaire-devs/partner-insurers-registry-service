@@ -10,6 +10,6 @@ interface ContactRepository {
     suspend fun save(partnerInsurerId: UUID, contact: Contact): Boolean
     suspend fun findById(id: DomainEntityId): Contact?
     suspend fun findByPartnerInsurerId(partnerInsurerId: DomainEntityId): List<Contact>
-    suspend fun update(contact: Contact): Boolean
+    suspend fun update(contact: Contact, partnerInsurerId: UUID): Boolean
     suspend fun delete(contact: Contact)
 }
